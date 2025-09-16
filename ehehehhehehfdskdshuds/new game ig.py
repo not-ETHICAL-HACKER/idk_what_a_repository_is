@@ -3,6 +3,7 @@ from random import randint
 from time import sleep
 n=1
 for i in range (2):
+    break
     r = randint(1000,9999)
     print("you are playing a gme abt how to find the password")
     print(r)
@@ -35,3 +36,13 @@ for i in range (2):
         print("the password has to be cracked in 5 attempts or else you fucking die")
         for i in range(5):
             print(f"this is your {n} time cracking the code")
+for i in range (100):
+    r=randint(1000,9999)
+    r=str(r)
+    r=list(r)
+    if r[0]==r[1]:#for finding same starting digits
+        print(r)
+    elif r[2]==r[3]:
+        print(r)# dont forget to remove break
+    else:
+        print()
