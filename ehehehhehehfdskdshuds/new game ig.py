@@ -3,7 +3,6 @@ from random import randint
 from time import sleep
 n=1
 for i in range (2):
-    break
     r = randint(1000,9999)
     print("you are playing a gme abt how to find the password")
     print(r)
