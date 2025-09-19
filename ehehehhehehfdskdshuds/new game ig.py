@@ -4,8 +4,7 @@ from time import sleep
 n=1
 for i in range (2):
     r = randint(1000,9999)
-    print("you are playing a gme abt how to find the password")y
-
+    print("you are playing a gme abt how to find the password")
     sleep(1)
     if r%2 != 0:
         print("the last number is a odd number.")
