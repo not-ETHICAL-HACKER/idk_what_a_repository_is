@@ -1,4 +1,5 @@
 import random
+import threading
 import time
 import sys
 def effect(text,delay=0.01):
