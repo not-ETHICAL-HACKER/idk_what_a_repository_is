@@ -1,20 +1,8 @@
-def fac(x:int):
-    if x==1:
-        return 1
+def sqr(year:int):
+    if (year)**0.5 in range(1000):
+        print(f"{year} is a perfect square year")
     else:
-        return x*fac(x-1)
-def gold_r(x:int|None = 1,n:int|None = 1):
-    nn=0
-    sign=1
-    l=[]
-    for i in range(1,n+1):
-        a=(x**nn)/fac(n)*sign
-        l.append(a)
-        sign*=-1
-        nn+=1
-        print(sum(l))
-    print(l)
-a=int(input("enter1:"))
-b=int(input("enter2:"))
-gold_r(a,b)
-
+        nxt_sqr=(int(((year)**0.5+1))**2)
+        print(f"{year} is not perfect square.\nNext perfect square year is {nxt_sqr}")
+while True:
+    sqr(int(input("enter a year:")))
