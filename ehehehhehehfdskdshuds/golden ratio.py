@@ -1,8 +1,14 @@
-def golden_ratio (limit:int|None=1):
+def golden_ratio (limit:int=1):
     a,b=1,1
+    l1=[]
+    l2=[]
     while limit>a:
-        print(a)
-        g_r=b/a
+        print("\r",a)
+        l1.append(a)
+        l2.append(b)
+        s1=sum(l1)
+        s2=sum(l2)
+        g_r=s2/s1
         a,b=b,b+a
     print(f"the golden ratio(approx)is:{g_r}")
     return g_r
