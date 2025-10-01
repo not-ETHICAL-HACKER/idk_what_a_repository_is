@@ -1,4 +1,4 @@
-from time import sleep
+from time import sleep, time
 def plane():
     a=0
     b=0
@@ -62,10 +62,8 @@ l=[
 import random
 import colorama
 import pyautogui
+import time
 print(pyautogui.size())
-a="dancing"
-print(a[-1:-4])
-print(a[-1:-4:-1])
 def bet_print(printf,jumbler=False,font=False,sussy_mode=False,seed: int=1):
         #seed id how the randomiser and all other stuff work ie a cheat code
         if seed is not None:
@@ -96,3 +94,9 @@ def bet_print(printf,jumbler=False,font=False,sussy_mode=False,seed: int=1):
                     else:
                         print(ch,end="")
                     print("ඞ",end="")
+from colorama import init, Fore, Style
+init(autoreset=True)
+print(Fore.RED + "This should be red!")
+print(Style.BRIGHT + "This should be bright!")
+print(Fore.GREEN + Style.DIM +"This should be dim green!")
+time.sleep(20)
