@@ -15,8 +15,7 @@ while True:
     time.sleep(t)
     print(d*40)
     time.sleep(t)
-while True:
-    def sum(nums,target):
+def sum(nums,target):
         l=[]
         for i in range(len(nums)):
             for j in range(i+1,len(nums)):
@@ -24,3 +23,6 @@ while True:
                     l.append(i,j)
                     print(l)
         return l
+for i in range(10):
+    time.sleep(0.5)
+    print("hello world\a")

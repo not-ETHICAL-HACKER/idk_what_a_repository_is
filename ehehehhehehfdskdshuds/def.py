@@ -60,7 +60,16 @@ l=[
     ]
 ]
 import random
-def bet_print(printf,jumbler=False,font=False,sussy_mode=False):
+import colorama
+import pyautogui
+print(pyautogui.size())
+a="dancing"
+print(a[-1:-4])
+print(a[-1:-4:-1])
+def bet_print(printf,jumbler=False,font=False,sussy_mode=False,seed: int=1):
+        #seed id how the randomiser and all other stuff work ie a cheat code
+        if seed is not None:
+            random.seed(seed)
         if jumbler==False and font==False and sussy_mode==False:
             print(printf)
         if jumbler==True and sussy_mode==True and font==True:
@@ -87,4 +96,3 @@ def bet_print(printf,jumbler=False,font=False,sussy_mode=False):
                     else:
                         print(ch,end="")
                     print("ඞ",end="")
-bet_print("My Name is JOHAN",jumbler=True,font=True,sussy_mode=True)
