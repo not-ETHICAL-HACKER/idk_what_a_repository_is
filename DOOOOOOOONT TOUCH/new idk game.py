@@ -53,6 +53,15 @@ class m_art():
 class player():
     def __init__(self):
         self.x=1
+        self.dmg=10
+        self.hp=100
+        self.mana=50
+        self.dex=5
+        self.luck=10
+        self.exp=0
+        self.lvl=1
+        self.inv=["wooden sword","healing potion"]
+        self.coins=0
     def stats(self):
         dmg=random.randint(1,20)
         hp=random.randint(50,100)
@@ -61,5 +70,34 @@ class player():
         luck=random.randint(1,100)
         print(f"DMG: {dmg}\nHP: {hp}\nMANA: {mana}\nDEX: {dex}\nLUCK: {luck}")
         return [dmg,hp,mana,dex,luck]
-pl=player()
-pl.stats()
+    def lvl_up(self,exp):
+        if exp>=10:
+            print("LEVEL UP!")
+            lvl=exp//10
+            print(f"YOU ARE NOW LEVEL {lvl}")
+            exp=exp-(lvl*10)
+            print(f"your stats are now:")
+            print(f"DMG: {self.dmg+(lvl*2)}\nHP: {self.hp+(lvl*5)}\nMANA: {int(self.mana+(lvl*(1.2+lvl//2)))}\nDEX: {int(self.dex+(lvl*(1.5+lvl//2)))}\nLUCK: {self.luck+(lvl)}")
+            return exp
+        else:
+            print(f"{10-exp} EXP TILL NEXT LEVEL")
+            return exp
+    def death(self):
+        if self.hp<=0:
+            print("YOU DIED")
+            sys.exit()
+        else:
+            print("You have beaten death. For now...")
+    def inv(self,add:str=None,remove:str=None):
+        if add is not None:
+            self.inv.append(add)
+            print(f"{add} added to inventory")
+        if remove is not None:
+            if remove in self.inv:
+                self.inv.remove(remove)
+                print(f"{remove} removed from inventory")
+            else:
+                print(f"{remove} not in inventory")
+        print(f"Inventory:")
+        for item in self.inv:
+            print(f"=> {item}")
