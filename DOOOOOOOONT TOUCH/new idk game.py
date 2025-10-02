@@ -101,3 +101,9 @@ class player():
         print(f"Inventory:")
         for item in self.inv:
             print(f"=> {item}")
+class misc:
+    def __init__(self):
+        self.x=1
+    def bit_check(self,bits:int=1):
+        print(f"This funtion will check the final digit is even or odd :\n{bits}->{bits&1}")
+misc().bit_check(1001)

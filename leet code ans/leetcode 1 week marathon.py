@@ -1,5 +1,6 @@
 #my solution to the leetcode problem 1518. Water Bottles
 #https://leetcode.com/problems/water-bottles/
+from time import sleep
 class Solution0:
     def __init__(self):
         self.numBottles=1
@@ -115,3 +116,48 @@ class Solution:
         # Converted to an array sorted in ascending order
         res = sorted(list(nums))
         return res
+#soltion for 1550 three consecutive odds
+class Solution(object):
+    def threeConsecutiveOdds(self, arr):
+        """
+        :type arr: List[int]
+        :rtype: bool
+        """
+        le_arr=len(arr)
+        w_arr=arr.remove("[")
+        w_arr=arr.remove("]")
+        l_arr=len(arr)*10
+        for i in range(l_arr):
+            if int(w_arr[i])%2==1 and int(w_arr[i+1]%2==1) and int(w_arr[i+2])%2==1:
+                print(arr[i],arr[i+1],arr[i+2])
+                return True
+            else:
+                return False
+#actual solution
+class Solution(object):
+    def threeConsecutiveOdds(self, arr):
+        if len(arr) < 3:
+            return False
+        for i in range(len(arr) - 2):
+            if arr[i] & 1 and arr[i+1] & 1 and arr[i+2] & 1:
+                return True
+        return False
+#my solution for 3024 Type of Triangle (i actually solved this one first try)
+class Solution(object):
+    def triangleType(self, num):
+        """
+        :type nums: List[int]
+        :rtype: str
+        """
+        tri=False
+        if num[0]+num[1]>num[2] and num[1]+num[2]>num[0] and num[0]+num[2]>num[1]:
+            tri = True
+        else:
+            return "none"
+        if tri:
+            if num[0]==num[1]==num[2]:
+                return "equilateral"
+            elif num[0]==num[1] or num[1]==num[2] or num[2]==num[0]:
+                return "isosceles"
+            elif num[0]!=num[1]!=num[2]:
+                return "scalene"
