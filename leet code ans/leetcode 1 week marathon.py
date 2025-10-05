@@ -1,7 +1,6 @@
 #my solution to the leetcode problem 1518. Water Bottles
 #https://leetcode.com/problems/water-bottles/
-from time import sleep
-class Solution0:
+class Solution:
     def __init__(self):
         self.numBottles=1
         self.numExchange=0
@@ -37,7 +36,6 @@ class Solution0:
         print("the number of water bottles you can drink is",l1)
         return l1
 #actual solution
-class Solution1:
     def numWaterBottles(self, numBottles, numExchange):
         consumed_bottles = 0
 
@@ -52,9 +50,6 @@ class Solution1:
         # Consume the remaining numBottles (less than numExchange).
         return consumed_bottles + numBottles
 #my solution for 2094 finding 3 digit even numbers from a array of digits
-class Solution2:
-    def __init__(self):
-        self.x=1
     def findEvenNumbers(self, digits):
         """
         :type digits: List[int]
@@ -99,7 +94,6 @@ class Solution2:
         if scn==2:
             return res
 #actual solution
-class Solution:
     def findEvenNumbers(self, digits:list):
         nums = set()  # Target even set
         n = len(digits)
@@ -117,7 +111,6 @@ class Solution:
         res = sorted(list(nums))
         return res
 #soltion for 1550 three consecutive odds
-class Solution(object):
     def threeConsecutiveOdds(self, arr):
         """
         :type arr: List[int]
@@ -143,7 +136,6 @@ class Solution(object):
                 return True
         return False
 #my solution for 3024 Type of Triangle (i actually solved this one first try)
-class Solution(object):
     def triangleType(self, num):
         """
         :type nums: List[int]
@@ -162,7 +154,6 @@ class Solution(object):
             elif num[0]!=num[1]!=num[2]:
                 return "scalene"
 #my solution for 1. Two Sum
-class Solution:
     def twoSum(self, nums, target):
         ans=[]
         for i in range(len(nums)):
@@ -173,3 +164,69 @@ class Solution:
                     ans.append(i)
                     ans.append(j)
                     return ans
+#my solution for 121 buy and seel stock
+    def maxProfit(self, pri):
+        maxprofit=ans=0
+        for i in range(len(pri)):
+            for j in range(len(pri)):
+                if i>j:
+                    ans=pri[i]-pri[j]
+                if ans>maxprofit:
+                    maxprofit=ans
+        return maxprofit
+#actual solution of 121 
+    def maxProfit(self, prices):
+        buy = prices[0]
+        profit = 0
+        for i in range(1,len(prices)):
+            if prices[i] < buy:
+                buy = prices[i]
+            elif prices[i] - buy > profit:
+                profit = prices[i] - buy
+        return profit
+#my solution(ai) to 118. Pascal's Triangle
+    def generate(self, num):
+        l=[[1]]
+        for i in range(1,num):
+            pre=l[-1]
+            row=[1]
+            for j in range(1,len(pre)):
+                row.append(pre[j-1]+pre[j])
+            row.append(1)
+            l.append(row)
+        return l
+#my solution for 9. Palindrome Number:
+    def isPalindrome(self, x):
+        if x<0:
+            return False
+        xx=int(str(x)[::-1])
+        if x==xx:
+            return True
+        else:
+            return False
+#my solution for 7. Reverse Integer
+    def reverse(self, x):
+        sign=1
+        if x<0:
+            x*=-1
+            sign=-1
+        x=int(str(x)[::-1])
+        if x>2**31+1:
+            return 0
+        return x*sign
+    def number(self,nums):
+        res=[]
+        for i in range(len(nums)):
+            if nums[i]%2==0:
+                res.append(nums[i])
+        for i in range(len(nums)):
+            if nums[i]%2==1:
+                res.append(nums[i])
+        return res
+    def mintotal(self,tri):
+        l=[]
+        for i in range(len(tri)):
+            l.append(min(tri[i]))
+        return sum(l)
+sol=Solution()
+sol.mintotal((input("ENter tri angle")))
