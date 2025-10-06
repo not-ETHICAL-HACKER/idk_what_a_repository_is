@@ -2,8 +2,7 @@ import time as t
 import random as r
 import pyautogui as p
 print(p.size())
-for i in range(500):
-    t.sleep(0.1)
-    ra=r.randint(0,500)
-    p.moveTo(500+(ra//10),ra)
-
+for a in range(10,768,50):
+    for b in range(10,1366,50):
+        p.moveTo(b,a)
+p.moveTo(420,69)
