@@ -2,6 +2,8 @@ import matplotlib.pyplot as plt
 import sys,time,math
 def golden_ratio (limit:int=1,cooldown:float=0.1,animate:bool=False,graph:bool=False):
     a,b=1,1
+    l1=[]
+    l2=[]
     g_r_list=[]
     while limit>a:
         def test(x=str):
@@ -13,7 +15,11 @@ def golden_ratio (limit:int=1,cooldown:float=0.1,animate:bool=False,graph:bool=F
         else:
             print(a)
             time.sleep(0.1)
-        g_r=b/a
+        l1.append(a)
+        l2.append(b)
+        s1=sum(l1)
+        s2=sum(l2)
+        g_r=s2/s1
         a,b=b,b+a
         g_r_list.append(g_r)
     print(f"\nthe golden ratio(approx)is:{g_r}")
