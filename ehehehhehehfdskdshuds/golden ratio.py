@@ -21,10 +21,10 @@ def golden_ratio (limit:int=1,cooldown:float=0.1,animate:bool=False,graph:bool=F
         return g_r
     else:        
         # Plot the approximations
-        plt.plot(g_r_list, label="Approximations")
+        plt.plot(g_r_list, label="Approximations",color="gold")
 
         # Plot a horizontal line at the true golden ratio
-        plt.axhline(y=golden_rati, color='r', linestyle='--', label="True φ")
+        plt.axhline(y=golden_rati, color='red', linestyle='--', label="True φ")
 
         plt.xlabel("Iteration")
         plt.ylabel("Approximation of φ")
