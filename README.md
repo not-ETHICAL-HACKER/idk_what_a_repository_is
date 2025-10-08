@@ -1,2 +1,3 @@
-# idk_what_a_repository_is
-test
+# This is my first repository
+
+this repository is mainly about me learnig python and other programing things
