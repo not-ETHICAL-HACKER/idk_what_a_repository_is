@@ -1,9 +1,9 @@
 import matplotlib.pyplot as plt
 import sys,time,math
-def golden_ratio (limit:int=1,cooldown:float=0.1,animate:bool=False,graph:bool=False):
+def golden_ratio (limit:int=10,cooldown:float=0.1,animate:bool=False,graph:bool=False):
     a,b=1,1
     g_r_list=[]
-    while limit>a:
+    for _ in range(limit):
         def test(x=str):
             sys.stdout.write("\r"+x)
             sys.stdout.flush()
@@ -34,4 +34,4 @@ def golden_ratio (limit:int=1,cooldown:float=0.1,animate:bool=False,graph:bool=F
         return g_r_list
 golden_rati = (1 + math.sqrt(5)) / 2
 a=int(input("enter a limit for the calculations:"))
-c=golden_ratio(a,cooldown=0.1,animate=True,graph=True)
+c=golden_ratio(a,cooldown=0.5,animate=True,graph=True)
