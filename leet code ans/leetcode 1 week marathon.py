@@ -228,5 +228,59 @@ class Solution(object):
         for i in range(len(tri)):
             l.append(min(tri[i]))
         return sum(l)
+    def Row_of_pascal_triangle(self, rowIndex):
+        num=rowIndex+1#normally num is given in the function but ts is just for one row so 
+        #we add 1 to rowIndex to get the num of rows
+        l=[[1]]
+        for i in range(1,num):
+            pre=l[-1]
+            row=[1]
+            for j in range(1,len(pre)):
+                row.append(pre[j-1]+pre[j])
+            row.append(1)
+            l.append(row)
+        return l[rowIndex]#return just l for full triangle:
+    def myAtoi(self, s):
+        """
+        :type s: str
+        :rtype: int
+        """
+        sign=1
+        l=[]
+        s.strip()
+        for i,ch in enumerate(s):
+            if not s[i-1].isalnum()  and ch=="-":
+                sign=-1 
+            if ch.isdigit():
+                l.append(ch)
+            elif ch.isalpha():
+                break
+        return int(''.join(l))*sign
+    def not_myAtoi(self, s):
+        """
+        :type s: str
+        :rtype: int
+        """
+        i = 0
+        n = len(s)
+        
+        while i < n and s[i] == ' ':
+            i += 1
+        
+        sign = 1
+        if i < n and (s[i] == '-' or s[i] == '+'):
+            sign = -1 if s[i] == '-' else 1
+            i += 1
+        
+        result = 0
+        while i < n and s[i].isdigit():
+            result = result * 10 + int(s[i])
+            if result * sign > 2**31 - 1:
+                return 2**31 - 1
+            if result * sign < -2**31:
+                return -2**31
+            i += 1
+        
+        return result * sign
 sol=Solution()
 sol.mintotal((input("ENter tri angle")))
