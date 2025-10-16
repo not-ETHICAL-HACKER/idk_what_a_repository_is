@@ -1,4 +1,4 @@
-import winsound as w,time,sys
+import winsound as w,time,sys,threading
 from random import randint
 while True:
     break
@@ -10,8 +10,6 @@ while True:
     time.sleep(r)
 import winsound as w
 l=list("abcdefghijklmnopqrstuvwxyz")
-import sys as s
-import time
 def animate(frames:list,fps:float=10000,Title:bool=False):
     a=0
     new=False
@@ -44,8 +42,6 @@ def conveyor_belt_animation(frames, fps=10, sound=False):
             w.Beep(600, 50)
         time.sleep(delay)
         text = text[1:] + text[0]  # rotate left
-import sys, time, math, os
-
 def wave_animate(frames, fps=2, amplitude=3, wavelength=6, speed=1):
     text = ''.join(frames)
     delay = 1 / fps
@@ -76,46 +72,78 @@ def wave_animate(frames, fps=2, amplitude=3, wavelength=6, speed=1):
         
         # horizontal scroll
         text = text[1:] + text[0]
-import winsound as w
-import sys as s
+def print_vs_write():
+    import sys
+    import time
+    import matplotlib.pyplot as plt
+
+    # Sizes of input
+    sizes = [10**3, 10**4, 10**5, 10**6,10**7,10**8,10**9]
+    print_times = []
+    stdout_times = []
+
+    for n in sizes:
+        # Measure print()
+        start = time.time()
+        for i in range(n):
+            pass  # comment out printing to avoid freezing terminal
+            # print(i, end='')
+        print_times.append(time.time() - start)
+        
+        # Measure sys.stdout.write()
+        start = time.time()
+        for i in range(n):
+            pass
+            # sys.stdout.write(str(i))
+        stdout_times.append(time.time() - start)
+    # Plot
+    plt.plot(sizes, print_times, marker='o', label='print()')
+    plt.plot(sizes, stdout_times, marker='o', label='sys.stdout.write()')
+    plt.xlabel("Number of Iterations")
+    plt.ylabel("Time (seconds)")
+    plt.title("Performance: print() vs sys.stdout.write()")
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+def anime(frames:list,fps:float=100):
+    fps=1/fps
+    while True:
+        for frame in frames:
+            sys.stdout.write(frame+"\r")
+            sys.stdout.flush()
+            time.sleep(fps)
+frames=list("abcdefghijklmnopqrstuvwxyz")
+t = threading.Thread(target=anime,args=(frames,10))
+t.daemon = True
+t.start()
+for i in range(20):
+    break
+    print(i)
+    time.sleep(0.5)
+    import sys
 import time
-from random import shuffle, randint
+import threading
 
-def animate_byai(frames: list, fps: float = 10, sound=True):
-    target = ''.join(frames)
-    shuffled = frames.copy()
-    shuffle(shuffled)  # letters start all scrambled
+def anime1(frames: list, fps: float = 10):
     delay = 1 / fps
+    while True:
+        for frame in frames:
+            # Move cursor to top-left
+            sys.stdout.write("\033[1;1H")  
+            sys.stdout.write(frame + "\n")  # animation line
+            sys.stdout.flush()
+            time.sleep(delay)
 
-    print("Target:", target)
-    print("\nStarting magnetic animation...\n")
-    time.sleep(0.1)
+frames = list("abcdefghijklmnopqrstuvwxyz")
+t = threading.Thread(target=anime1, args=(frames, 10))
+t.daemon = True
+t.start()
 
-    assembled = ["_"] * len(frames)  # empty placeholders
+# Give the terminal a line for the main program
+print("\n" * 2)
 
-    while assembled != list(target):
-        for i in range(len(frames)):
-            # if the right letter is nearby, "magnetically" snap it into place
-            if assembled[i] != target[i] and shuffled:
-                next_letter = shuffled.pop()
-                if next_letter == target[i]:
-                    assembled[i] = next_letter
-                    if sound:
-                        w.Beep(800, 50)
-                else:
-                    shuffled.insert(0, next_letter)
-
-        # print current state
-        s.stdout.write("\r" + ''.join(assembled))
-        s.stdout.flush()
-        time.sleep(delay)
-
-    print("\n\n✨ Magnetic join complete ✨")
-    w.Beep(1200, 200)
-
-# run it
-letters = list("magnetized")
-animate_byai(letters, fps=100)
-
-
-wave_animate(l)
+# Main program prints below the animation
+for i in range(20):
+    sys.stdout.write(f"Counting: {i}\n")
+    sys.stdout.flush()
+    time.sleep(0.5)

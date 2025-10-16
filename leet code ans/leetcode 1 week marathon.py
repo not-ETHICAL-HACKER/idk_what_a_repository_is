@@ -282,5 +282,62 @@ class Solution(object):
             i += 1
         
         return result * sign
-sol=Solution()
-sol.mintotal((input("ENter tri angle")))
+    def hasIncreasingSubarrays(self, nums, k):
+        #1281/1422 test cases passed
+        """
+        :type nums: List[int]
+        :type k: int
+        :rtype: bool
+        """
+        boo=False
+        l=[]
+        for i in range(len(nums)):
+            if i+k>len(nums):
+                continue
+            l=nums[i:(i+k)]
+            ll=sorted(set(l))
+            print(l,ll)
+            if l==ll:
+                return True
+        else:
+            if boo==False:
+                return False
+    def mostCommonWord(self, para, ban):
+        """
+        :type paragraph: str
+        :type banned: List[str]
+        :rtype: str
+        """
+        l=0
+        c=0
+        para=para.lower()
+        para=para.split(",")
+        para=" ".join(para)
+        para=para.split(".")
+        para=" ".join(para)
+        para=para.split("!")
+        para=" ".join(para)
+        para=para.split("?")
+        para=" ".join(para)
+        para=para.split("'")
+        para=" ".join(para)
+        para=para.split('"')
+        para=" ".join(para)
+        para=para.split(":")
+        para=" ".join(para)
+        para=para.split(';')
+        para=" ".join(para)
+        para=para.strip()
+        para=para.split()
+        for i in ban:
+            print(para.count(i))
+            for j in range(para.count(i)):
+                para.remove(i)
+                print(para)
+        for ind,k in enumerate(para):
+            print(ind,k.lower())
+            a=para.count(k.lower())
+            if a > c:
+                c=a
+                l=ind
+        return para[l]
