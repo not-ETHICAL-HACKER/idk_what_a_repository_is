@@ -128,9 +128,8 @@ def anime1(frames: list, fps: float = 10):
     delay = 1 / fps
     while True:
         for frame in frames:
-            # Move cursor to top-left
-            sys.stdout.write("\033[1;1H")  
-            sys.stdout.write(frame + "\n")  # animation line
+            # Move cursor to top-left  
+            sys.stdout.write(frame + "\r")  # animation line
             sys.stdout.flush()
             time.sleep(delay)
 
@@ -138,9 +137,6 @@ frames = list("abcdefghijklmnopqrstuvwxyz")
 t = threading.Thread(target=anime1, args=(frames, 10))
 t.daemon = True
 t.start()
-
-# Give the terminal a line for the main program
-print("\n" * 2)
 
 # Main program prints below the animation
 for i in range(20):
