@@ -1,4 +1,5 @@
-a=0
-while True:
-    print(a)
-    a+=1
+s="bananas"
+count={}
+for ch in s:
+    count[ch]=count.get(ch,0)+1
+print(count)
