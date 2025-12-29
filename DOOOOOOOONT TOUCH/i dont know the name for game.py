@@ -483,9 +483,12 @@ import os
 import numpy as np
 e = np.e
 
+os.system('cls' if os.name == 'nt' else 'clear')
 random.seed(1)
 row, col = get_terminal_size()
 
+def clear():
+    print("\033[2J\033[H", end="")
 
 class Player:
     def __init__(self, name: str) -> None:
@@ -577,7 +580,12 @@ class Player:
         self.inventory.append(item)
         return None
 
-
+    def death_screen(self) -> None:
+        print("\t\t\tEND SCREEN")
+        print("Thank you for playing the game!")
+        print(f"Your final stats are:\n{self.status()}")
+        time.sleep(5)
+        sys.exit()
 class Admin(Player):
     def __init__(self, name: str) -> None:
         super().__init__(name)
@@ -600,7 +608,9 @@ class Admin(Player):
 
 class Generate_World:
     def __init__(self, seed: int | str):
-        self.chunk = [[0]*16 for _ in range(16)]
+        global chunk_grid
+        chunk_grid = 11
+        self.chunk = [[" "]*chunk_grid for _ in range(chunk_grid)]
         if isinstance(seed, str):
             seed = sum(ord(c) for c in seed)
         random.seed(seed)
@@ -615,57 +625,105 @@ class Generate_World:
         #!path=[]
         dir = list("NSEWUD")
         t = time.time()
-        for i in range(size):
-            random.shuffle(dir)
-            a = [dir[0]]
-            #!path+=a
-            if a == ['N']:
-                y += 1
-            elif a == ['S']:
-                y -= 1
-            elif a == ['E']:
-                x += 1
-            elif a == ['W']:
-                x -= 1
-            elif a == ['U']:
-                z += 1
-            elif a == ['D']:
-                z -= 1
-        sun = (x**2+y**2+z**2)**0.5
-        print(f"(x : {x}, y : {y}, z : {z})\n")
-        #!print(path[:100])
-        print(f"Distance from origin: {sun}")
-        return x, y, z
+        while True:
+            for i in range(size):
+                random.shuffle(dir)
+                a = [dir[0]]
+                #!path+=a
+                if a == ['N']:
+                    y += 1
+                elif a == ['S']:
+                    y -= 1
+                elif a == ['E']:
+                    x += 1
+                elif a == ['W']:
+                    x -= 1
+                elif a == ['U']:
+                    z += 1
+                elif a == ['D']:
+                    z -= 1
+            sun = (x**2+y**2+z**2)**0.5
+            if x+chunk_grid//2 < 0 or y+chunk_grid//2 < 0:
+                continue
+            print(f"(x : {x}, y : {y}, z : {z})\n")
+            #!print(path[:100])
+            print(f"Distance from origin: {sun}")
+            return x, y, z
 
-    def chunk_gen(self) -> list[list[int]]:
-        self.chunk: list[list[int]] = [
-            [0 for _ in range(16)] for _ in range(16)]
-        return self.chunk
-    
-    def display_chunk(self) -> None:
-        for row in self.chunk:
-            print(" ".join(str(cell) for cell in row))
+    def display_chunk(self, coords: tuple[int, int,int]) -> None:
+        size = len(self.chunk)
+        cx, cy, _ = coords
+
+        for i, row in enumerate(self.chunk):
+            line = []
+            for j, cell in enumerate(row):
+                if (i , j ) == (cx + size//2, cy + size//2):
+                    line.append("⨋") # Player position
+                                     #more symbols for customisable plyer representation like [⨋, ⨌, ⨍, ⨎]
+                else:
+                    line.append(str(cell))
+            print(" ".join(line))
         return None
 
-    def gen_terrain(self, biome :str , difficulty: str) -> None:
+    def gen_terrain(self, biome: str, difficulty: str) -> None:
         self.biome = biome
         self.difficulty = difficulty
-        for i in range(16):
-            for j in range(16):
+        for i in range(chunk_grid):
+            for j in range(chunk_grid):
                 if self.biome == "Forest":
                     self.chunk[i][j] = random.choices(
-                        [0, 1, 2], weights=[70, 20, 10])[0]  # 0: grass, 1: tree, 2: water
+                        # 0 : grass, 1: tree, 2: water
+                        ["0", "1", "2"], weights=[70, 20, 10])[0]
                 elif self.biome == "Desert":
                     self.chunk[i][j] = random.choices(
-                        [0, 3, 4], weights=[80, 15, 5])[0]  # 0: sand, 3: cactus, 4: rock
+                        # 3: sand, 4: cactus, 5: water
+                        ["3", "4", "5"], weights=[80, 15, 5])[0]
+                elif self.biome == "Mountain":
+                    self.chunk[i][j] = random.choices(
+                        # 6: rock, 7: snow, 8: cliff
+                        ["6", "7", "8"], weights=[60, 30, 10])[0]
+                elif self.biome == "River":
+                    self.chunk[i][j] = random.choices(
+                        # 9: water, 10: grass, 11: mud
+                        ["9", "10", "11"], weights=[50, 40, 10])[0]
+                elif self.biome == "Cave":
+                    self.chunk[i][j] = random.choices(
+                        # 12: rock, 13: stalactite, 14: stalagmite
+                        ["12", "13", "14"], weights=[70, 15, 15])[0]
+                elif self.biome == "Village":
+                    self.chunk[i][j] = random.choices(
+                        # 15: house, 16: road, 17: farm
+                        ["15", "16", "17"], weights=[50, 30, 20])[0]
+                    
                 #! add more biomes
                 #! adjust weights based on difficulty
         #! implement terrain generation based on biome and difficulty
         return None
-
-
-def clear():
-    print("\033[2J\033[H", end="")
+    def gen_structures(self) -> None:
+        #! implement structure generation
+        return None
+    
+    def gen_resources(self) -> None:
+        #! implement resource generation
+        return None
+    def gen_mobs(self,diff:str) -> None:
+        #! implement mob generation
+        for i in range(chunk_grid):
+            for j in range(chunk_grid):
+                if diff == "Easy":
+                    mob_chance = ["N", "W", "S"]  # N: no mob, W: weak mob, S: strong mob
+                    weights = [80, 15, 5]
+                elif diff == "Normal":
+                    mob_chance = ["N", "W", "S"]
+                    weights = [60, 25, 15]
+                elif diff == "Hard":
+                    mob_chance = ["N", "W", "S"]
+                    weights = [40, 30, 30]
+                else:
+                    #this is a fallback in case of invalid difficulty
+                    mob_chance = ["N", "W", "S"]
+                    weights = [70, 20, 10]
+                self.chunk[i][j] = random.choices(mob_chance, weights=weights)[0]
 
 
 os.system('cls' if os.name == 'nt' else 'clear')
@@ -682,4 +740,28 @@ while True:
         break
 
 p_1 = Player(Player_id)
-print(p_1.status())
+
+while True:
+    Difficulty: str = input(
+        "Select Difficulty (Easy/Normal/Hard): ").capitalize()
+    if Difficulty not in ["Easy", "Normal", "Hard"]:
+        print("Invalid input. Please enter Easy, Normal, or Hard.")
+        time.sleep(2)
+        clear()
+    else:
+        break
+p_1.diff_equalizer(Difficulty)
+
+Seed_input: str = input("Enter a seed (numbers or words): ")
+if Seed_input == "":
+    wrld = Generate_World(random.randint(1, 10**6))
+else:
+    wrld = Generate_World(
+        int(Seed_input) if Seed_input.isdigit() else Seed_input)
+
+local_biome = wrld.generate_location()
+print(f"You have spawned in a {local_biome} biome.")
+
+x, y, z = wrld.spawn_chunk(chunk_grid**2)
+wrld.gen_terrain(local_biome, Difficulty)
+wrld.display_chunk((x, y, z))
