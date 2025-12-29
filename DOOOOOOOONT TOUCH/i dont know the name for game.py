@@ -476,6 +476,7 @@ import random
 from shutil import get_terminal_size
 import time
 import sys
+from collections import deque
 from typing import Any
 import re
 import os
@@ -489,41 +490,178 @@ row, col = get_terminal_size()
 class Player:
     def __init__(self, name: str) -> None:
         self.name: str = name
-        self.level: int | float = 1
-        self.exp:   int | float = 0
-        self.hp:    int | float = 100
-        self.mp:    int | float = 50
-        self.dmg:   int | float = 10
-        self.dex:   int | float = 10
-        self.luck:  int | float = 5
-        self.inventory: list[Any] = []
+        self.level: float = 1
+        self.exp:   float = 0
+        self.hp:    float = 100
+        self.mp:    float = 50
+        self.dmg:   float = 10
+        self.dex:   float = 10
+        self.luck:  float = 5
+        self.inventory: deque[Any] = deque()
+        self.exp_multiplier: float = 1.0
+        self.exp_gain_rate: str = "Linear"  # n
+        self.max_len: int = 0
 
     def diff_equalizer(self, Difficulty: str) -> None:
         self.difficulty: str = Difficulty
-        if self.difficulty == "Hard":
-            self.hp   *= 1.5
-            self.mp   *= 1.5
-            self.dmg  *= 1.5
-            self.dex  *= 1.5
-            self.luck *= 1/e
-            #! try to make the difficulty setting more impactful
-            if hasattr(self, "_difficulty_applied"):
-                return
-            self._difficulty_applied = True
+        if hasattr(self, "_difficulty_applied"):
+            return
+        self._difficulty_applied = True
 
+        if self.difficulty == "Hard":
+            self.max_len = 50
+            self.hp /= 2
+            self.mp /= 2
+            self.dmg /= 2
+            self.dex /= 2
+            self.luck /= e
+            self.inventory.append("Hard Mode Token")
+            self.inventory = deque(self.inventory, maxlen=self.max_len)
+            self.exp_multiplier *= 2.0
+            self.exp_gain_rate = "Exponential"  # x^n
+            #! try to make the difficulty setting more impactful
+        elif self.difficulty == "Easy":
+            self.max_len = 200
+            self.inventory.append("Easy Mode Token")
+            self.inventory = deque(self.inventory, maxlen=self.max_len)
+        elif self.difficulty == "Normal":
+            self.max_len = 100
+            self.hp /= 1.5
+            self.mp /= 1.5
+            self.dmg /= 1.5
+            self.dex /= 1.5
+            self.luck /= e/2
+            self.inventory.append("Normal Mode Token")
+            self.inventory = deque(self.inventory, maxlen=self.max_len)
+            self.exp_multiplier *= 1.5
+            self.exp_gain_rate = "Super Linear"  # n*log(n)
 
     def lvl_up(self) -> int:
         lvl_counter: int = 0
         lvl = self.level
-        while self.exp >= lvl * 5:
+        while self.exp >= self.level * 5:
             self.level += 1
-            self.exp -= self.level * 5
+            cost = self.level * 5
+            self.exp -= cost
             self.hp += 10
             self.mp += 10
             self.dmg += 10
             self.dex += 10
             lvl_counter += 1
         return lvl_counter
+
+    def status(self) -> str:
+        status_info: str = (
+            f"Name: {self.name}\n"
+            f"Level: {self.level}\n"
+            f"EXP: {self.exp}\n"
+            f"HP: {self.hp}\n"
+            f"MP: {self.mp}\n"
+            f"DMG: {self.dmg}\n"
+            f"DEX: {self.dex}\n"
+            f"LUCK: {self.luck}\n"
+            f"Inventory: {', '.join(map(str, self.inventory)) if self.inventory else 'Empty'}"
+        )
+        return status_info
+
+    def gain_exp(self, amount: float) -> None:
+        if self.exp_gain_rate == "Linear":
+            self.exp += amount * self.exp_multiplier
+        elif self.exp_gain_rate == "Super Linear":
+            self.exp += amount * self.exp_multiplier * (1 + np.log(amount + 1))
+        elif self.exp_gain_rate == "Exponential":
+            self.exp += amount * self.exp_multiplier * (e ** (amount / 10))
+        return None
+
+    def add_to_inventory(self, item: Any) -> None:
+        self.inventory.append(item)
+        return None
+
+
+class Admin(Player):
+    def __init__(self, name: str) -> None:
+        super().__init__(name)
+        self.level = 2**32
+        self.hp *= 2**10
+        self.mp *= 2**10
+        self.dmg *= 2**10
+        self.dex *= 2**10
+        self.luck /= (2**10)
+        self.inventory.append("Admin Powers Token")
+        self.inventory = deque(self.inventory, maxlen=10**6)
+
+    def end_game(self) -> None:
+        print("You have chosen to end the game.")
+        time.sleep(2)
+        print("Thank you for playing!")
+        time.sleep(2)
+        sys.exit()
+
+
+class Generate_World:
+    def __init__(self, seed: int | str):
+        self.chunk = [[0]*16 for _ in range(16)]
+        if isinstance(seed, str):
+            seed = sum(ord(c) for c in seed)
+        random.seed(seed)
+
+    def generate_location(self) -> str:
+        locations = ["Forest", "Desert",
+                     "Mountain", "River", "Cave", "Village"]
+        return random.choice(locations)
+
+    def spawn_chunk(self, size: int) -> tuple[int, int, int]:
+        x = y = z = 0
+        #!path=[]
+        dir = list("NSEWUD")
+        t = time.time()
+        for i in range(size):
+            random.shuffle(dir)
+            a = [dir[0]]
+            #!path+=a
+            if a == ['N']:
+                y += 1
+            elif a == ['S']:
+                y -= 1
+            elif a == ['E']:
+                x += 1
+            elif a == ['W']:
+                x -= 1
+            elif a == ['U']:
+                z += 1
+            elif a == ['D']:
+                z -= 1
+        sun = (x**2+y**2+z**2)**0.5
+        print(f"(x : {x}, y : {y}, z : {z})\n")
+        #!print(path[:100])
+        print(f"Distance from origin: {sun}")
+        return x, y, z
+
+    def chunk_gen(self) -> list[list[int]]:
+        self.chunk: list[list[int]] = [
+            [0 for _ in range(16)] for _ in range(16)]
+        return self.chunk
+    
+    def display_chunk(self) -> None:
+        for row in self.chunk:
+            print(" ".join(str(cell) for cell in row))
+        return None
+
+    def gen_terrain(self, biome :str , difficulty: str) -> None:
+        self.biome = biome
+        self.difficulty = difficulty
+        for i in range(16):
+            for j in range(16):
+                if self.biome == "Forest":
+                    self.chunk[i][j] = random.choices(
+                        [0, 1, 2], weights=[70, 20, 10])[0]  # 0: grass, 1: tree, 2: water
+                elif self.biome == "Desert":
+                    self.chunk[i][j] = random.choices(
+                        [0, 3, 4], weights=[80, 15, 5])[0]  # 0: sand, 3: cactus, 4: rock
+                #! add more biomes
+                #! adjust weights based on difficulty
+        #! implement terrain generation based on biome and difficulty
+        return None
 
 
 def clear():
@@ -544,3 +682,4 @@ while True:
         break
 
 p_1 = Player(Player_id)
+print(p_1.status())
