@@ -481,11 +481,21 @@ from typing import Any
 import re
 import os
 import numpy as np
+from datetime import datetime
+
 e = np.e
 
 os.system('cls' if os.name == 'nt' else 'clear')
 random.seed(1)
 row, col = get_terminal_size()
+
+def log(*args):
+    msg = " ".join(map(str, args))
+    stamp = datetime.now().strftime("%H:%M:%S")
+    line = f"[{stamp}] {msg}"
+    print(line)
+    with open("game.log", "a", encoding="utf-8") as f:
+        f.write(line + "\n")
 
 def clear():
     print("\033[2J\033[H", end="")
