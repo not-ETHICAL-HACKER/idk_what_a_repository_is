@@ -478,18 +478,20 @@ import time
 import sys
 from collections import deque
 from typing import Any
+from colorama import init, Fore, Back, Style
 import re
+import threading
 import os
 import numpy as np
 from datetime import datetime
 
-e = np.e
-
+init(autoreset=True)
 os.system('cls' if os.name == 'nt' else 'clear')
 random.seed(1)
 row, col = get_terminal_size()
 
-def log(*args):
+
+def log(*args: str):
     msg = " ".join(map(str, args))
     stamp = datetime.now().strftime("%H:%M:%S")
     line = f"[{stamp}] {msg}"
@@ -497,8 +499,10 @@ def log(*args):
     with open("game.log", "a", encoding="utf-8") as f:
         f.write(line + "\n")
 
-def clear():
+
+def clear() -> None:
     print("\033[2J\033[H", end="")
+
 
 class Player:
     def __init__(self, name: str) -> None:
@@ -527,7 +531,7 @@ class Player:
             self.mp /= 2
             self.dmg /= 2
             self.dex /= 2
-            self.luck /= e
+            self.luck /= np.e
             self.inventory.append("Hard Mode Token")
             self.inventory = deque(self.inventory, maxlen=self.max_len)
             self.exp_multiplier *= 2.0
@@ -543,7 +547,7 @@ class Player:
             self.mp /= 1.5
             self.dmg /= 1.5
             self.dex /= 1.5
-            self.luck /= e/2
+            self.luck /= np.e/2
             self.inventory.append("Normal Mode Token")
             self.inventory = deque(self.inventory, maxlen=self.max_len)
             self.exp_multiplier *= 1.5
@@ -551,7 +555,6 @@ class Player:
 
     def lvl_up(self) -> int:
         lvl_counter: int = 0
-        lvl = self.level
         while self.exp >= self.level * 5:
             self.level += 1
             cost = self.level * 5
@@ -583,7 +586,7 @@ class Player:
         elif self.exp_gain_rate == "Super Linear":
             self.exp += amount * self.exp_multiplier * (1 + np.log(amount + 1))
         elif self.exp_gain_rate == "Exponential":
-            self.exp += amount * self.exp_multiplier * (e ** (amount / 10))
+            self.exp += amount * self.exp_multiplier * (np.e ** (amount / 10))
         return None
 
     def add_to_inventory(self, item: Any) -> None:
@@ -596,6 +599,8 @@ class Player:
         print(f"Your final stats are:\n{self.status()}")
         time.sleep(5)
         sys.exit()
+
+
 class Admin(Player):
     def __init__(self, name: str) -> None:
         super().__init__(name)
@@ -634,9 +639,8 @@ class Generate_World:
         x = y = z = 0
         #!path=[]
         dir = list("NSEWUD")
-        t = time.time()
         while True:
-            for i in range(size):
+            for _ in range(size):
                 random.shuffle(dir)
                 a = [dir[0]]
                 #!path+=a
@@ -660,18 +664,18 @@ class Generate_World:
             print(f"Distance from origin: {sun}")
             return x, y, z
 
-    def display_chunk(self, coords: tuple[int, int,int]) -> None:
+    def display_chunk(self, coords: tuple[int, int, int]) -> None:
         size = len(self.chunk)
         cx, cy, _ = coords
 
         for i, row in enumerate(self.chunk):
-            line = []
+            line: list[str] = []
             for j, cell in enumerate(row):
-                if (i , j ) == (cx + size//2, cy + size//2):
-                    line.append("⨋") # Player position
-                                     #more symbols for customisable plyer representation like [⨋, ⨌, ⨍, ⨎]
+                if (i, j) == (cx + size//2, cy + size//2):
+                    line.append(Fore.GREEN+Style.BRIGHT+"|")  # Player position
+                    # more symbols for customisable plyer representation like [⨋, ⨌, ⨍, ⨎]
                 else:
-                    line.append(str(cell))
+                    line.append(Fore.WHITE+Style.BRIGHT+Back.BLACK+str(cell))
             print(" ".join(line))
         return None
 
@@ -704,24 +708,27 @@ class Generate_World:
                     self.chunk[i][j] = random.choices(
                         # 15: house, 16: road, 17: farm
                         ["15", "16", "17"], weights=[50, 30, 20])[0]
-                    
+
                 #! add more biomes
                 #! adjust weights based on difficulty
         #! implement terrain generation based on biome and difficulty
         return None
+
     def gen_structures(self) -> None:
         #! implement structure generation
         return None
-    
+
     def gen_resources(self) -> None:
         #! implement resource generation
         return None
-    def gen_mobs(self,diff:str) -> None:
+
+    def gen_mobs(self, diff: str) -> None:
         #! implement mob generation
         for i in range(chunk_grid):
             for j in range(chunk_grid):
                 if diff == "Easy":
-                    mob_chance = ["N", "W", "S"]  # N: no mob, W: weak mob, S: strong mob
+                    # N: no mob, W: weak mob, S: strong mob
+                    mob_chance = ["N", "W", "S"]
                     weights = [80, 15, 5]
                 elif diff == "Normal":
                     mob_chance = ["N", "W", "S"]
@@ -730,10 +737,11 @@ class Generate_World:
                     mob_chance = ["N", "W", "S"]
                     weights = [40, 30, 30]
                 else:
-                    #this is a fallback in case of invalid difficulty
+                    # this is a fallback in case of invalid difficulty
                     mob_chance = ["N", "W", "S"]
                     weights = [70, 20, 10]
-                self.chunk[i][j] = random.choices(mob_chance, weights=weights)[0]
+                self.chunk[i][j] = random.choices(
+                    mob_chance, weights=weights)[0]
 
 
 os.system('cls' if os.name == 'nt' else 'clear')
@@ -775,3 +783,4 @@ print(f"You have spawned in a {local_biome} biome.")
 x, y, z = wrld.spawn_chunk(chunk_grid**2)
 wrld.gen_terrain(local_biome, Difficulty)
 wrld.display_chunk((x, y, z))
+time.sleep(15)
