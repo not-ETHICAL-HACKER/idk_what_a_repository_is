@@ -486,7 +486,6 @@ import numpy as np
 from datetime import datetime
 
 init(autoreset=True)
-os.system('cls' if os.name == 'nt' else 'clear')
 random.seed(1)
 row, col = get_terminal_size()
 
@@ -507,6 +506,8 @@ def clear() -> None:
 class Player:
     def __init__(self, name: str) -> None:
         self.name: str = name
+        self.is_alive: bool = True
+        self.status:str = "Alive"
         self.level: float = 1
         self.exp:   float = 0
         self.hp:    float = 100
@@ -566,7 +567,7 @@ class Player:
             lvl_counter += 1
         return lvl_counter
 
-    def status(self) -> str:
+    def status_screen(self) -> str:
         status_info: str = (
             f"Name: {self.name}\n"
             f"Level: {self.level}\n"
@@ -596,7 +597,7 @@ class Player:
     def death_screen(self) -> None:
         print("\t\t\tEND SCREEN")
         print("Thank you for playing the game!")
-        print(f"Your final stats are:\n{self.status()}")
+        print(f"Your final stats are:\n{self.status_screen()}")
         time.sleep(5)
         sys.exit()
 
@@ -667,15 +668,38 @@ class Generate_World:
     def display_chunk(self, coords: tuple[int, int, int]) -> None:
         size = len(self.chunk)
         cx, cy, _ = coords
-
+        self.player_icons:list[str] = ["|","⨋", "⨌", "⨍", "⨎"]
+        self.player_icon:str = self.player_icons[0]
+        self.terrain:dict[str,str] = {
+            "0": Style.BRIGHT+Fore.GREEN + "░", # Grass
+            "1": Style.BRIGHT+Fore.GREEN + "▲", # Tree
+            "2": Style.BRIGHT+Fore.BLUE + "≈",  # Water
+            "3": Style.BRIGHT+Fore.YELLOW + "#",# Sand
+            "4": Style.BRIGHT+Fore.GREEN + "", # Cactus
+            "5": Style.BRIGHT+Fore.BLUE + "≈",  # Water
+            "6": Style.BRIGHT+Fore.LIGHTGREEN_EX + "*", # Rock
+            "7": Style.BRIGHT+Fore.BLUE + "❄", #Snow
+            "8": Style.BRIGHT+Fore.LIGHTBLACK_EX + "⏵", #Cliff
+            "9": Style.BRIGHT+Fore.BLUE + "≈",  # Water
+            "10":Style.BRIGHT+Fore.GREEN + "░", # Grass
+            "11":Style.BRIGHT+Fore.GREEN + "▞", #Mud
+            "12":Style.BRIGHT+Fore.LIGHTGREEN_EX + "*", # Rock
+            "13":Style.BRIGHT+Fore.LIGHTMAGENTA_EX + "▼", #Stalagmite
+            "14":"$",
+            "15":Style.BRIGHT+ Fore.RED + "⌂", # House
+            "W": Style.BRIGHT+Fore.MAGENTA + "ᵟ", # Weak Mob
+            "S": Style.BRIGHT+Fore.RED + "Ω",     # Strong Mob
+        }
+        
+        
         for i, row in enumerate(self.chunk):
             line: list[str] = []
             for j, cell in enumerate(row):
-                if (i, j) == (cx + size//2, cy + size//2):
-                    line.append(Fore.GREEN+Style.BRIGHT+"|")  # Player position
-                    # more symbols for customisable plyer representation like [⨋, ⨌, ⨍, ⨎]
+                if (i, j) == ((cx+size//2)%chunk_grid, (cy+size//2)%chunk_grid):
+                    icon_text = f"{self.player_icon:^1s}" 
+                    line.append(Fore.RED + Style.BRIGHT + icon_text + Style.RESET_ALL)  # Player position
                 else:
-                    line.append(Fore.WHITE+Style.BRIGHT+Back.BLACK+str(cell))
+                    line.append(Fore.WHITE+Style.BRIGHT+Back.BLACK+self.terrain[str(cell)].center(2))
             print(" ".join(line))
         return None
 
@@ -704,7 +728,7 @@ class Generate_World:
                     self.chunk[i][j] = random.choices(
                         # 12: rock, 13: stalactite, 14: stalagmite
                         ["12", "13", "14"], weights=[70, 15, 15])[0]
-                elif self.biome == "Village":
+                elif self.biome ==  "Village":
                     self.chunk[i][j] = random.choices(
                         # 15: house, 16: road, 17: farm
                         ["15", "16", "17"], weights=[50, 30, 20])[0]
@@ -728,17 +752,17 @@ class Generate_World:
             for j in range(chunk_grid):
                 if diff == "Easy":
                     # N: no mob, W: weak mob, S: strong mob
-                    mob_chance = ["N", "W", "S"]
+                    mob_chance = ["0", "W", "S"]
                     weights = [80, 15, 5]
                 elif diff == "Normal":
-                    mob_chance = ["N", "W", "S"]
+                    mob_chance = ["0", "W", "S"]
                     weights = [60, 25, 15]
                 elif diff == "Hard":
-                    mob_chance = ["N", "W", "S"]
+                    mob_chance = ["0", "W", "S"]
                     weights = [40, 30, 30]
                 else:
                     # this is a fallback in case of invalid difficulty
-                    mob_chance = ["N", "W", "S"]
+                    mob_chance = ["0", "W", "S"]
                     weights = [70, 20, 10]
                 self.chunk[i][j] = random.choices(
                     mob_chance, weights=weights)[0]
@@ -782,5 +806,23 @@ print(f"You have spawned in a {local_biome} biome.")
 
 x, y, z = wrld.spawn_chunk(chunk_grid**2)
 wrld.gen_terrain(local_biome, Difficulty)
+wrld.gen_mobs(Difficulty)
 wrld.display_chunk((x, y, z))
-time.sleep(15)
+for i in range(10):
+    clear()
+    wrld.display_chunk((x, y, z))
+    print("Directions:\n==>>North,South,East,West")
+    a = input("Enter which direction to move: ")
+    if not a:
+        continue
+    if a[0].lower() == "e":
+        y-=1
+    elif a[0].lower() == "w":
+        y+=1
+    elif a[0].lower() == "n":
+        x-=1
+    elif a[0].lower() == "s":
+        x+=1
+    else:
+        print("Invalid")
+        continue
