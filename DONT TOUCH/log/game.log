@@ -1,0 +1,10 @@
+[20:35:03] [Log 1] Player 'johan' spawned at coordinates (x: 14, y: 1, z: -8) in a Cave biome on Easy difficulty with seed 'e'.
+[20:35:49] [Log 2] Player 'johan' moved E, E, E, N, E, N, N, N, E, S to coordinates (x: 11, y: -4, z: -8).
+[20:54:59] [Log 3] Player 'johan' spawned at coordinates (x: 14, y: 1, z: -8) in a Cave biome on Easy difficulty with seed 'e'.
+[20:55:02] [Log 4] Player 'johan' moved N, N, N, N, N, N, N, N to coordinates (x: 6, y: 1, z: -8).
+[20:55:02] [Log 5] [['0', '0', '0', '0', '0', 'S', 'S', 'W', '0', '0', '0'], ['W', '0', 'W', '0', '0', '0', 'W', '0', '0', '0', '0'], ['0', 'W', '0', '0', 'W', '0', '0', '0', '0', '0', '0'], ['0', '0', '0', '0', '0', '0', '0', 'S', '0', '0', '0'], ['0', '0', 'S', '0', '0', '0', '0', 'W', '0', '0', 'S'], ['0', 'S', '0', '0', 'S', 'W', '0', 'W', '0', '0', '0'], ['W', '0', 'S', '0', '0', '0', '0', 'W', '0', '0', '0'], ['0', '0', 'W', 'W', '0', '0', '0', 'S', '0', '0', '0'], ['0', '0', '0', '0', 'W', '0', 'S', '0', 'W', '0', '0'], ['0', 'S', '0', '0', '0', '0', '0', '0', '0', '0', '0'], ['0', '0', '0', '0', '0', '0', '0', 'W', '0', '0', '0']]
+[20:57:57] [Log 6] Player 'teat' spawned at coordinates (x: -5, y: 59, z: 41) in a Mountain biome on Easy difficulty with seed 'w'.
+[20:58:47] [Log 7] Player 'test' spawned at coordinates (x: -4, y: 12, z: 12) in a Desert biome on Easy difficulty with seed '3'.
+[20:58:51] [Log 8] Player 'test' moved N, N, N, N, N, N, N, N, N, N to coordinates (x: -14, y: 12, z: 12).[08/01/2026,21:02:09] [Log Instance 10] Player 'johan' spawned at coordinates (x: -4, y: 12, z: 12) in a Desert biome on Easy difficulty with seed '3'.
+[08/01/2026,21:02:17] [Log Instance 11] Player 'johan' moved N, N, N, N, N, N, N, N, N, N to coordinates (x: -14, y: 12, z: 12).
+[08/01/2026,21:02:17] [Log Instance 12] None
