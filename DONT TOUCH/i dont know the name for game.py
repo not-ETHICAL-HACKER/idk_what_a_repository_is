@@ -490,6 +490,14 @@ random.seed(1)
 row, col = get_terminal_size()
 
 
+def Wrapper(func: Any) -> Any:
+    def inner(*args: Any, **kwargs: Any) -> Any:
+        print("Calling", func.__name__, end=" -> ")
+        result = func(*args, **kwargs)
+        return result
+    return inner
+
+
 LOG_COUNTER_FILE = "DONT TOUCH/log_counter.txt"
 
 # Read counter once at startup
@@ -501,6 +509,7 @@ if os.path.exists(LOG_COUNTER_FILE):
         log_counter = 0
 else:
     log_counter = 0
+
 
 def log(*args: str):
     global log_counter
@@ -527,7 +536,7 @@ class Player:
     def __init__(self, name: str) -> None:
         self.name: str = name
         self.is_alive: bool = True
-        self.status:str = "Alive"
+        self.status: str = "Alive"
         self.level: float = 1
         self.exp:   float = 0
         self.hp:    float = 100
@@ -539,6 +548,15 @@ class Player:
         self.exp_multiplier: float = 1.0
         self.exp_gain_rate: str = "Linear"  # n
         self.max_len: int = 0
+
+    def is_dead(self) -> bool:
+        k = "Death Token" in self.inventory or not self.is_alive
+        if not k:
+            return False
+        else:
+            self.is_alive = False
+            self.death_screen()
+            return True
 
     def diff_equalizer(self, Difficulty: str) -> None:
         self.difficulty: str = Difficulty
@@ -610,8 +628,9 @@ class Player:
             self.exp += amount * self.exp_multiplier * (np.e ** (amount / 10))
         return None
 
-    def add_to_inventory(self, item: Any) -> None:
+    def add_to_inventory(self, item: str) -> None:
         self.inventory.append(item)
+        self.is_dead()
         return None
 
     def death_screen(self) -> None:
@@ -641,10 +660,52 @@ class Admin(Player):
         time.sleep(2)
         sys.exit()
 
+
+class LOOT_TABLE:
+    def __init__(self, Mob_lvl: int, Mob_Tier: str):
+        self.Mob_lvl = Mob_lvl
+        self.Mob_Tier = Mob_Tier
+        self.gold_dropped = random.randint(1, 10)*Mob_lvl
+        self.exp_dropped = Mob_lvl*random.randint(1, 5)
+
+    def generate_loot(self) -> list[str]:
+        self.loot: list[str] = []
+        if self.Mob_Tier == "Weak":
+            if random.random() < 0.3:
+                self.loot.append("Health Potion")
+            if random.random() < 0.1:
+                self.loot.append("Common Item")
+        elif self.Mob_Tier == "Strong":
+            if random.random() < 0.5:
+                self.loot.append("Health Potion")
+            if random.random() < 0.3:
+                self.loot.append("Mana Potion")
+            if random.random() < 0.2:
+                self.loot.append("Uncommon Item")
+        elif self.Mob_Tier == "Boss":
+            if random.random() < 0.8:
+                self.loot.append("Health Potion")
+            if random.random() < 0.7:
+                self.loot.append("Mana Potion")
+            if random.random() < 0.5:
+                self.loot.append("Rare Item")
+            if random.random() < 0.2:
+                self.loot.append("Epic Item")
+            if random.random() < 0.1:
+                self.loot.append("Legendary Item")
+            if random.random()*100 < self.Mob_lvl:
+                self.loot.append("Mythic Item")
+        if random.random() < 0.01:
+            self.loot.append("Death Token")
+
+        return self.loot
+
+
 class Monster(Player):
-    def __init__(self,difficulty: str,Boss:bool=False,Evolve:bool=True) -> None:
+    def __init__(self, difficulty: str, Boss: bool = False, Evolve: bool = False) -> None:
         super().__init__(name="Monster")
         self.difficulty: str = difficulty
+        self.Evolve = Evolve
         if self.difficulty == "Easy":
             self.level = random.randint(1, 5)
             self.hp = random.randint(20, 50)
@@ -661,19 +722,50 @@ class Monster(Player):
             self.level *= 2
             self.hp *= 3
             self.dmg *= 2
-        if Evolve:
+        if self.Evolve:
             self.hp *= 1.5
             self.dmg *= 1.5
-    def is_dead():
-        if self.hp <= 0:
-            pass
-    def evolve(self,Mob_lvl:int,Mob_Tier:str) -> None:
+
+
+    def evolve(self, Mob_lvl: int, Mob_Tier: str) -> None:
+        if not self.Evolve:
+            return
         if Mob_Tier == "Weak":
-            pass
+            self.level = (Mob_lvl*1.2)//1
+            self.hp = (self.hp*1.3)//1
+            self.dmg = (self.dmg*1.3)//1
+        elif Mob_Tier == "Strong":
+            self.level = (Mob_lvl*1.5)//1
+            self.hp = (self.hp*1.5)//1
+            self.dmg = (self.dmg*1.5)//1
+        elif Mob_Tier == "Boss":
+            self.level = (Mob_lvl*2)//1
+            self.hp = (self.hp*2)//1
+            self.dmg = (self.dmg*2)//1
+
+    def loot_drop(self, player: Player) -> list[str]:
+        loot: list[str] = []
+        gold_dropped = random.randint(1, 10) * self.level
+        loot.append(f"{gold_dropped} Gold Coins")
+        if random.random() < 0.3:
+            loot.append("Health Potion")
+        if random.random() < 0.2:
+            loot.append("Mana Potion")
+        if random.random() < 0.1:
+            loot.append("Rare Item")
+        for item in loot:
+            player.add_to_inventory(item)
+        return loot
+
+    def flee_chance(self, player: Player) -> bool:
+        flee_probability = (self.level / player.level) * 0.5
+        return random.random() <= flee_probability
+
     def attack_player(self, player: Player) -> float:
         damage_dealt = self.dmg * (1 + random.uniform(-0.1, 0.1))
         player.hp -= damage_dealt
         return damage_dealt
+
     def monster_info(self) -> str:
         info: str = (
             f"Monster Level: {self.level}\n"
@@ -681,6 +773,8 @@ class Monster(Player):
             f"Monster DMG: {self.dmg}\n"
         )
         return info
+
+
 class Generate_World:
     def __init__(self, seed: int | str):
         global chunk_grid
@@ -727,38 +821,39 @@ class Generate_World:
     def display_chunk(self, coords: tuple[int, int, int]) -> None:
         size = len(self.chunk)
         cx, cy, _ = coords
-        self.player_icons:list[str] = ["|","⨋", "⨌", "⨍", "⨎"]
-        self.player_icon:str = self.player_icons[0]
-        self.terrain:dict[str,str] = {
-            "0": Style.BRIGHT+Fore.GREEN + "░", # Grass
-            "1": Style.BRIGHT+Fore.GREEN + "▲", # Tree
+        self.player_icons: list[str] = ["|", "⨋", "⨌", "⨍", "⨎"]
+        self.player_icon: str = self.player_icons[0]
+        self.terrain: dict[str, str] = {
+            "0": Style.BRIGHT+Fore.GREEN + "░",  # Grass
+            "1": Style.BRIGHT+Fore.GREEN + "▲",  # Tree
             "2": Style.BRIGHT+Fore.BLUE + "≈",  # Water
-            "3": Style.BRIGHT+Fore.YELLOW + "#",# Sand
-            "4": Style.BRIGHT+Fore.GREEN + "", # Cactus
+            "3": Style.BRIGHT+Fore.YELLOW + "#",  # Sand
+            "4": Style.BRIGHT+Fore.GREEN + "",  # Cactus
             "5": Style.BRIGHT+Fore.BLUE + "≈",  # Water
-            "6": Style.BRIGHT+Fore.LIGHTGREEN_EX + "*", # Rock
-            "7": Style.BRIGHT+Fore.BLUE + "❄", #Snow
-            "8": Style.BRIGHT+Fore.LIGHTBLACK_EX + "⏵", #Cliff
+            "6": Style.BRIGHT+Fore.LIGHTGREEN_EX + "*",  # Rock
+            "7": Style.BRIGHT+Fore.BLUE + "❄",  # Snow
+            "8": Style.BRIGHT+Fore.LIGHTBLACK_EX + "⏵",  # Cliff
             "9": Style.BRIGHT+Fore.BLUE + "≈",  # Water
-            "10":Style.BRIGHT+Fore.GREEN + "░", # Grass
-            "11":Style.BRIGHT+Fore.GREEN + "▞", #Mud
-            "12":Style.BRIGHT+Fore.LIGHTGREEN_EX + "*", # Rock
-            "13":Style.BRIGHT+Fore.LIGHTMAGENTA_EX + "▼", #Stalagmite
-            "14":"$",
-            "15":Style.BRIGHT+ Fore.RED + "⌂", # House
-            "W": Style.BRIGHT+Fore.MAGENTA + "ᵟ", # Weak Mob
+            "10": Style.BRIGHT+Fore.GREEN + "░",  # Grass
+            "11": Style.BRIGHT+Fore.GREEN + "▞",  # Mud
+            "12": Style.BRIGHT+Fore.LIGHTGREEN_EX + "*",  # Rock
+            "13": Style.BRIGHT+Fore.LIGHTMAGENTA_EX + "▼",  # Stalagmite
+            "14": "$",
+            "15": Style.BRIGHT + Fore.RED + "⌂",  # House
+            "W": Style.BRIGHT+Fore.MAGENTA + "ᵟ",  # Weak Mob
             "S": Style.BRIGHT+Fore.RED + "Ω",     # Strong Mob
         }
-        
-        
+
         for i, row in enumerate(self.chunk):
             line: list[str] = []
             for j, cell in enumerate(row):
-                if (i, j) == ((cx+size//2)%chunk_grid, (cy+size//2)%chunk_grid):
-                    icon_text = f"{self.player_icon:^1s}" 
-                    line.append(Fore.RED + Style.BRIGHT + icon_text + Style.RESET_ALL)  # Player position
+                if (i, j) == ((cx+size//2) % chunk_grid, (cy+size//2) % chunk_grid):
+                    icon_text = f"{self.player_icon:^1s}"
+                    line.append(Fore.RED + Style.BRIGHT +
+                                icon_text + Style.RESET_ALL)  # Player position
                 else:
-                    line.append(Fore.WHITE+Style.BRIGHT+Back.BLACK+self.terrain[str(cell)].center(2))
+                    line.append(Fore.WHITE+Style.BRIGHT+Back.BLACK +
+                                self.terrain[str(cell)].center(2))
             print(" ".join(line))
         return None
 
@@ -787,7 +882,7 @@ class Generate_World:
                     self.chunk[i][j] = random.choices(
                         # 12: rock, 13: stalactite, 14: stalagmite
                         ["12", "13", "14"], weights=[70, 15, 15])[0]
-                elif self.biome ==  "Village":
+                elif self.biome == "Village":
                     self.chunk[i][j] = random.choices(
                         # 15: house, 16: road, 17: farm
                         ["15", "16", "17"], weights=[50, 30, 20])[0]
@@ -864,7 +959,7 @@ local_biome = wrld.generate_location()
 print(f"You have spawned in a {local_biome} biome.")
 
 x, y, z = wrld.spawn_chunk(chunk_grid**2)
-dir_moved:list[str] = []
+dir_moved: list[str] = []
 log(f"Player '{p_1.name}' spawned at coordinates (x: {x}, y: {y}, z: {z}) in a {local_biome} biome on {Difficulty} difficulty with seed '{Seed_input}'.")
 wrld.gen_terrain(local_biome, Difficulty)
 wrld.gen_mobs(Difficulty)
@@ -878,15 +973,14 @@ for i in range(10):
         continue
     dir_moved.append(a[0].upper())
     if a[0].lower() == "e":
-        y-=1
+        y -= 1
     elif a[0].lower() == "w":
-        y+=1
+        y += 1
     elif a[0].lower() == "n":
-        x-=1
+        x -= 1
     elif a[0].lower() == "s":
-        x+=1
+        x += 1
     else:
         print("Invalid")
         continue
 log(f"Player '{p_1.name}' moved {', '.join(dir_moved)} to coordinates (x: {x}, y: {y}, z: {z}).")
-
