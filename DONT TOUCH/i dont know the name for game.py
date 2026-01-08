@@ -490,13 +490,33 @@ random.seed(1)
 row, col = get_terminal_size()
 
 
+LOG_COUNTER_FILE = "DONT TOUCH/log_counter.txt"
+
+# Read counter once at startup
+if os.path.exists(LOG_COUNTER_FILE):
+    try:
+        with open(LOG_COUNTER_FILE, "r") as f:
+            log_counter = int(f.read())
+    except ValueError:
+        log_counter = 0
+else:
+    log_counter = 0
+
 def log(*args: str):
+    global log_counter
+    log_counter += 1
+
     msg = " ".join(map(str, args))
     stamp = datetime.now().strftime("%H:%M:%S")
-    line = f"[{stamp}] {msg}"
+    line = f"[{stamp}] [Log {log_counter}] {msg}"
+
     print(line)
-    with open("game.log", "a", encoding="utf-8") as f:
+    with open("DONT TOUCH/game.log", "a", encoding="utf-8") as f:
         f.write(line + "\n")
+
+    # Save counter to file every time (safe and persistent)
+    with open(LOG_COUNTER_FILE, "w") as f:
+        f.write(str(log_counter))
 
 
 def clear() -> None:
@@ -621,7 +641,46 @@ class Admin(Player):
         time.sleep(2)
         sys.exit()
 
-
+class Monster(Player):
+    def __init__(self,difficulty: str,Boss:bool=False,Evolve:bool=True) -> None:
+        super().__init__(name="Monster")
+        self.difficulty: str = difficulty
+        if self.difficulty == "Easy":
+            self.level = random.randint(1, 5)
+            self.hp = random.randint(20, 50)
+            self.dmg = random.randint(5, 15)
+        elif self.difficulty == "Normal":
+            self.level = random.randint(5, 15)
+            self.hp = random.randint(50, 100)
+            self.dmg = random.randint(15, 30)
+        elif self.difficulty == "Hard":
+            self.level = random.randint(15, 30)
+            self.hp = random.randint(100, 200)
+            self.dmg = random.randint(30, 50)
+        if Boss:
+            self.level *= 2
+            self.hp *= 3
+            self.dmg *= 2
+        if Evolve:
+            self.hp *= 1.5
+            self.dmg *= 1.5
+    def is_dead():
+        if self.hp <= 0:
+            pass
+    def evolve(self,Mob_lvl:int,Mob_Tier:str) -> None:
+        if Mob_Tier == "Weak":
+            pass
+    def attack_player(self, player: Player) -> float:
+        damage_dealt = self.dmg * (1 + random.uniform(-0.1, 0.1))
+        player.hp -= damage_dealt
+        return damage_dealt
+    def monster_info(self) -> str:
+        info: str = (
+            f"Monster Level: {self.level}\n"
+            f"Monster HP: {self.hp}\n"
+            f"Monster DMG: {self.dmg}\n"
+        )
+        return info
 class Generate_World:
     def __init__(self, seed: int | str):
         global chunk_grid
@@ -805,6 +864,8 @@ local_biome = wrld.generate_location()
 print(f"You have spawned in a {local_biome} biome.")
 
 x, y, z = wrld.spawn_chunk(chunk_grid**2)
+dir_moved:list[str] = []
+log(f"Player '{p_1.name}' spawned at coordinates (x: {x}, y: {y}, z: {z}) in a {local_biome} biome on {Difficulty} difficulty with seed '{Seed_input}'.")
 wrld.gen_terrain(local_biome, Difficulty)
 wrld.gen_mobs(Difficulty)
 wrld.display_chunk((x, y, z))
@@ -815,6 +876,7 @@ for i in range(10):
     a = input("Enter which direction to move: ")
     if not a:
         continue
+    dir_moved.append(a[0].upper())
     if a[0].lower() == "e":
         y-=1
     elif a[0].lower() == "w":
@@ -826,3 +888,5 @@ for i in range(10):
     else:
         print("Invalid")
         continue
+log(f"Player '{p_1.name}' moved {', '.join(dir_moved)} to coordinates (x: {x}, y: {y}, z: {z}).")
+
