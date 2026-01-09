@@ -3,7 +3,7 @@ import random
 init(autoreset=True)
 class Generate_World:
     def __init__(self, seed: int | str):
-        
+        self.player_pos:tuple[int,int,int]=(0,0,0)
         self.chunk_size = 11
         self.chunk = [[" "]*self.chunk_size for _ in range(self.chunk_size)]
         if isinstance(seed, str):
@@ -42,9 +42,10 @@ class Generate_World:
             print(f"(x : {x}, y : {y}, z : {z})\n")
             #!print(path[:100])
             print(f"Distance from origin: {sun}")
+            self.player_pos = x,y,z
             return x, y, z
 
-    def display_chunk(self, coords: tuple[int, int, int]) -> None:
+    def display_chunk(self, coords: tuple[int, int, int]) -> list[str]:
         size = len(self.chunk)
         cx, cy, _ = coords
         self.player_icons: list[str] = ["|", "⨋", "⨌", "⨍", "⨎"]
@@ -69,6 +70,7 @@ class Generate_World:
             "W": Style.BRIGHT+Fore.MAGENTA + "ᵟ",  # Weak Mob
             "S": Style.BRIGHT+Fore.RED + "Ω",     # Strong Mob
         }
+        l:list[str]=[]
         for i, row in enumerate(self.chunk):
             line: list[str] = []
             for j, cell in enumerate(row):
@@ -76,11 +78,13 @@ class Generate_World:
                     icon_text = f"{self.player_icon:^1s}"
                     line.append(Fore.RED + Style.BRIGHT +
                                 icon_text + Style.RESET_ALL)  # Player position
+                    self.player_pos = i,j,_
                 else:
                     line.append(Fore.WHITE+Style.BRIGHT+Back.BLACK +
                                 self.terrain[str(cell)].center(2))
+            l.append("".join(line))
             print(" ".join(line))
-        return 
+        return l
 
     def gen_terrain(self, biome: str, difficulty: str) -> None:
         self.biome = biome

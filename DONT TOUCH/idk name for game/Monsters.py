@@ -1,10 +1,14 @@
-from Player import Player 
+import game
+from Player import Player
 import random
+
+
 class Monster(Player):
     def __init__(self, difficulty: str, Boss: bool = False, Evolve: bool = False) -> None:
         super().__init__(name="Monster")
         self.difficulty: str = difficulty
         self.Evolve = Evolve
+        self.mob_pos_list: list[dict[str | int, tuple[int, int] | str]] = []
         if self.difficulty == "Easy":
             self.level = random.randint(1, 5)
             self.hp = random.randint(20, 50)
@@ -24,7 +28,6 @@ class Monster(Player):
         if self.Evolve:
             self.hp *= 1.5
             self.dmg *= 1.5
-
 
     def evolve(self, Mob_lvl: int, Mob_Tier: str) -> None:
         if not self.Evolve:
@@ -72,3 +75,34 @@ class Monster(Player):
             f"Monster DMG: {self.dmg}\n"
         )
         return info
+    def check_mob_status(self)->None:
+        raise NotImplementedError("NUh uh")
+    def brownian_motion(self, mob_list: list[dict[str, tuple[int, int] | str]]) -> None:
+        dir = list("NSEWUD")
+        half = game.wrld.chunk_size // 2
+        for m in range(len(mob_list)):
+            x, y = mob_list[m].get("pos", (0, 0))
+            for _ in range(5):
+                a = random.choice(dir)
+                if a == 'N':
+                    y += 1
+                elif a == 'S':
+                    y -= 1
+                elif a == 'E':
+                    x += 1
+                elif a == 'W':
+                    x -= 1
+                x = max(-half, min(half - 1, x))
+                y = max(-half, min(half - 1, y))
+            mob_list[m]["pos"] = x, y
+        return
+
+    def check_mob_pos(self) -> None:
+        for i, c in enumerate(game.wrld.display_chunk(game.wrld.player_pos)):
+            for j, char in enumerate(c):
+                if "ᵟ" in char:
+                    # Append a dictionary or tuple representing this specific mob
+                    self.mob_pos_list.append({"type": "Weak", "pos": (i, j)})
+
+                elif "Ω" in char:
+                    self.mob_pos_list.append({"type": "Strong", "pos": (i, j)})

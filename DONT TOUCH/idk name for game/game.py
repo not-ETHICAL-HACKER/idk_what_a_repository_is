@@ -115,4 +115,9 @@ for i in range(10):
     else:
         print("Invalid")
         continue
+    # for mob in Monster: commented out bcs i need the idea
+    #     if mob.pos == (x, y):
+    #         dmg = mob.monster.attack_player(p_1)
+    #         print(f"A monster attacked you for {dmg:.1f} damage!")
+
 log(f"Player '{p_1.name}' moved {', '.join(dir_moved)} to coordinates (x: {x}, y: {y}, z: {z}).")
