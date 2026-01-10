@@ -4,23 +4,23 @@ import random
 
 
 class Monster(Player):
-    def __init__(self, difficulty: str, Boss: bool = False, Evolve: bool = False) -> None:
+    def __init__(self, difficulty: str, Boss: bool = False, Evolve: bool = False,Type:str) -> None:
         super().__init__(name="Monster")
         self.difficulty: str = difficulty
         self.Evolve = Evolve
         self.mob_pos_list: list[dict[str | int, tuple[int, int] | str]] = []
         if self.difficulty == "Easy":
-            self.level = random.randint(1, 5)
-            self.hp = random.randint(20, 50)
-            self.dmg = random.randint(5, 15)
+            self.level = random.randint(1, 5)+(5 if "ᵟ" not in Type else 0) 
+            self.hp = random.randint(20, 50)+(10 if "ᵟ" not in Type else 0) 
+            self.dmg = random.randint(5, 15)+(5 if "ᵟ" not in Type else 0) 
         elif self.difficulty == "Normal":
-            self.level = random.randint(5, 15)
-            self.hp = random.randint(50, 100)
-            self.dmg = random.randint(15, 30)
+            self.level = random.randint(5, 15)+(10 if "ᵟ" not in Type else 0) 
+            self.hp = random.randint(50, 100)+(25 if "ᵟ" not in Type else 0) 
+            self.dmg = random.randint(15, 30)+(10 if "ᵟ" not in Type else 0) 
         elif self.difficulty == "Hard":
-            self.level = random.randint(15, 30)
-            self.hp = random.randint(100, 200)
-            self.dmg = random.randint(30, 50)
+            self.level = random.randint(15, 30)+(15 if "ᵟ" not in Type else 0) 
+            self.hp = random.randint(100, 200)+(50 if "ᵟ" not in Type else 0) 
+            self.dmg = random.randint(30, 50)+(15 if "ᵟ" not in Type else 0) 
         if Boss:
             self.level *= 2
             self.hp *= 3
