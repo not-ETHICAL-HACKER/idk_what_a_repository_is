@@ -1,26 +1,26 @@
-import game
 from Player import Player
 import random
-
+from typing import Any
 
 class Monster(Player):
-    def __init__(self, difficulty: str, Boss: bool = False, Evolve: bool = False,Type:str) -> None:
+    def __init__(self, difficulty: str, Type: str, Boss: bool = False, Evolve: bool = False) -> None:
         super().__init__(name="Monster")
         self.difficulty: str = difficulty
         self.Evolve = Evolve
+        self.mob_type = Type
         self.mob_pos_list: list[dict[str | int, tuple[int, int] | str]] = []
         if self.difficulty == "Easy":
-            self.level = random.randint(1, 5)+(5 if "ᵟ" not in Type else 0) 
-            self.hp = random.randint(20, 50)+(10 if "ᵟ" not in Type else 0) 
-            self.dmg = random.randint(5, 15)+(5 if "ᵟ" not in Type else 0) 
+            self.level = random.randint(1, 5)+(5 if "ᵟ" not in Type else 0)
+            self.hp = random.randint(20, 50)+(10 if "ᵟ" not in Type else 0)
+            self.dmg = random.randint(5, 15)+(5 if "ᵟ" not in Type else 0)
         elif self.difficulty == "Normal":
-            self.level = random.randint(5, 15)+(10 if "ᵟ" not in Type else 0) 
-            self.hp = random.randint(50, 100)+(25 if "ᵟ" not in Type else 0) 
-            self.dmg = random.randint(15, 30)+(10 if "ᵟ" not in Type else 0) 
+            self.level = random.randint(5, 15)+(10 if "ᵟ" not in Type else 0)
+            self.hp = random.randint(50, 100)+(25 if "ᵟ" not in Type else 0)
+            self.dmg = random.randint(15, 30)+(10 if "ᵟ" not in Type else 0)
         elif self.difficulty == "Hard":
-            self.level = random.randint(15, 30)+(15 if "ᵟ" not in Type else 0) 
-            self.hp = random.randint(100, 200)+(50 if "ᵟ" not in Type else 0) 
-            self.dmg = random.randint(30, 50)+(15 if "ᵟ" not in Type else 0) 
+            self.level = random.randint(15, 30)+(15 if "ᵟ" not in Type else 0)
+            self.hp = random.randint(100, 200)+(50 if "ᵟ" not in Type else 0)
+            self.dmg = random.randint(30, 50)+(15 if "ᵟ" not in Type else 0)
         if Boss:
             self.level *= 2
             self.hp *= 3
@@ -75,34 +75,24 @@ class Monster(Player):
             f"Monster DMG: {self.dmg}\n"
         )
         return info
-    def check_mob_status(self)->None:
+
+    def check_mob_status(self) -> None:
         raise NotImplementedError("NUh uh")
-    def brownian_motion(self, mob_list: list[dict[str, tuple[int, int] | str]]) -> None:
-        dir = list("NSEWUD")
-        half = game.wrld.chunk_size // 2
-        for m in range(len(mob_list)):
-            x, y = mob_list[m].get("pos", (0, 0))
-            for _ in range(5):
-                a = random.choice(dir)
-                if a == 'N':
-                    y += 1
-                elif a == 'S':
-                    y -= 1
-                elif a == 'E':
-                    x += 1
-                elif a == 'W':
-                    x -= 1
-                x = max(-half, min(half - 1, x))
-                y = max(-half, min(half - 1, y))
-            mob_list[m]["pos"] = x, y
-        return
 
-    def check_mob_pos(self) -> None:
-        for i, c in enumerate(game.wrld.display_chunk(game.wrld.player_pos)):
-            for j, char in enumerate(c):
-                if "ᵟ" in char:
-                    # Append a dictionary or tuple representing this specific mob
-                    self.mob_pos_list.append({"type": "Weak", "pos": (i, j)})
+    def brownian_motion(self, mob_list:list[Any], world:Any):
+        half = world.chunk_size - 1
+        mon_types = {"Weak": "ᵟ", "Strong": "Ω"}
 
-                elif "Ω" in char:
-                    self.mob_pos_list.append({"type": "Strong", "pos": (i, j)})
+        for mob in mob_list:
+            x, y = mob["pos"]
+            ox, oy = x, y
+
+            dx, dy = random.choice([(1,0), (-1,0), (0,1), (0,-1)])
+            x = max(0, min(half, x + dx))
+            y = max(0, min(half, y + dy))
+
+            if world.chunk[x][y] == "0":
+                world.chunk[ox][oy] = "0"
+                world.chunk[x][y] = mon_types[mob["type"]]
+                mob["pos"] = (x, y)
+

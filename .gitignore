@@ -3,3 +3,6 @@ DONT TOUCH/game.log
 DONT TOUCH/log_counter.txt
 __pycache__/
 *.pyc
+*.log
+DONT TOUCH/log/log_counter.txt
+DONT TOUCH/log/game.log

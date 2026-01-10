@@ -89,12 +89,13 @@ else:
 local_biome = wrld.generate_location()
 print(f"You have spawned in a {local_biome} biome.")
 
+m_1 = Monster(difficulty=Difficulty,Type="ᵟ")
 x, y, z = wrld.spawn_chunk(chunk_grid**2)
 dir_moved: list[str] = []
 log(f"Player '{p_1.name}' spawned at coordinates (x: {x}, y: {y}, z: {z}) in a {local_biome} biome on {Difficulty} difficulty with seed '{Seed_input}'.")
 wrld.gen_terrain(local_biome, Difficulty)
-wrld.gen_mobs(Difficulty)
 wrld.display_chunk((x, y, z))
+wrld.gen_mobs(Difficulty,m_1.mob_pos_list)
 for i in range(10):
     clear()
     wrld.display_chunk((x, y, z))
@@ -114,6 +115,8 @@ for i in range(10):
     else:
         print("Invalid")
         continue
+    # m_1.check_mob_pos(wrld)
+    m_1.brownian_motion(m_1.mob_pos_list,wrld)
     # for mob in Monster: commented out bcs i need the idea
     #     if mob.pos == (x, y):
     #         dmg = mob.monster.attack_player(p_1)

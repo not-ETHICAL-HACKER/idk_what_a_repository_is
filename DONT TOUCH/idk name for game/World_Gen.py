@@ -1,3 +1,4 @@
+from typing import Any
 from colorama import init, Fore, Back, Style
 import random
 init(autoreset=True)
@@ -128,26 +129,25 @@ class Generate_World:
     def gen_resources(self) -> None:
         #! implement resource generation
         return None
+    def gen_mobs(self, diff: str, mob_list: list[dict[str, Any]]) -> None:
+        mon_types = {"Weak": "ᵟ", "Strong": "Ω"}
 
-    def gen_mobs(self, diff: str) -> None:
-        #! implement mob generation
         for i in range(self.chunk_size):
             for j in range(self.chunk_size):
+                roll = random.random()
+
                 if diff == "Easy":
-                    # N: no mob, W: weak mob, S: strong mob
-                    mob_chance = ["0", "W", "S"]
-                    weights = [80, 15, 5]
+                    if roll < 0.15:
+                        mob_list.append({"type": "Weak", "pos": (i, j)})
+                        self.chunk[i][j] = "W"
                 elif diff == "Normal":
-                    mob_chance = ["0", "W", "S"]
-                    weights = [60, 25, 15]
+                    if roll < 0.2:
+                        mob_list.append({"type": "Weak", "pos": (i, j)})
+                        self.chunk[i][j] = "W"
+                    elif roll < 0.3:
+                        mob_list.append({"type": "Strong", "pos": (i, j)})
+                        self.chunk[i][j] = "S"
                 elif diff == "Hard":
-                    mob_chance = ["0", "W", "S"]
-                    weights = [40, 30, 30]
-                else:
-                    # this is a fallback in case of invalid difficulty
-                    mob_chance = ["0", "W", "S"]
-                    weights = [70, 20, 10]
-                self.chunk[i][j] = random.choices(
-                    mob_chance, weights=weights)[0]
-
-
+                    if roll < 0.3:
+                        mob_list.append({"type": "Strong", "pos": (i, j)})
+                        self.chunk[i][j] = "S"
