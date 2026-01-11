@@ -1,33 +1,34 @@
 from Player import Player
 import random
 from typing import Any
+from datetime import datetime
+import csv
+import os
+
+
+def log_mob_position(mob_type: str, x: int, y: int):
+    file_exists = os.path.isfile('DONT TOUCH\\log\\mob_logs.csv')
+
+    with open('DONT TOUCH\\log\\mob_logs.csv', mode='a', newline='') as file:
+        writer = csv.writer(file)
+
+        # Write the header only if the file is new
+        if not file_exists:
+            writer.writerow(['Timestamp', 'Mob_Type', 'X', 'Y'])
+
+        # Write the mob data
+        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        writer.writerow([timestamp, mob_type, x, y])
+
 
 class Monster(Player):
-    def __init__(self, difficulty: str, Type: str, Boss: bool = False, Evolve: bool = False) -> None:
+    def __init__(self, difficulty: str, Type: str, Evolve: bool = False):
         super().__init__(name="Monster")
         self.difficulty: str = difficulty
         self.Evolve = Evolve
         self.mob_type = Type
-        self.mob_pos_list: list[dict[str | int, tuple[int, int] | str]] = []
-        if self.difficulty == "Easy":
-            self.level = random.randint(1, 5)+(5 if "ᵟ" not in Type else 0)
-            self.hp = random.randint(20, 50)+(10 if "ᵟ" not in Type else 0)
-            self.dmg = random.randint(5, 15)+(5 if "ᵟ" not in Type else 0)
-        elif self.difficulty == "Normal":
-            self.level = random.randint(5, 15)+(10 if "ᵟ" not in Type else 0)
-            self.hp = random.randint(50, 100)+(25 if "ᵟ" not in Type else 0)
-            self.dmg = random.randint(15, 30)+(10 if "ᵟ" not in Type else 0)
-        elif self.difficulty == "Hard":
-            self.level = random.randint(15, 30)+(15 if "ᵟ" not in Type else 0)
-            self.hp = random.randint(100, 200)+(50 if "ᵟ" not in Type else 0)
-            self.dmg = random.randint(30, 50)+(15 if "ᵟ" not in Type else 0)
-        if Boss:
-            self.level *= 2
-            self.hp *= 3
-            self.dmg *= 2
-        if self.Evolve:
-            self.hp *= 1.5
-            self.dmg *= 1.5
+        self.seconds = 6  # a mob moves every second and im tryin to emulate dnd mechanics
+        self.mob_pos_list: list[dict[str, tuple[int, int] | str]] = []
 
     def evolve(self, Mob_lvl: int, Mob_Tier: str) -> None:
         if not self.Evolve:
@@ -63,11 +64,6 @@ class Monster(Player):
         flee_probability = (self.level / player.level) * 0.5
         return random.random() <= flee_probability
 
-    def attack_player(self, player: Player) -> float:
-        damage_dealt = self.dmg * (1 + random.uniform(-0.1, 0.1))
-        player.hp -= damage_dealt
-        return damage_dealt
-
     def monster_info(self) -> str:
         info: str = (
             f"Monster Level: {self.level}\n"
@@ -79,20 +75,60 @@ class Monster(Player):
     def check_mob_status(self) -> None:
         raise NotImplementedError("NUh uh")
 
-    def brownian_motion(self, mob_list:list[Any], world:Any):
+    def brownian_motion(self, mob_list: list[Any], world: Any):
         half = world.chunk_size - 1
         mon_types = {"Weak": "ᵟ", "Strong": "Ω"}
+        for _ in range(self.seconds):
+            for mob in mob_list:
+                x, y = mob["pos"]
+                ox, oy = x, y
 
-        for mob in mob_list:
-            x, y = mob["pos"]
-            ox, oy = x, y
+                dx, dy = random.choice([(1, 0), (-1, 0), (0, 1), (0, -1)])
+                x = max(0, min(half, x + dx))
+                y = max(0, min(half, y + dy))
 
-            dx, dy = random.choice([(1,0), (-1,0), (0,1), (0,-1)])
-            x = max(0, min(half, x + dx))
-            y = max(0, min(half, y + dy))
+                if world.chunk[x][y] in ["0", "3", "6", "10", "11", "2", "5", "12", "16"]:
+                    old_terrain = world.chunk[x][y]
+                    world.chunk[ox][oy] = old_terrain
+                    world.chunk[x][y] = mon_types[mob["type"]]
+                    mob["pos"] = (x, y)
+                    log_mob_position(mob["type"], mob["pos"][0], mob["pos"][1])
 
-            if world.chunk[x][y] == "0":
-                world.chunk[ox][oy] = "0"
-                world.chunk[x][y] = mon_types[mob["type"]]
-                mob["pos"] = (x, y)
 
+class Mob(Monster):
+    def __init__(self, diff: str, mob_id: str, Type: str = "ᵟ", Boss: bool = False, Evolve: bool = False) -> None:
+        super().__init__(difficulty=diff, Type=Type, Evolve=Evolve)
+        self.difficulty: str = diff
+        self.Evolve = Evolve
+        self.mob_type = Type
+        self.mob_id = mob_id
+        self.Boss = Boss
+        self.seconds = 6  # a mob moves every second and im tryin to emulate dnd mechanics
+        self.mob_pos_list: list[dict[str | int, tuple[int, int] | str]] = []
+        if self.difficulty == "Easy":
+            self.level = random.randint(1, 5)+(5 if "ᵟ" not in Type else 0)
+            self.hp = random.randint(20, 50)+(10 if "ᵟ" not in Type else 0)
+            self.dmg = random.randint(5, 15)+(5 if "ᵟ" not in Type else 0)
+        elif self.difficulty == "Normal":
+            self.level = random.randint(5, 15)+(10 if "ᵟ" not in Type else 0)
+            self.hp = random.randint(50, 100)+(25 if "ᵟ" not in Type else 0)
+            self.dmg = random.randint(15, 30)+(10 if "ᵟ" not in Type else 0)
+        elif self.difficulty == "Hard":
+            self.level = random.randint(15, 30)+(15 if "ᵟ" not in Type else 0)
+            self.hp = random.randint(100, 200)+(50 if "ᵟ" not in Type else 0)
+            self.dmg = random.randint(30, 50)+(15 if "ᵟ" not in Type else 0)
+        if self.Boss:
+            self.level *= 2
+            self.hp *= 3
+            self.dmg *= 2
+        if self.Evolve:
+            self.hp *= 1.5
+            self.dmg *= 1.5
+
+    def __repr__(self) -> str:
+        return f"[{self.mob_id}: {self.mob_type}, HP: {int(self.hp)},DMG: {int(self.dmg)}, Lvl: {self.level}, {self.Evolve=}, {self.Boss=}]"
+
+    def attack_player(self, player: Player) -> float:
+        damage_dealt = self.dmg * (1 + random.uniform(-0.1, 0.1))
+        player.hp -= damage_dealt
+        return damage_dealt

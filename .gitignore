@@ -6,3 +6,6 @@ __pycache__/
 *.log
 DONT TOUCH/log/log_counter.txt
 DONT TOUCH/log/game.log
+DONT TOUCH/log/log_counter.txt
+DONT TOUCH/log/mob.csv
+/DONT TOUCH/log

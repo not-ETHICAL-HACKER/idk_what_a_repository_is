@@ -2,9 +2,11 @@ from typing import Any
 from colorama import init, Fore, Back, Style
 import random
 init(autoreset=True)
+
+
 class Generate_World:
     def __init__(self, seed: int | str):
-        self.player_pos:tuple[int,int,int]=(0,0,0)
+        self.player_pos: tuple[int, int, int] = (0, 0, 0)
         self.chunk_size = 11
         self.chunk = [[" "]*self.chunk_size for _ in range(self.chunk_size)]
         if isinstance(seed, str):
@@ -43,20 +45,20 @@ class Generate_World:
             print(f"(x : {x}, y : {y}, z : {z})\n")
             #!print(path[:100])
             print(f"Distance from origin: {sun}")
-            self.player_pos = x,y,z
+            self.player_pos = x, y, z
             return x, y, z
 
     def display_chunk(self, coords: tuple[int, int, int]) -> list[str]:
         size = len(self.chunk)
         cx, cy, _ = coords
         self.player_icons: list[str] = ["|", "⨋", "⨌", "⨍", "⨎"]
-        self.player_icon: str = self.player_icons[0]
+        self.player_icon: str = self.player_icons[0] 
         self.terrain: dict[str, str] = {
             "0": Style.BRIGHT+Fore.GREEN + "░",  # Grass
             "1": Style.BRIGHT+Fore.GREEN + "▲",  # Tree
             "2": Style.BRIGHT+Fore.BLUE + "≈",  # Water
             "3": Style.BRIGHT+Fore.YELLOW + "#",  # Sand
-            "4": Style.BRIGHT+Fore.GREEN + "",  # Cactus
+            "4": Style.BRIGHT+Fore.GREEN + "|",  # Cactus
             "5": Style.BRIGHT+Fore.BLUE + "≈",  # Water
             "6": Style.BRIGHT+Fore.LIGHTGREEN_EX + "*",  # Rock
             "7": Style.BRIGHT+Fore.BLUE + "❄",  # Snow
@@ -66,12 +68,17 @@ class Generate_World:
             "11": Style.BRIGHT+Fore.GREEN + "▞",  # Mud
             "12": Style.BRIGHT+Fore.LIGHTGREEN_EX + "*",  # Rock
             "13": Style.BRIGHT+Fore.LIGHTMAGENTA_EX + "▼",  # Stalagmite
-            "14": "$",
+            "14": Style.BRIGHT+Fore.LIGHTMAGENTA_EX + "^", # Stalagtite
             "15": Style.BRIGHT + Fore.RED + "⌂",  # House
+            "16": "16",
+            "17": "17",
+            "18": "18",
             "W": Style.BRIGHT+Fore.MAGENTA + "ᵟ",  # Weak Mob
             "S": Style.BRIGHT+Fore.RED + "Ω",     # Strong Mob
+            "ᵟ": Style.BRIGHT+Fore.MAGENTA + "ᵟ",  # Weak Mob
+            "Ω": Style.BRIGHT+Fore.RED + "Ω",     # Strong Mob
         }
-        l:list[str]=[]
+        l: list[str] = []
         for i, row in enumerate(self.chunk):
             line: list[str] = []
             for j, cell in enumerate(row):
@@ -79,7 +86,7 @@ class Generate_World:
                     icon_text = f"{self.player_icon:^1s}"
                     line.append(Fore.RED + Style.BRIGHT +
                                 icon_text + Style.RESET_ALL)  # Player position
-                    self.player_pos = i,j,_
+                    self.player_pos = i, j, _
                 else:
                     line.append(Fore.WHITE+Style.BRIGHT+Back.BLACK +
                                 self.terrain[str(cell)].center(2))
@@ -125,12 +132,13 @@ class Generate_World:
     def gen_structures(self) -> None:
         #! implement structure generation
         return None
-
+    
     def gen_resources(self) -> None:
         #! implement resource generation
         return None
+
     def gen_mobs(self, diff: str, mob_list: list[dict[str, Any]]) -> None:
-        mon_types = {"Weak": "ᵟ", "Strong": "Ω"}
+        
 
         for i in range(self.chunk_size):
             for j in range(self.chunk_size):
@@ -140,6 +148,9 @@ class Generate_World:
                     if roll < 0.15:
                         mob_list.append({"type": "Weak", "pos": (i, j)})
                         self.chunk[i][j] = "W"
+                    elif roll > 0.90:
+                        mob_list.append({"type": "Strong", "pos": (i, j)})
+                        self.chunk[i][j] = "S"
                 elif diff == "Normal":
                     if roll < 0.2:
                         mob_list.append({"type": "Weak", "pos": (i, j)})
@@ -151,3 +162,6 @@ class Generate_World:
                     if roll < 0.3:
                         mob_list.append({"type": "Strong", "pos": (i, j)})
                         self.chunk[i][j] = "S"
+                    elif roll < 0.8:
+                        mob_list.append({"type": "Weak", "pos": (i, j)})
+                        self.chunk[i][j] = "W"
