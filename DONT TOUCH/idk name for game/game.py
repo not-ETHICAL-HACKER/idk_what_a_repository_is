@@ -13,10 +13,26 @@ import re
 import os
 from datetime import datetime
 
-row, col = get_terminal_size()
-chunk_grid = 11
+col,row = get_terminal_size()
 
-
+def loading_screen():
+    words = ["Loading", "Installing", "Deleting", "Optimizing"]
+    mods = ["Player", "Monster", "Mob", "Generate_World", "Life"]
+    
+    for _ in range(32, 2, -2):
+        status_text = f"{random.choice(words)} {mods[_ % len(mods)]}....".center(col)
+        
+        max_width = col // _
+        for i in range(max_width + 1):
+            bar = "#" * i + " " * (max_width - i)
+            display = f"{status_text}\n{'|' + bar + '|' : ^{col}}"
+            print(display, end="\r")
+            
+            time.sleep(1/16 * random.random() + 1e-6)
+            print("\033[A", end="") 
+        
+        clear()
+        
 def Wrapper(func: Any) -> Any:
     def inner(*args: Any, **kwargs: Any) -> Any:
         print("Calling", func.__name__, end=" -> ")
@@ -74,7 +90,10 @@ def clear() -> None:
 
 
 os.system('cls' if os.name == 'nt' else 'clear')
-print(" Welcome to the game! ".center(row, "="))
+
+#loading_screen()
+
+print(" Welcome to the game! ".center(col, "="))
 while True:
 
     Player_id: str = input("Enter your Name : ")
@@ -110,81 +129,99 @@ local_biome = wrld.generate_location()
 print(f"You have spawned in a {local_biome} biome.")
 
 m_1 = Monster(difficulty=Difficulty, Type="ᵟ")
-x, y, z = wrld.spawn_chunk(chunk_grid**2)
+x, y, z = wrld.spawn_chunk(wrld.chunk_size**2)
 dir_moved: list[str] = []
 log(f"Player '{p_1.name}' spawned at coordinates (x: {x}, y: {y}, z: {z}) in a {local_biome} biome on {Difficulty} difficulty with seed '{Seed_input}'.")
 wrld.gen_terrain(local_biome, Difficulty)
 wrld.display_chunk((x, y, z))
 wrld.gen_mobs(Difficulty, m_1.mob_pos_list)
-mob_list: list[Mob] = []
+mob_list: list[tuple[Mob,tuple[int,int]]] = []
 mon_types: dict[str, str] = {"Weak": "ᵟ", "Strong": "Ω"}
 for i, mob in enumerate(m_1.mob_pos_list):
     b_c = random.random() > 0.8
     e_c = random.random() > 0.5
-    mob_list.append(
+    mob_list.append((
         Mob(Difficulty,  # Difficulty of main loop
             chr(65+(i % 26))+str(i),  # Mob ID
             mon_types[mob["type"]],  # Mob tiers
             b_c,  # Boss chance
             e_c  # Evolve chance
-            ))
+            ),m_1.mob_pos_list[i]["pos"]))
     log_mobs(
         ID=chr(65+(i % 26))+str(i),  # Mob ID
         mob_type=mon_types[mob["type"]],  # Mob tiers
-        HP=int(mob_list[i].hp),
-        DMG=int(mob_list[i].dmg),
-        Lvl=int(mob_list[i].level),
+        HP=int(mob_list[i][0].hp),
+        DMG=int(mob_list[i][0].dmg),
+        Lvl=int(mob_list[i][0].level),
         Boss=b_c,  # Boss chance
         Evolve=e_c  # Evolve chance
-    )
-for i in range(m_1.seconds):
-    clear()
+        )
+for _ in range(10):
+    for i in range(m_1.seconds):
+        clear()
 
-    m_1.brownian_motion(m_1.mob_pos_list, wrld)
-    wrld.display_chunk((x, y, z))
-    print("What would you like to do now?")
-    print("1.Move\n2.Check Status\n3.Scout Mobs")
-    choice = input("> ")
-    if choice.lower() == "move" or choice == "1":
-        print("Directions:\n==>>North,South,East,West")
-        a = input("Enter which direction to move: ")
-        if not a:
-            continue
-        dir_moved.append(a[0].upper())
-        if a[0].lower() == "e":
-            y -= 1
-        elif a[0].lower() == "w":
-            y += 1
-        elif a[0].lower() == "n":
-            x -= 1
-        elif a[0].lower() == "s":
-            x += 1
-        else:
-            print("Invalid")
-            continue
-    elif choice.lower() in ("status", "check", "check status") or choice == "2":
-        print(p_1.status_screen())
-    elif choice.lower() in ("scout", "scout mobs") or choice == "3":
-        # --- Inside your Choice 3 logic ---
-        try:
-            # Load and clean headers immediately
-            df = pd.read_csv('DONT TOUCH/log/mob_logs.csv', encoding='utf-8')
-            df.columns = df.columns.str.strip() 
-
-            # We use numeric_only=True to prevent it from trying to average symbols/IDs
-            summary = df.groupby('Mob_Type')[['HP', 'DMG']].mean(numeric_only=True)
-
-            print("\n" + " SCOUT REPORT ".center(30, "="))
-            if summary.empty:
-                print("No mob data found in the area.")
+        m_1.brownian_motion(m_1.mob_pos_list, wrld)
+        for i in range(len(mob_list)):
+            mob_list[i] = (mob_list[i][0], m_1.mob_pos_list[i]["pos"])
+        wrld.display_chunk((x, y, z))
+        print("What would you like to do now?")
+        print("1.Move\n2.Check Status\n3.Scout Mobs")
+        choice = input("> ")
+        if choice.lower() == "move" or choice == "1":
+            print("Directions:\n==>>North,South,East,West")
+            a = input("Enter which direction to move: ")
+            if not a:
+                continue
+            dir_moved.append(a[0].upper())
+            if a[0].lower() == "e":
+                y -= 1
+            elif a[0].lower() == "w":
+                y += 1
+            elif a[0].lower() == "n":
+                x -= 1
+            elif a[0].lower() == "s":
+                x += 1
             else:
-                print(summary.round(1)) # round to 1 decimal for cleanliness
-            print("=" * 30)
+                print("Invalid")
+                continue
+            # Create a tuple of current player position
+            player_pos = ((x+wrld.chunk_size//2)%wrld.chunk_size, (y+wrld.chunk_size//2)%wrld.chunk_size)
 
-        except FileNotFoundError:
-            print("Error: No mob log file found. Try spawning mobs first.")
-        except Exception as e:
-            print(f"Scout failed: {e}")
-    time.sleep(1)
+            # Find the mob that is actually at the player's position
+            # We loop through our object list to find the match
+            for mob,coords in mob_list:
+                # Assuming your Mob class has a .pos attribute updated by brownian_motion
+                if coords == player_pos:
+                    print(f"!!! ENCOUNTERED {mob.mob_id} ({mob.mob_type}) !!!".center(col))
+                    # The specific mob that you hit attacks you
+                    mob.attack_player(p_1)
+                    
+                    if p_1.is_dead():
+                        print("GAME OVER".center(col))
+                        # You might want to break the loop here
+                        break
+        elif choice.lower() in ("status", "check", "check status") or choice == "2":
+            print(p_1.status_screen())
+        elif choice.lower() in ("scout", "scout mobs") or choice == "3":
+            # --- Inside your Choice 3 logic ---
+            try:
+                # Load and clean headers immediately
+                df = pd.read_csv('DONT TOUCH/log/mob.csv', encoding='utf-8')
+                df.columns = df.columns.str.strip() 
 
+                # We use numeric_only=True to prevent it from trying to average symbols/IDs
+                summary = df.groupby('Mob_Type')[['HP', 'DMG']].mean(numeric_only=True)
+
+                print("\n" + (" SCOUT REPORT ".center(col//2, "=")).center(col," "))
+                if summary.empty:
+                    print("No mob data found in the area.")
+                else:
+                    print(summary.round(1)) # round to 1 decimal for cleanliness
+                print("=" * 30)
+
+            except FileNotFoundError:
+                print("Error: No mob log file found. Try spawning mobs first.")
+            except Exception as e:
+                print(f"Scout failed: {e}")
+        waiting_for_input = input(">")
 log(f"Player '{p_1.name}' moved {', '.join(dir_moved)} to coordinates (x: {x}, y: {y}, z: {z}).")

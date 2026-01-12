@@ -3,6 +3,35 @@ import numpy as np
 from typing import Any
 import time
 import sys
+import os
+from datetime import datetime
+LOG_COUNTER_FILE = "DONT TOUCH/log/log_counter.txt"
+
+# Read counter once at startup
+if os.path.exists(LOG_COUNTER_FILE):
+    try:
+        with open(LOG_COUNTER_FILE, "r") as f:
+            log_counter = int(f.read())
+    except ValueError:
+        log_counter = 0
+else:
+    log_counter = 0
+
+
+def log(*args: str):
+    global log_counter
+    log_counter += 1
+
+    msg = " ".join(map(str, args))
+    stamp = datetime.now().strftime("%d/%m/%Y,%H:%M:%S")
+    line = f"[{stamp}] [Log {log_counter}] {msg}"
+    with open("DONT TOUCH/log/game.log", "a", encoding="utf-8") as f:
+        f.write(line + "\n")
+
+    # Save counter to file every time (safe and persistent)
+    with open(LOG_COUNTER_FILE, "w") as f:
+        f.write(str(log_counter))
+
 class Player:
     def __init__(self, name: str) -> None:
         self.name: str = name
@@ -21,7 +50,7 @@ class Player:
         self.max_len: int = 0
 
     def is_dead(self) -> bool:
-        k = "Death Token" in self.inventory or not self.is_alive
+        k = "Death Token" in self.inventory or not self.is_alive or self.hp<=0
         if not k:
             return False
         else:
@@ -108,5 +137,6 @@ class Player:
         print("\t\t\tEND SCREEN")
         print("Thank you for playing the game!")
         print(f"Your final stats are:\n{self.status_screen()}")
+        log("You died.")
         time.sleep(5)
         sys.exit()
