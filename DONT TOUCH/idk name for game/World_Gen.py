@@ -148,7 +148,7 @@ class Generate_World:
                     if roll < 0.15:
                         mob_list.append({"type": "Weak", "pos": (i, j)})
                         self.chunk[i][j] = "W"
-                    elif roll > 0.90:
+                    elif roll > 0.95:
                         mob_list.append({"type": "Strong", "pos": (i, j)})
                         self.chunk[i][j] = "S"
                 elif diff == "Normal":
@@ -165,3 +165,7 @@ class Generate_World:
                     elif roll < 0.8:
                         mob_list.append({"type": "Weak", "pos": (i, j)})
                         self.chunk[i][j] = "W"
+                else:
+                    if roll > 0.2:
+                        mob_list.append({"type": "Strong", "pos": (i, j)})
+                        self.chunk[i][j] = "S"

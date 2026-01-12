@@ -4,6 +4,7 @@ from typing import Any
 import time
 import sys
 import os
+import random
 from datetime import datetime
 LOG_COUNTER_FILE = "DONT TOUCH/log/log_counter.txt"
 
@@ -37,6 +38,7 @@ class Player:
         self.name: str = name
         self.is_alive: bool = True
         self.status: str = "Alive"
+        self.attack_speed: float = random.random()  # Attacks per second
         self.level: float = 1
         self.exp:   float = 0
         self.hp:    float = 100

@@ -3,6 +3,7 @@ from Player import Player
 from Monsters import Monster
 from Monsters import Mob
 from World_Gen import Generate_World
+from Combat import Combat
 from shutil import get_terminal_size
 import time
 import csv
@@ -41,7 +42,7 @@ def Wrapper(func: Any) -> Any:
     return inner
 
 
-LOG_COUNTER_FILE = "DONT TOUCH/log/log_counter.txt"
+LOG_COUNTER_FILE = "log/log_counter.txt"
 
 # Read counter once at startup
 if os.path.exists(LOG_COUNTER_FILE):
@@ -53,7 +54,7 @@ if os.path.exists(LOG_COUNTER_FILE):
 else:
     log_counter = 0
 
-with open('DONT TOUCH\\log\\game.log', "w", encoding="utf-8") as f:
+with open('log\\game.log', "w", encoding="utf-8") as f:
     f.write(f"{("Game Log Started".center(col//2,"=").center(col," "))}\n")
 
 def log(*args: str):
@@ -63,7 +64,7 @@ def log(*args: str):
     msg = " ".join(map(str, args))
     stamp = datetime.now().strftime("%d/%m/%Y,%H:%M:%S")
     line = f"[{stamp}] [Log {log_counter}] {msg}"
-    with open("DONT TOUCH/log/game.log", "a", encoding="utf-8") as f:
+    with open("log/game.log", "a", encoding="utf-8") as f:
         f.write(line + "\n")
 
     # Save counter to file every time (safe and persistent)
@@ -71,7 +72,7 @@ def log(*args: str):
         f.write(str(log_counter))
 
 
-with open('DONT TOUCH\\log\\mob.csv', "w", newline="", encoding="utf-8") as f:
+with open('log\\mob.csv', "w", newline="", encoding="utf-8") as f:
     writer = csv.writer(f)
     writer.writerow([
         "Timestamp", "ID", "Mob_Type", "HP", "DMG", "Lvl", "Evolve", "Boss"
@@ -80,7 +81,7 @@ with open('DONT TOUCH\\log\\mob.csv', "w", newline="", encoding="utf-8") as f:
 
 def log_mobs(ID: str, mob_type: str, HP: int, DMG: int, Lvl: int, Evolve: bool, Boss: bool):
 
-    with open('DONT TOUCH\\log\\mob.csv', mode='a', newline='', encoding="utf-8") as file:
+    with open('log\\mob.csv', mode='a', newline='', encoding="utf-8") as file:
         writer = csv.writer(file)
 
         timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -170,16 +171,17 @@ for _ in range(10):
         print("1.Move\n2.Check Status\n3.Scout Mobs")
         choice = input("> ")
         if choice.lower() == "move" or choice == "1":
-            print("Directions:\n==>>North,South,East,West")
-            a = input("Enter which direction to move: ")
+            print("[W]".center(col//4))
+            print("[A][S][D]".center(col//4))
+            a = input("Enter a key from wasd to move: ")
             if not a:
                 continue
             dir_moved.append(a[0].upper())
-            if a[0].lower() == "e":
+            if a[0].lower() == "a":
                 y -= 1
-            elif a[0].lower() == "w":
+            elif a[0].lower() == "d":
                 y += 1
-            elif a[0].lower() == "n":
+            elif a[0].lower() == "w":
                 x -= 1
             elif a[0].lower() == "s":
                 x += 1
@@ -195,20 +197,14 @@ for _ in range(10):
                 # Assuming your Mob class has a .pos attribute updated by brownian_motion
                 if coords == player_pos:
                     print(f"!!! ENCOUNTERED {mob.mob_id} ({mob.mob_type}) !!!".center(col))
-                    # The specific mob that you hit attacks you
-                    mob.attack_player(p_1)
-                    
-                    if p_1.is_dead():
-                        print("GAME OVER".center(col))
-                        # You might want to break the loop here
-                        break
+                    print(Combat(p_1, mob).engage())
         elif choice.lower() in ("status", "check", "check status") or choice == "2":
             print(p_1.status_screen())
         elif choice.lower() in ("scout", "scout mobs") or choice == "3":
             # --- Inside your Choice 3 logic ---
             try:
                 # Load and clean headers immediately
-                df = pd.read_csv('DONT TOUCH/log/mob.csv', encoding='utf-8')
+                df = pd.read_csv('log/mob.csv', encoding='utf-8')
                 df.columns = df.columns.str.strip() 
 
                 # We use numeric_only=True to prevent it from trying to average symbols/IDs

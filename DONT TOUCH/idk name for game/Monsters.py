@@ -7,9 +7,9 @@ import os
 
 
 def log_mob_position(mob_type: str, x: int, y: int):
-    file_exists = os.path.isfile('DONT TOUCH\\log\\mob_logs.csv')
+    file_exists = os.path.isfile('log\\mob_logs.csv')
 
-    with open('DONT TOUCH\\log\\mob_logs.csv', mode='a', newline='') as file:
+    with open('log\\mob_logs.csv', mode='a', newline='') as file:
         writer = csv.writer(file)
 
         # Write the header only if the file is new
@@ -60,10 +60,7 @@ class Monster(Player):
             player.add_to_inventory(item)
         return loot
 
-    def flee_chance(self, player: Player) -> bool:
-        flee_probability = (self.level / player.level) * 0.5
-        return random.random() <= flee_probability
-
+    
     def monster_info(self) -> str:
         info: str = (
             f"Monster Level: {self.level}\n"
