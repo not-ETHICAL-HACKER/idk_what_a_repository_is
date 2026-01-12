@@ -95,9 +95,8 @@ class Monster(Player):
                     log_mob_position(mob["type"], mob["pos"][0], mob["pos"][1])
 
 
-class Mob(Monster):
+class Mob:
     def __init__(self, diff: str, mob_id: str, Type: str = "ᵟ", Boss: bool = False, Evolve: bool = False) -> None:
-        super().__init__(difficulty=diff, Type=Type, Evolve=Evolve)
         self.difficulty: str = diff
         self.Evolve = Evolve
         self.mob_type = Type

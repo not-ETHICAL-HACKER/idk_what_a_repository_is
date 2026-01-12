@@ -37,6 +37,8 @@ if os.path.exists(LOG_COUNTER_FILE):
 else:
     log_counter = 0
 
+with open('DONT TOUCH\\log\\game.log', "w", encoding="utf-8") as f:
+    f.write(f"{("Game Log Started".center(col//2,"=").center(col," "))}\n")
 
 def log(*args: str):
     global log_counter
