@@ -6,8 +6,8 @@ import sys
 import os
 import random
 from datetime import datetime
-LOG_COUNTER_FILE = "DONT TOUCH/log/log_counter.txt"
 
+LOG_COUNTER_FILE = "DONT TOUCH/game/log/log_counter.txt"
 # Read counter once at startup
 if os.path.exists(LOG_COUNTER_FILE):
     try:
@@ -26,7 +26,7 @@ def log(*args: str):
     msg = " ".join(map(str, args))
     stamp = datetime.now().strftime("%d/%m/%Y,%H:%M:%S")
     line = f"[{stamp}] [Log {log_counter}] {msg}"
-    with open("DONT TOUCH/log/game.log", "a", encoding="utf-8") as f:
+    with open("DONT TOUCH/game/log/game.log", "a", encoding="utf-8") as f:
         f.write(line + "\n")
 
     # Save counter to file every time (safe and persistent)

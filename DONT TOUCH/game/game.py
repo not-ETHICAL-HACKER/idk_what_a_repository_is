@@ -14,26 +14,29 @@ import re
 import os
 from datetime import datetime
 
-col,row = get_terminal_size()
+col, row = get_terminal_size()
+
 
 def loading_screen():
     words = ["Loading", "Installing", "Deleting", "Optimizing"]
     mods = ["Player", "Monster", "Mob", "Generate_World", "Life"]
-    
+
     for _ in range(32, 2, -2):
-        status_text = f"{random.choice(words)} {mods[_ % len(mods)]}....".center(col)
-        
+        status_text = f"{random.choice(words)} {mods[_ % len(mods)]}....".center(
+            col)
+
         max_width = col // _
         for i in range(max_width + 1):
             bar = "#" * i + " " * (max_width - i)
-            display = f"{status_text}\n{'|' + bar + '|' : ^{col}}"
+            display = f"{status_text}\n{'|' + bar + '|': ^{col}}"
             print(display, end="\r")
-            
+
             time.sleep(1/16 * random.random() + 1e-6)
-            print("\033[A", end="") 
-        
+            print("\033[A", end="")
+
         clear()
-        
+
+
 def Wrapper(func: Any) -> Any:
     def inner(*args: Any, **kwargs: Any) -> Any:
         print("Calling", func.__name__, end=" -> ")
@@ -42,8 +45,7 @@ def Wrapper(func: Any) -> Any:
     return inner
 
 
-LOG_COUNTER_FILE = "log/log_counter.txt"
-
+LOG_COUNTER_FILE = "DONT TOUCH/game/log/log_counter.txt"
 # Read counter once at startup
 if os.path.exists(LOG_COUNTER_FILE):
     try:
@@ -54,8 +56,9 @@ if os.path.exists(LOG_COUNTER_FILE):
 else:
     log_counter = 0
 
-with open('log\\game.log', "w", encoding="utf-8") as f:
-    f.write(f"{("Game Log Started".center(col//2,"=").center(col," "))}\n")
+with open("DONT TOUCH/game/log/game.log", "w", encoding="utf-8") as f:
+    f.write(f"{("Game Log Started".center(col//2, "=").center(col, " "))}\n")
+
 
 def log(*args: str):
     global log_counter
@@ -64,7 +67,7 @@ def log(*args: str):
     msg = " ".join(map(str, args))
     stamp = datetime.now().strftime("%d/%m/%Y,%H:%M:%S")
     line = f"[{stamp}] [Log {log_counter}] {msg}"
-    with open("log/game.log", "a", encoding="utf-8") as f:
+    with open("DONT TOUCH/game/log/game.log", "a", encoding="utf-8") as f:
         f.write(line + "\n")
 
     # Save counter to file every time (safe and persistent)
@@ -72,7 +75,7 @@ def log(*args: str):
         f.write(str(log_counter))
 
 
-with open('log\\mob.csv', "w", newline="", encoding="utf-8") as f:
+with open('DONT TOUCH/game/log/mob.csv', "w", newline="", encoding="utf-8") as f:
     writer = csv.writer(f)
     writer.writerow([
         "Timestamp", "ID", "Mob_Type", "HP", "DMG", "Lvl", "Evolve", "Boss"
@@ -81,7 +84,7 @@ with open('log\\mob.csv', "w", newline="", encoding="utf-8") as f:
 
 def log_mobs(ID: str, mob_type: str, HP: int, DMG: int, Lvl: int, Evolve: bool, Boss: bool):
 
-    with open('log\\mob.csv', mode='a', newline='', encoding="utf-8") as file:
+    with open("DONT TOUCH/game/log/mob.log", mode='a', newline='', encoding="utf-8") as file:
         writer = csv.writer(file)
 
         timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -94,7 +97,7 @@ def clear() -> None:
 
 os.system('cls' if os.name == 'nt' else 'clear')
 
-#loading_screen()
+loading_screen()
 
 print(" Welcome to the game! ".center(col, "="))
 while True:
@@ -131,14 +134,15 @@ else:
 local_biome = wrld.generate_location()
 print(f"You have spawned in a {local_biome} biome.")
 
-m_1 = Monster(difficulty=Difficulty, Type="ᵟ")
-x, y, z = wrld.spawn_chunk(wrld.chunk_size**2)
-dir_moved: list[str] = []
+m_1 = Monster()
+
+x, y, z = wrld.spawn_chunk(wrld.chunk_size**2) #? made into chunk_size**2 bcs the world is a square
+dir_moved: list[str] = []  #? list of directions moved by player
 log(f"Player '{p_1.name}' spawned at coordinates (x: {x}, y: {y}, z: {z}) in a {local_biome} biome on {Difficulty} difficulty with seed '{Seed_input}'.")
 wrld.gen_terrain(local_biome, Difficulty)
-wrld.display_chunk((x, y, z))
+wrld.display_chunk((x, y, z)) #?displays chunk
 wrld.gen_mobs(Difficulty, m_1.mob_pos_list)
-mob_list: list[tuple[Mob,tuple[int,int]]] = []
+mob_list: list[tuple[Mob, tuple[int, int]]] = []
 mon_types: dict[str, str] = {"Weak": "ᵟ", "Strong": "Ω"}
 for i, mob in enumerate(m_1.mob_pos_list):
     b_c = random.random() > 0.8
@@ -149,7 +153,7 @@ for i, mob in enumerate(m_1.mob_pos_list):
             mon_types[mob["type"]],  # Mob tiers
             b_c,  # Boss chance
             e_c  # Evolve chance
-            ),m_1.mob_pos_list[i]["pos"]))
+            ), m_1.mob_pos_list[i]["pos"]))
     log_mobs(
         ID=chr(65+(i % 26))+str(i),  # Mob ID
         mob_type=mon_types[mob["type"]],  # Mob tiers
@@ -158,14 +162,14 @@ for i, mob in enumerate(m_1.mob_pos_list):
         Lvl=int(mob_list[i][0].level),
         Boss=b_c,  # Boss chance
         Evolve=e_c  # Evolve chance
-        )
-for _ in range(10):
+    )
+for _ in range(2):
     for i in range(m_1.seconds):
-        clear()
+        clear() #? clears screen
 
-        m_1.brownian_motion(m_1.mob_pos_list, wrld)
+        m_1.brownian_motion(m_1.mob_pos_list, wrld) #? simulates movement of mobs
         for i in range(len(mob_list)):
-            mob_list[i] = (mob_list[i][0], m_1.mob_pos_list[i]["pos"])
+            mob_list[i] = (mob_list[i][0], m_1.mob_pos_list[i]["pos"]) #? changes old mob coords to updated coords 
         wrld.display_chunk((x, y, z))
         print("What would you like to do now?")
         print("1.Move\n2.Check Status\n3.Scout Mobs")
@@ -187,16 +191,17 @@ for _ in range(10):
                 x += 1
             else:
                 print("Invalid")
-                continue
             # Create a tuple of current player position
-            player_pos = ((x+wrld.chunk_size//2)%wrld.chunk_size, (y+wrld.chunk_size//2)%wrld.chunk_size)
+            player_pos = ((x+wrld.chunk_size//2) % wrld.chunk_size,
+                          (y+wrld.chunk_size//2) % wrld.chunk_size)
 
             # Find the mob that is actually at the player's position
             # We loop through our object list to find the match
-            for mob,coords in mob_list:
+            for mob, coords in mob_list:
                 # Assuming your Mob class has a .pos attribute updated by brownian_motion
                 if coords == player_pos:
-                    print(f"!!! ENCOUNTERED {mob.mob_id} ({mob.mob_type}) !!!".center(col))
+                    print(
+                        f"!!! ENCOUNTERED {mob.mob_id} ({mob.mob_type}) !!!".center(col))
                     print(Combat(p_1, mob).engage())
         elif choice.lower() in ("status", "check", "check status") or choice == "2":
             print(p_1.status_screen())
@@ -204,18 +209,20 @@ for _ in range(10):
             # --- Inside your Choice 3 logic ---
             try:
                 # Load and clean headers immediately
-                df = pd.read_csv('log/mob.csv', encoding='utf-8')
-                df.columns = df.columns.str.strip() 
+                df = pd.read_csv('DONT TOUCH/game/log/mob.csv', encoding='utf-8')
+                df.columns = df.columns.str.strip()
 
                 # We use numeric_only=True to prevent it from trying to average symbols/IDs
-                summary = df.groupby('Mob_Type')[['HP', 'DMG']].mean(numeric_only=True)
+                summary = df.groupby('Mob_Type')[
+                    ['HP', 'DMG']].mean(numeric_only=True)
 
-                print("\n" + (" SCOUT REPORT ".center(col//2, "=")).center(col," "))
+                print("\n" + (" SCOUT REPORT ".center(col//2, "=")).center(col, " "))
                 if summary.empty:
                     print("No mob data found in the area.")
                 else:
-                    print(summary.round(1)) # round to 1 decimal for cleanliness
-                print("=" * 30)
+                    # round to 1 decimal for cleanliness
+                    print(summary.round(1))
+                print(("=".center(col//2,"=")).center(col))
 
             except FileNotFoundError:
                 print("Error: No mob log file found. Try spawning mobs first.")

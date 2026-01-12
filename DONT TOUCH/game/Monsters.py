@@ -6,10 +6,11 @@ import csv
 import os
 
 
-def log_mob_position(mob_type: str, x: int, y: int):
-    file_exists = os.path.isfile('log\\mob_logs.csv')
 
-    with open('log\\mob_logs.csv', mode='a', newline='') as file:
+def log_mob_position(mob_type: str, x: int, y: int):
+    file_exists = os.path.isfile("DONT TOUCH/game/log/mob.log")
+
+    with open("DONT TOUCH/game/log/mob.log", mode='a', newline='') as file:
         writer = csv.writer(file)
 
         # Write the header only if the file is new
@@ -22,31 +23,13 @@ def log_mob_position(mob_type: str, x: int, y: int):
 
 
 class Monster(Player):
-    def __init__(self, difficulty: str, Type: str, Evolve: bool = False):
+    def __init__(self):
         super().__init__(name="Monster")
-        self.difficulty: str = difficulty
-        self.Evolve = Evolve
-        self.mob_type = Type
         self.seconds = 6  # a mob moves every second and im tryin to emulate dnd mechanics
         self.mob_pos_list: list[dict[str, tuple[int, int] | str]] = []
 
-    def evolve(self, Mob_lvl: int, Mob_Tier: str) -> None:
-        if not self.Evolve:
-            return
-        if Mob_Tier == "Weak":
-            self.level = (Mob_lvl*1.2)//1
-            self.hp = (self.hp*1.3)//1
-            self.dmg = (self.dmg*1.3)//1
-        elif Mob_Tier == "Strong":
-            self.level = (Mob_lvl*1.5)//1
-            self.hp = (self.hp*1.5)//1
-            self.dmg = (self.dmg*1.5)//1
-        elif Mob_Tier == "Boss":
-            self.level = (Mob_lvl*2)//1
-            self.hp = (self.hp*2)//1
-            self.dmg = (self.dmg*2)//1
-
     def loot_drop(self, player: Player) -> list[str]:
+        #todo: change this func to implement the lootable class of loot_table.py
         loot: list[str] = []
         gold_dropped = random.randint(1, 10) * self.level
         loot.append(f"{gold_dropped} Gold Coins")
@@ -61,17 +44,6 @@ class Monster(Player):
         return loot
 
     
-    def monster_info(self) -> str:
-        info: str = (
-            f"Monster Level: {self.level}\n"
-            f"Monster HP: {self.hp}\n"
-            f"Monster DMG: {self.dmg}\n"
-        )
-        return info
-
-    def check_mob_status(self) -> None:
-        raise NotImplementedError("NUh uh")
-
     def brownian_motion(self, mob_list: list[Any], world: Any):
         half = world.chunk_size - 1
         mon_types = {"Weak": "ᵟ", "Strong": "Ω"}
@@ -104,15 +76,15 @@ class Mob:
         if self.difficulty == "Easy":
             self.level = random.randint(1, 5)+(5 if "ᵟ" not in Type else 0)
             self.hp = random.randint(20, 50)+(10 if "ᵟ" not in Type else 0)
-            self.dmg = random.randint(5, 15)+(5 if "ᵟ" not in Type else 0)
+            self.dmg = random.randint(1, 5)+(5 if "ᵟ" not in Type else 0)
         elif self.difficulty == "Normal":
             self.level = random.randint(5, 15)+(10 if "ᵟ" not in Type else 0)
             self.hp = random.randint(50, 100)+(25 if "ᵟ" not in Type else 0)
-            self.dmg = random.randint(15, 30)+(10 if "ᵟ" not in Type else 0)
+            self.dmg = random.randint(5, 15)+(10 if "ᵟ" not in Type else 0)
         elif self.difficulty == "Hard":
             self.level = random.randint(15, 30)+(15 if "ᵟ" not in Type else 0)
-            self.hp = random.randint(100, 200)+(50 if "ᵟ" not in Type else 0)
-            self.dmg = random.randint(30, 50)+(15 if "ᵟ" not in Type else 0)
+            self.hp = random.randint(100, 150)+(50 if "ᵟ" not in Type else 0)
+            self.dmg = random.randint(15, 30)+(15 if "ᵟ" not in Type else 0)
         if self.Boss:
             self.level *= 2
             self.hp *= 3
@@ -128,3 +100,13 @@ class Mob:
         damage_dealt = self.dmg * (1 + random.uniform(-0.1, 0.1))
         player.hp -= damage_dealt
         return damage_dealt
+    def monster_info(self) -> str:
+            info: str = (
+                f"Monster Level: {self.level}\n"
+                f"Monster HP: {self.hp}\n"
+                f"Monster DMG: {self.dmg}\n"
+            )
+            return info
+
+    def check_mob_status(self) -> None:
+        raise NotImplementedError("NUh uh")
