@@ -3,6 +3,7 @@ from colorama import init, Fore, Back, Style
 import random
 init(autoreset=True)
 
+mon_types: dict[str, str] = {"Weak": "ᵟ", "Strong": "Ω"}
 
 class Generate_World:
     def __init__(self, seed: int | str):
@@ -52,7 +53,7 @@ class Generate_World:
         size = len(self.chunk)
         cx, cy, _ = coords
         self.player_icons: list[str] = ["|", "⨋", "⨌", "⨍", "⨎"]
-        self.player_icon: str = self.player_icons[0] 
+        self.player_icon: str = self.player_icons[2] 
         self.terrain: dict[str, str] = {
             "0": Style.BRIGHT+Fore.GREEN + "░",  # Grass
             "1": Style.BRIGHT+Fore.GREEN + "▲",  # Tree
@@ -169,3 +170,9 @@ class Generate_World:
                     if roll > 0.2:
                         mob_list.append({"type": "Strong", "pos": (i, j)})
                         self.chunk[i][j] = "S"
+        for i,char in enumerate(mob_list):
+            char["ID"] = (
+        mon_types[char["type"]] +
+        chr(65 + (i % 26)) +
+        str(i)
+    )

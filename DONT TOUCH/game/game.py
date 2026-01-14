@@ -18,12 +18,26 @@ col, row = get_terminal_size()
 
 
 def loading_screen():
-    words = ["Loading", "Installing", "Deleting", "Optimizing"]
-    mods = ["Player", "Monster", "Mob", "Generate_World", "Life"]
-
-    for _ in range(32, 2, -2):
-        status_text = f"{random.choice(words)} {mods[_ % len(mods)]}....".center(
-            col)
+    words = ["Loading", "Installing", "Deleting", "Optimizing", "Rewriting", "Patching", "Overclocking", "Rebalancing", "Hotfixing", "Summoning", "Sacrificing", "Gaslighting", "Threatening", "Negotiating with", "Spawning", "Syncing", "Binding", "Registering", "Resolving"
+             ]
+    prefixes = [
+        "Pre-", "Post-", "Re-", "Auto-", "Hyper-",
+        "Quantum ", "Pseudo-", "Meta-", "Deferred ",
+        "Experimental "
+    ]
+    mods = ["Player", "Monster", "Mob", "Generate_World", "Life", "Reality", "Timeline", "Balance",
+            "Entropy", "Luck", "Render Pipeline", "Event Loop", "Tick Rate", "Memory Pool", "State Machine"]
+    suffixes = [
+        "...", "....", " [OK]", " [FAIL?]", " [RETRYING]",
+        " (safe)", " (unstable)", " (do not interrupt)", "[HELP ME]"
+    ]
+    for _ in range(10, 2, -2):
+        status_text = (
+            f"{random.choice(prefixes)}"
+            f"{random.choice(words)} "
+            f"{random.choice(mods)}"
+            f"{random.choice(suffixes)}"
+        ).center(col)
 
         max_width = col // _
         for i in range(max_width + 1):
@@ -31,7 +45,7 @@ def loading_screen():
             display = f"{status_text}\n{'|' + bar + '|': ^{col}}"
             print(display, end="\r")
 
-            time.sleep(1/16 * random.random() + 1e-6)
+            time.sleep(1/(len(status_text))*2)
             print("\033[A", end="")
 
         clear()
@@ -78,17 +92,18 @@ def log(*args: str):
 with open('DONT TOUCH/game/log/mob.csv', "w", newline="", encoding="utf-8") as f:
     writer = csv.writer(f)
     writer.writerow([
-        "Timestamp", "ID", "Mob_Type", "HP", "DMG", "Lvl", "Evolve", "Boss"
+        "Timestamp", "ID", "Mob_Type", "HP", "DMG", "Lvl", "Evolve", "Boss", "is_alive"
     ])
 
 
-def log_mobs(ID: str, mob_type: str, HP: int, DMG: int, Lvl: int, Evolve: bool, Boss: bool):
+def log_mobs(ID: str, mob_type: str, HP: int, DMG: int, Lvl: int, Evolve: bool, Boss: bool, is_alive: bool):
 
-    with open("DONT TOUCH/game/log/mob.log", mode='a', newline='', encoding="utf-8") as file:
+    with open("DONT TOUCH/game/log/mob.csv", mode='a', newline='', encoding="utf-8") as file:
         writer = csv.writer(file)
 
         timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        writer.writerow([timestamp, ID, mob_type, HP, DMG, Lvl, Evolve, Boss])
+        writer.writerow([timestamp, ID, mob_type, HP,
+                        DMG, Lvl, Evolve, Boss, is_alive])
 
 
 def clear() -> None:
@@ -97,7 +112,7 @@ def clear() -> None:
 
 os.system('cls' if os.name == 'nt' else 'clear')
 
-loading_screen()
+# loading_screen()
 
 print(" Welcome to the game! ".center(col, "="))
 while True:
@@ -122,6 +137,7 @@ while True:
         clear()
     else:
         break
+
 p_1.diff_equalizer(Difficulty)
 
 Seed_input: str = input("Enter a seed (numbers or words): ")
@@ -136,40 +152,45 @@ print(f"You have spawned in a {local_biome} biome.")
 
 m_1 = Monster()
 
-x, y, z = wrld.spawn_chunk(wrld.chunk_size**2) #? made into chunk_size**2 bcs the world is a square
-dir_moved: list[str] = []  #? list of directions moved by player
+# ? made into chunk_size**2 bcs the world is a square
+x, y, z = wrld.spawn_chunk(wrld.chunk_size**2)
+dir_moved: list[str] = []  # ? list of directions moved by player
 log(f"Player '{p_1.name}' spawned at coordinates (x: {x}, y: {y}, z: {z}) in a {local_biome} biome on {Difficulty} difficulty with seed '{Seed_input}'.")
 wrld.gen_terrain(local_biome, Difficulty)
-wrld.display_chunk((x, y, z)) #?displays chunk
+wrld.display_chunk((x, y, z))  # ?displays chunk
 wrld.gen_mobs(Difficulty, m_1.mob_pos_list)
 mob_list: list[tuple[Mob, tuple[int, int]]] = []
 mon_types: dict[str, str] = {"Weak": "ᵟ", "Strong": "Ω"}
+char_list: list[str] = []
 for i, mob in enumerate(m_1.mob_pos_list):
     b_c = random.random() > 0.8
     e_c = random.random() > 0.5
     mob_list.append((
         Mob(Difficulty,  # Difficulty of main loop
-            chr(65+(i % 26))+str(i),  # Mob ID
+            m_1.mob_pos_list[i]["ID"],  # Mob ID
             mon_types[mob["type"]],  # Mob tiers
             b_c,  # Boss chance
             e_c  # Evolve chance
             ), m_1.mob_pos_list[i]["pos"]))
     log_mobs(
-        ID=chr(65+(i % 26))+str(i),  # Mob ID
+        m_1.mob_pos_list[i]["ID"],  # Mob ID
         mob_type=mon_types[mob["type"]],  # Mob tiers
         HP=int(mob_list[i][0].hp),
         DMG=int(mob_list[i][0].dmg),
         Lvl=int(mob_list[i][0].level),
         Boss=b_c,  # Boss chance
         Evolve=e_c  # Evolve chance
+        is_alive=True
     )
 for _ in range(2):
     for i in range(m_1.seconds):
-        clear() #? clears screen
+        clear()  # ? clears screen
 
-        m_1.brownian_motion(m_1.mob_pos_list, wrld) #? simulates movement of mobs
+        # ? simulates movement of mobs
+        m_1.brownian_motion(m_1.mob_pos_list, wrld)
         for i in range(len(mob_list)):
-            mob_list[i] = (mob_list[i][0], m_1.mob_pos_list[i]["pos"]) #? changes old mob coords to updated coords 
+            # ? changes old mob coords to updated coords
+            mob_list[i] = (mob_list[i][0], m_1.mob_pos_list[i]["pos"])
         wrld.display_chunk((x, y, z))
         print("What would you like to do now?")
         print("1.Move\n2.Check Status\n3.Scout Mobs")
@@ -209,7 +230,8 @@ for _ in range(2):
             # --- Inside your Choice 3 logic ---
             try:
                 # Load and clean headers immediately
-                df = pd.read_csv('DONT TOUCH/game/log/mob.csv', encoding='utf-8')
+                df = pd.read_csv(
+                    'DONT TOUCH/game/log/mob.csv', encoding='utf-8')
                 df.columns = df.columns.str.strip()
 
                 # We use numeric_only=True to prevent it from trying to average symbols/IDs
@@ -222,11 +244,12 @@ for _ in range(2):
                 else:
                     # round to 1 decimal for cleanliness
                     print(summary.round(1))
-                print(("=".center(col//2,"=")).center(col))
+                print(("=".center(col//2, "=")).center(col))
 
             except FileNotFoundError:
                 print("Error: No mob log file found. Try spawning mobs first.")
             except Exception as e:
                 print(f"Scout failed: {e}")
+        p_1.is_is_alive()
         waiting_for_input = input(">")
 log(f"Player '{p_1.name}' moved {', '.join(dir_moved)} to coordinates (x: {x}, y: {y}, z: {z}).")

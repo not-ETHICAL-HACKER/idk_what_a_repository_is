@@ -45,30 +45,16 @@ class Combat:
             time.sleep(1)  # Simulate time between attacks
             if random.random() > 1 - self.player.attack_speed:
                 self.monster.hp -= self.player.dmg
-                print(f"{self.player.name} attacks {self.monster.mob_type} for {self.player.dmg} damage!")
+                print(
+                    f"{self.player.name} attacks {self.monster.mob_type} for {self.player.dmg} damage!")
                 log(self.player.name, "attacked", self.monster.mob_type,
                     "for", self.player.dmg, "damage.")
-            else:
+            elif random.random() > 1 - self.monster.attack_speed:
                 self.player.hp -= self.monster.dmg
-                print(f"{self.monster.mob_type} attacks {self.player.name} for {self.monster.dmg} damage!")
+                print(
+                    f"{self.monster.mob_type} attacks {self.player.name} for {self.monster.dmg} damage!")
                 log(self.monster.mob_type, "attacked", self.player.name,
                     "for", self.monster.dmg, "damage.")
-            # if random.random() < 0.25:
-            #     if self.player_flee_chance():
-            #         log(self.player.name, "fled from", self.monster.mob_type)
-            #         return f"{self.player.name} has fled from the {self.monster.mob_type}!"
-            #     else:
-            #         print(f"{self.player.name} tried to flee but failed!")
-            #         log(self.player.name, "tried to flee but failed from",
-            #             self.monster.mob_type)
-            # elif random.random() < 0.20:
-            #     if self.monster_flee_chance():
-            #         log(self.monster.mob_type, "fled from", self.player.name)
-            #         return f"The {self.monster.mob_type} has fled from {self.player.name}!"
-            #     else:
-            #         print(f"The {self.monster.mob_type} tried to flee but failed!")
-            #         log(self.monster.mob_type, "tried to flee but failed from",
-            #             self.player.name)
             if (self.player.hp <= 5 or self.monster.hp <= 10) and random.random() < 0.5:
                 if self.player.hp <= 5:
                     print(self.player.name, "is attempting Last Stand!")
@@ -82,8 +68,14 @@ class Combat:
             log(self.monster.mob_type, "attacked", self.player.name,
                 "for", self.monster.dmg, "damage.")
             if self.player.hp <= 0:
-                log(self.player.name, "was defeated by", self.monster.mob_type)
-                return f"{self.player.name} has been defeated by the {self.monster.mob_type}!"
+                log(self.player.name, "was defeated by",
+                    self.monster.mob_type+self.monster.mob_id)
+                return f"{self.player.name} has been defeated by the {self.monster.mob_type+self.monster.mob_id}!"
+            elif self.monster.hp <= 0:
+                log(self.monster.mob_type+self.monster.mob_id,
+                    "was defeated by", self.player.name)
+                return f"{self.monster.mob_type+self.monster.mob_id} has been defeated by the {self.player.name}!"
+            self.monster.check_mob_status()
         return "Combat ended."
 
     def player_flee_chance(self) -> bool:
@@ -119,10 +111,10 @@ class Combat:
             log(self.player.name, "successfully used Last Stand and restored HP!")
             print(self.player.name, "used Last Stand and restored HP!")
             if random.random() > 0.9:
-                self.player.hp = max(self.player.hp-50, 1)
-                log(self.player.name, "Last Stand exploded and dealt 50 damage to",
+                self.player.hp = max(self.player.hp - 10, 1)
+                log(self.player.name, "Last Stand exploded and dealt - 10 damage to",
                     self.monster.mob_type)
-                print(self.player.name, "Last Stand exploded and dealt 50 damage to",
+                print(self.player.name, "Last Stand exploded and dealt - 10 damage to",
                       self.monster.mob_type)
             return f"{self.player.name} used Last Stand and restored HP!"
         else:
@@ -140,11 +132,11 @@ class Combat:
             print(self.monster.mob_type,
                   "used Last Stand and restored HP!")
             if random.random() > 0.9:
-                self.monster.hp = max(self.monster.hp-50, 1)
+                self.monster.hp = max(self.monster.hp - 10, 1)
                 log(self.monster.mob_type,
-                    "Last Stand exploded and dealt 50 damage to", self.player.name)
+                    "Last Stand exploded and dealt - 10 damage to", self.player.name)
                 print(self.monster.mob_type,
-                      "Last Stand exploded and dealt 50 damage to", self.player.name)
+                      "Last Stand exploded and dealt - 10 damage to", self.player.name)
             return f"{self.monster.mob_type} used Last Stand and restored HP!"
         else:
             log(self.monster.mob_type, "failed to use Last Stand; HP too high.")

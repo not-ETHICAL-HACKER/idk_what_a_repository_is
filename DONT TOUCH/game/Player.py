@@ -38,12 +38,12 @@ class Player:
         self.name: str = name
         self.is_alive: bool = True
         self.status: str = "Alive"
-        self.attack_speed: float = random.random()  # Attacks per second
+        self.attack_speed: float = max(random.random(),0.1)  # Attacks per second
         self.level: float = 1
         self.exp:   float = 0
-        self.hp:    float = 100
+        self.hp:    float = 500
         self.mp:    float = 50
-        self.dmg:   float = 10
+        self.dmg:   float = 25 + round((random.random()*5),2)
         self.dex:   float = 10
         self.luck:  float = 5
         self.inventory: deque[Any] = deque()
@@ -142,3 +142,6 @@ class Player:
         log("You died.")
         time.sleep(5)
         sys.exit()
+
+    def heal_up(self):
+        raise NotImplementedError("vikfndsk DO sum thin")
