@@ -179,7 +179,7 @@ for i, mob in enumerate(m_1.mob_pos_list):
         DMG=int(mob_list[i][0].dmg),
         Lvl=int(mob_list[i][0].level),
         Boss=b_c,  # Boss chance
-        Evolve=e_c  # Evolve chance
+        Evolve=e_c,  # Evolve chance
         is_alive=True
     )
 for _ in range(2):
