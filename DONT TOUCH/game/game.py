@@ -71,7 +71,7 @@ else:
     log_counter = 0
 
 with open("DONT TOUCH/game/log/game.log", "w", encoding="utf-8") as f:
-    f.write(f"{("Game Log Started".center(col, "="))}\n")
+    f.write(f"{("Game Log Started".center(col//2, "="))}\n")
 
 
 def log(*args: str):
@@ -92,17 +92,17 @@ def log(*args: str):
 with open('DONT TOUCH/game/log/mob.csv', "w", newline="", encoding="utf-8") as f:
     writer = csv.writer(f)
     writer.writerow([
-        "Timestamp", "ID", "Mob_Type", "HP", "DMG", "Lvl", "Evolve", "Boss", "is_alive"
+        "Timestamp", "ID", "HP", "DMG", "Lvl", "Evolve", "Boss", "is_alive"
     ])
 
 
-def log_mobs(ID: str, mob_type: str, HP: int, DMG: int, Lvl: int, Evolve: bool, Boss: bool, is_alive: bool):
+def log_mobs(ID: str, Type: str, HP: int, DMG: int, Lvl: int, Evolve: bool, Boss: bool, is_alive: bool):
 
     with open("DONT TOUCH/game/log/mob.csv", mode='a', newline='', encoding="utf-8") as file:
         writer = csv.writer(file)
 
         timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        writer.writerow([timestamp, ID, mob_type, HP,
+        writer.writerow([timestamp, ID, Type, HP,
                         DMG, Lvl, Evolve, Boss, is_alive])
 
 
@@ -112,7 +112,7 @@ def clear() -> None:
 
 os.system('cls' if os.name == 'nt' else 'clear')
 
-# loading_screen()
+loading_screen()
 
 print(" Welcome to the game! ".center(col, "="))
 while True:
@@ -166,15 +166,16 @@ for i, mob in enumerate(m_1.mob_pos_list):
     b_c = random.random() > 0.8
     e_c = random.random() > 0.5
     mob_list.append((
-        Mob(Difficulty,  # Difficulty of main loop
-            m_1.mob_pos_list[i]["ID"],  # Mob ID
-            mon_types[mob["type"]],  # Mob tiers
-            b_c,  # Boss chance
-            e_c  # Evolve chance
-            ), m_1.mob_pos_list[i]["pos"])) #todo implement life counter 
+        Mob(diff=Difficulty,  # Difficulty of main loop
+            mob_id=m_1.mob_pos_list[i]["ID"],  # Mob ID
+            Type=mon_types[mob["type"]],  # Mob tiers
+            Boss=b_c,  # Boss chance
+            Evolve=e_c,  # Evolve chance
+            Is_Alive=True
+            ), m_1.mob_pos_list[i]["pos"]))  # todo implement life counter
     log_mobs(
         m_1.mob_pos_list[i]["ID"],  # Mob ID
-        mob_type=mon_types[mob["type"]],  # Mob tiers
+        Type=mon_types[mob["type"]],  # Mob tiers
         HP=int(mob_list[i][0].hp),
         DMG=int(mob_list[i][0].dmg),
         Lvl=int(mob_list[i][0].level),
@@ -223,7 +224,7 @@ while not p_1.is_dead():
                 if coords == player_pos:
                     print(
                         f"!!! ENCOUNTERED {mob.mob_id} ({mob.mob_type}) !!!".center(col))
-                    print(Combat(p_1, mob).engage())
+                    print(Combat(p_1, mob, coords, wrld).engage())
         elif choice.lower() in ("status", "check", "check status") or choice == "2":
             print(p_1.status_screen())
         elif choice.lower() in ("scout", "scout mobs") or choice == "3":
@@ -250,5 +251,23 @@ while not p_1.is_dead():
                 print("Error: No mob log file found. Try spawning mobs first.")
             except Exception as e:
                 print(f"Scout failed: {e}")
+        with open('DONT TOUCH/game/log/mob.csv', "w", newline="", encoding="utf-8") as f:
+            writer = csv.writer(f)
+            writer.writerow([
+                "Timestamp", "ID", "Type", "HP", "DMG", "Lvl", "Evolve", "Boss", "is_alive"
+            ])
+        for v, mob in enumerate(m_1.mob_pos_list):
+            b_c = random.random() > 0.8
+            e_c = random.random() > 0.5
+            log_mobs(
+                m_1.mob_pos_list[v]["ID"],  # Mob ID
+                Type=mon_types[mob["type"]],  # Mob tiers
+                HP=int(mob_list[v][0].hp),
+                DMG=int(mob_list[v][0].dmg),
+                Lvl=int(mob_list[v][0].level),
+                Boss=b_c,  # Boss chance
+                Evolve=e_c,  # Evolve chance
+                is_alive= int(mob_list[v][0].hp) >= 0
+            )
         waiting_for_input = input(">")
 log(f"Player '{p_1.name}' moved {', '.join(dir_moved)} to coordinates (x: {x}, y: {y}, z: {z}).")

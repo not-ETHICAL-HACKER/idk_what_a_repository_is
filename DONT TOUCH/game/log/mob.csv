@@ -1,24 +1,24 @@
-Timestamp,ID,Mob_Type,HP,DMG,Lvl,Evolve,Boss,is_alive
-2026-01-18 14:47:11,ᵟA0,ᵟ,198,15,10,True,True,True
-2026-01-18 14:47:11,ΩB1,Ω,36,10,5,False,False,True
-2026-01-18 14:47:11,ᵟC2,ᵟ,130,3,6,True,True,True
-2026-01-18 14:47:11,ᵟD3,ᵟ,38,5,2,False,False,True
-2026-01-18 14:47:11,ᵟE4,ᵟ,57,1,3,True,False,True
-2026-01-18 14:47:11,ΩF5,Ω,72,15,5,True,False,True
-2026-01-18 14:47:11,ᵟG6,ᵟ,27,3,5,False,False,True
-2026-01-18 14:47:11,ᵟH7,ᵟ,35,2,4,False,False,True
-2026-01-18 14:47:11,ᵟI8,ᵟ,23,4,3,False,False,True
-2026-01-18 14:47:11,ᵟJ9,ᵟ,20,3,4,False,False,True
-2026-01-18 14:47:11,ΩK10,Ω,162,21,12,True,True,True
-2026-01-18 14:47:11,ᵟL11,ᵟ,58,1,1,True,False,True
-2026-01-18 14:47:11,ᵟM12,ᵟ,48,3,5,True,False,True
-2026-01-18 14:47:11,ᵟN13,ᵟ,36,6,3,True,False,True
-2026-01-18 14:47:11,ᵟO14,ᵟ,66,4,4,True,False,True
-2026-01-18 14:47:11,ᵟP15,ᵟ,32,3,4,False,False,True
-2026-01-18 14:47:11,ΩQ16,Ω,50,10,5,False,False,True
-2026-01-18 14:47:11,ᵟR17,ᵟ,171,9,2,True,True,True
-2026-01-18 14:47:11,ᵟS18,ᵟ,130,3,6,True,True,True
-2026-01-18 14:47:11,ᵟT19,ᵟ,40,1,2,False,False,True
-2026-01-18 14:47:11,ᵟU20,ᵟ,29,4,2,False,False,True
-2026-01-18 14:47:11,ᵟV21,ᵟ,153,6,4,True,True,True
-2026-01-18 14:47:11,ᵟW22,ᵟ,31,4,1,False,False,True
+Timestamp          , ID  , Type, HP , DMG, Lvl, Evolve, Boss , is_alive
+2026-01-18 19:11:37, ᵟA0 , ᵟ   , 198,  15,  10, False , True , True
+2026-01-18 19:11:37, ΩB1 , Ω   , 36 ,  10,   5, True  , False, True
+2026-01-18 19:11:37, ᵟC2 , ᵟ   , 130,   3,   6, False , True , True
+2026-01-18 19:11:37, ᵟD3 , ᵟ   , -6 ,   5,   2, True  , True , False
+2026-01-18 19:11:37, ᵟE4 , ᵟ   , 57 ,   1,   3, False , False, True
+2026-01-18 19:11:37, ΩF5 , Ω   , 72 ,  15,   5, True  , False, True
+2026-01-18 19:11:37, ᵟG6 , ᵟ   , 27 ,   3,   5, False , False, True
+2026-01-18 19:11:37, ᵟH7 , ᵟ   , 35 ,   2,   4, True  , False, True
+2026-01-18 19:11:37, ᵟI8 , ᵟ   , 23 ,   4,   3, False , False, True
+2026-01-18 19:11:37, ᵟJ9 , ᵟ   , 20 ,   3,   4, False , False, True
+2026-01-18 19:11:37, ΩK10, Ω   , 162,  21,  12, False , False, True
+2026-01-18 19:11:38, ᵟL11, ᵟ   , 58 ,   1,   1, False , False, True
+2026-01-18 19:11:38, ᵟM12, ᵟ   , 48 ,   3,   5, False , False, True
+2026-01-18 19:11:38, ᵟN13, ᵟ   , 36 ,   6,   3, False , False, True
+2026-01-18 19:11:38, ᵟO14, ᵟ   , 66 ,   4,   4, True  , False, True
+2026-01-18 19:11:38, ᵟP15, ᵟ   , 32 ,   3,   4, True  , False, True
+2026-01-18 19:11:38, ΩQ16, Ω   , 50 ,  10,   5, False , False, True
+2026-01-18 19:11:38, ᵟR17, ᵟ   , 171,   9,   2, True  , False, True
+2026-01-18 19:11:38, ᵟS18, ᵟ   , 130,   3,   6, False , False, True
+2026-01-18 19:11:38, ᵟT19, ᵟ   , 40 ,   1,   2, False , False, True
+2026-01-18 19:11:38, ᵟU20, ᵟ   , 29 ,   4,   2, True  , False, True
+2026-01-18 19:11:38, ᵟV21, ᵟ   , 153,   6,   4, False , False, True
+2026-01-18 19:11:38, ᵟW22, ᵟ   , 31 ,   4,   1, True  , False, True

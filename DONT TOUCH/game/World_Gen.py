@@ -75,7 +75,9 @@ class Generate_World:
             "17": "17",
             "18": "18",
             "W": Style.BRIGHT+Fore.MAGENTA + "ᵟ",  # Weak Mob
+            "DW": Style.BRIGHT+Fore.LIGHTBLACK_EX + "ᵟ",  # Dead Weak Mob
             "S": Style.BRIGHT+Fore.RED + "Ω",     # Strong Mob
+            "DS": Style.DIM+Fore.LIGHTBLACK_EX + "Ω",     # Dead Strong Mob
             "ᵟ": Style.BRIGHT+Fore.MAGENTA + "ᵟ",  # Weak Mob
             "Ω": Style.BRIGHT+Fore.RED + "Ω",     # Strong Mob
         }
@@ -95,6 +97,14 @@ class Generate_World:
             print(" ".join(line))
         return l
 
+    def mob_ghost(self) -> None:
+        for i in range(self.chunk_size):
+            for j in range(self.chunk_size):
+                if self.chunk[i][j] == "DW":
+                    self.chunk[i][j] = self.terrain["DW"]
+                elif self.chunk[i][j] == "DS":
+                    self.chunk[i][j] = self.terrain["DS"]
+        return None
     def gen_terrain(self, biome: str, difficulty: str) -> None:
         self.biome = biome
         self.difficulty = difficulty

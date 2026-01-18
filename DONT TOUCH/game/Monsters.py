@@ -54,7 +54,7 @@ class Monster(Player):
                 x = max(0, min(half, x + dx))
                 y = max(0, min(half, y + dy))
 
-                if world.chunk[x][y] in ["0", "3", "6", "10", "11", "2", "5", "12", "16"]:
+                if world.chunk[x][y] in ["0", "3", "6", "10", "11", "2", "5", "12", "16","DW","DS"]:
                     old_terrain = world.chunk[x][y]
                     world.chunk[ox][oy] = old_terrain
                     world.chunk[x][y] = mon_types[mob["type"]]
@@ -72,6 +72,7 @@ class Mob:
         self.is_alive = Is_Alive
         self.attack_speed = max(random.random(), 0.1)
         self.seconds = 6  # a mob moves every second and im tryin to emulate dnd mechanics
+        self.pos: tuple[int, int] = (0, 0)
         self.mob_pos_list: list[dict[str | int, tuple[int, int] | str]] = []
         if self.difficulty == "Easy":
             self.level = random.randint(1, 5)+(1 if "ᵟ" not in Type else 0)
