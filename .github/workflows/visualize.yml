@@ -1,0 +1,40 @@
+name: "Create Repo Diagram"
+
+# This triggers the action every time you push to the main branch
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch: # This allows you to run it manually from the Actions tab
+
+jobs:
+  visualize:
+    runs-on: ubuntu-latest
+    
+    # Critical: This gives the action permission to commit the image back to your repo
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Update Diagram
+        uses: githubocto/repo-visualizer@main
+        with:
+          # 1. Where to save the file
+          output_file: "diagram.svg"
+          
+          # 2. Folders to ignore (keeps the diagram clean)
+          excluded_paths: "node_modules,.git,.github,dist,build,venv,env"
+          
+          # 3. Custom colors for your Python project
+          # You can use any hex or standard color names
+          file_colors: '{"py": "#3776ab", "md": "forestgreen", "json": "goldenrod"}'
+          
+          # 4. How deep to go into your folders (1-9)
+          max_depth: 5
+          
+          # 5. Automation settings
+          should_push: true
+          commit_message: "Auto-update repository diagram [skip ci]"    

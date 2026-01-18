@@ -1,3 +1,5 @@
 # This is my first repository
 
-this repository is mainly about me learnig python and other programing things
+## Repository Map
+
+![Code Landscape](./diagram.svg)
