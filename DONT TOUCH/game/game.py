@@ -71,7 +71,7 @@ else:
     log_counter = 0
 
 with open("DONT TOUCH/game/log/game.log", "w", encoding="utf-8") as f:
-    f.write(f"{("Game Log Started".center(col//2, "=").center(col, " "))}\n")
+    f.write(f"{("Game Log Started".center(col, "="))}\n")
 
 
 def log(*args: str):
@@ -171,7 +171,7 @@ for i, mob in enumerate(m_1.mob_pos_list):
             mon_types[mob["type"]],  # Mob tiers
             b_c,  # Boss chance
             e_c  # Evolve chance
-            ), m_1.mob_pos_list[i]["pos"]))
+            ), m_1.mob_pos_list[i]["pos"])) #todo implement life counter 
     log_mobs(
         m_1.mob_pos_list[i]["ID"],  # Mob ID
         mob_type=mon_types[mob["type"]],  # Mob tiers
@@ -182,7 +182,7 @@ for i, mob in enumerate(m_1.mob_pos_list):
         Evolve=e_c,  # Evolve chance
         is_alive=True
     )
-for _ in range(2):
+while not p_1.is_dead():
     for i in range(m_1.seconds):
         clear()  # ? clears screen
 
@@ -250,6 +250,5 @@ for _ in range(2):
                 print("Error: No mob log file found. Try spawning mobs first.")
             except Exception as e:
                 print(f"Scout failed: {e}")
-        p_1.is_is_alive()
         waiting_for_input = input(">")
 log(f"Player '{p_1.name}' moved {', '.join(dir_moved)} to coordinates (x: {x}, y: {y}, z: {z}).")

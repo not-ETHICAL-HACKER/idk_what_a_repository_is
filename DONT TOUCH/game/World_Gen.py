@@ -53,7 +53,7 @@ class Generate_World:
         size = len(self.chunk)
         cx, cy, _ = coords
         self.player_icons: list[str] = ["|", "⨋", "⨌", "⨍", "⨎"]
-        self.player_icon: str = self.player_icons[2] 
+        self.player_icon: str = self.player_icons[1] 
         self.terrain: dict[str, str] = {
             "0": Style.BRIGHT+Fore.GREEN + "░",  # Grass
             "1": Style.BRIGHT+Fore.GREEN + "▲",  # Tree
