@@ -97,6 +97,38 @@ with open('DONT TOUCH/game/log/mob.csv', "w", newline="", encoding="utf-8") as f
 
 
 def log_mobs(ID: str, Type: str, HP: int, DMG: int, Lvl: int, Evolve: bool, Boss: bool, is_alive: bool):
+    """
+    The function `log_mobs` writes mob data to a CSV file including timestamp, ID, type, HP, damage,
+    level, evolution status, boss status, and alive status.
+    
+    :param ID: The ID parameter is a string that represents the unique identifier of the mob
+    :type ID: str
+    :param Type: The `Type` parameter in the `log_mobs` function represents the type or category of the
+    mob being logged. It could be something like "Goblin", "Dragon", "Skeleton", etc., depending on the
+    type of creatures in your game
+    :type Type: str
+    :param HP: HP stands for "Hit Points" and represents the amount of health or life points a mob has
+    in a game. It indicates how much damage a mob can sustain before being defeated
+    :type HP: int
+    :param DMG: DMG stands for damage and it is an integer value representing the amount of damage that
+    a mob can inflict on a player or another entity in the game
+    :type DMG: int
+    :param Lvl: The "Lvl" parameter in the function represents the level of the mob. It is an integer
+    value indicating the level of the mob in the game
+    :type Lvl: int
+    :param Evolve: Evolve is a boolean parameter that indicates whether the mob has the ability to
+    evolve or not. If the mob can evolve, the value of this parameter would be True; otherwise, it would
+    be False
+    :type Evolve: bool
+    :param Boss: The `Boss` parameter in the `log_mobs` function is a boolean value that indicates
+    whether the mob is a boss or not. If the mob is a boss, the value of this parameter would be `True`,
+    otherwise it would be `False`
+    :type Boss: bool
+    :param is_alive: The `is_alive` parameter in the `log_mobs` function is a boolean value that
+    indicates whether the mob is currently alive or not. It is used to track the status of the mob in
+    the game
+    :type is_alive: bool
+    """
 
     with open("DONT TOUCH/game/log/mob.csv", mode='a', newline='', encoding="utf-8") as file:
         writer = csv.writer(file)
