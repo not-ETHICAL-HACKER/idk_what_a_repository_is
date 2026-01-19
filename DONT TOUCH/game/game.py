@@ -257,7 +257,7 @@ while not p_1.is_dead():
             for mob, coords in mob_list:
                 if coords == player_pos:
                     print(
-                        f"!!! ENCOUNTERED {mob.mob_id} ({mob.mob_type}) !!!".center(col))
+                        f"!!! ENCOUNTERED {mob.mob_id} ({mob.mob_type}) !!!".center(col//4))
                     print(Combat(p_1, mob, coords, wrld).engage())
                     if not mob.is_alive:
                         Loot = LOOT_TABLE(mob.level, "Boss" if mob.Boss else "Strong" if "Ω" in mob.mob_type else "Weak")
@@ -265,6 +265,7 @@ while not p_1.is_dead():
                         Loot_exp = Loot.generate_exp()
                         print(f"You gained {Loot_exp} EXP!")
                         p_1.exp += Loot_exp
+                        p_1.kill_count += 1
                         dead_mob_list.append((mob.mob_type, coords))
                         log(f"Mob '{mob.mob_id}' ({mob.mob_type}) defeated at coordinates (x: {coords[0]}, y: {coords[1]}).")
                     break
@@ -296,6 +297,26 @@ while not p_1.is_dead():
                 print("Error: No mob log file found. Try spawning mobs first.")
             except Exception as e:
                 print(f"Scout failed: {e}")
+        elif choice.lower() in ("help", "commands") or choice == "4":
+            print("Available Commands:".center(col//2, "-").center(col))
+            print("1. Move - Move your character using W/A/S/D keys.")
+            print("2. Check Status - View your current health, level, and experience.")
+            print("3. Scout Mobs - Get a report on nearby mobs and their stats.")
+            print("4. Help/Commands - Display this help message.")
+            print("5. Exit/Quit - Exit the game.")
+            print(("-".center(col//2, "-")).center(col))
+        elif choice.lower() in ("exit", "quit") or choice == "5":
+            print("Exiting game...")
+            exit()
+        elif choice == "6" or choice.lower() in ("heal"):
+            p_1.hp = 50 * (1 if p_1.difficulty != "Hard" else 0.5)
+            p_1.mp = 50 * (1 if p_1.difficulty != "Hard" else 0.5)
+            print("Healed to most health and mana.")
+        else:
+            print("Invalid choice. Please try again.")
+            time.sleep(2)
+            clear()
+            continue
         with open('DONT TOUCH/game/log/mob.csv', "w", newline="", encoding="utf-8") as f:
             writer = csv.writer(f)
             writer.writerow([

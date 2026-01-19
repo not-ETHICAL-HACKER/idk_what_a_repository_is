@@ -33,17 +33,20 @@ def log(*args: str):
     with open(LOG_COUNTER_FILE, "w") as f:
         f.write(str(log_counter))
 
+
 class Player:
     def __init__(self, name: str) -> None:
         self.name: str = name
         self.is_alive: bool = True
         self.status: str = "Alive"
-        self.attack_speed: float = max(random.random(),0.1)  # Attacks per second
+        self.attack_speed: float = max(
+            random.random(), 0.1)  # Attacks per second
+        self.kill_count: int = 0
         self.level: float = 1
         self.exp:   float = 0
-        self.hp:    float = 500
+        self.hp:    float = 50
         self.mp:    float = 50
-        self.dmg:   float = 25 + round((random.random()*5),2)
+        self.dmg:   float = 25 + round((random.random()*5), 2)
         self.dex:   float = 10
         self.luck:  float = 5
         self.inventory: deque[Any] = deque()
@@ -52,7 +55,7 @@ class Player:
         self.max_len: int = 0
 
     def is_dead(self) -> bool:
-        k = "Death Token" in self.inventory or not self.is_alive or self.hp<=0
+        k = "Death Token" in self.inventory or not self.is_alive or self.hp <= 0
         if not k:
             return False
         else:
@@ -117,6 +120,12 @@ class Player:
             f"DMG: {self.dmg}\n"
             f"DEX: {self.dex}\n"
             f"LUCK: {self.luck}\n"
+            f"Attack Speed: {self.attack_speed} attacks/sec\n"
+            f"Status: {self.status}\n"
+            f"Difficulty: {self.difficulty}\n"
+            f"EXP Gain Rate: {self.exp_gain_rate}\n"
+            f"EXP Multiplier: {self.exp_multiplier}\n"
+            f"Monster Kill Count: {self.kill_count if hasattr(self, 'kill_count') else 0}\n"
             f"Inventory: {', '.join(map(str, self.inventory)) if self.inventory else 'Empty'}"
         )
         return status_info
@@ -143,5 +152,5 @@ class Player:
         time.sleep(5)
         sys.exit()
 
-    def heal_up(self):
+    def heal_up(self) -> None:
         raise NotImplementedError("vikfndsk DO sum thin")
