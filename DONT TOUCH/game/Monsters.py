@@ -42,10 +42,11 @@ class Monster(Player):
             player.add_to_inventory(item)
         return loot
 
-    def brownian_motion(self, mob_list: list[Any], world: Any):
+    def brownian_motion(self, mob_list: list[Any], world: Any , dead_mobs:list[tuple[str,tuple[int,int]]]):
         half = world.chunk_size - 1
         mon_types = {"Weak": "ᵟ", "Strong": "Ω"}
-        for _ in range(self.seconds):
+        dead_mob_positions = [pos for _, pos in dead_mobs]
+        for _ in range(self.seconds): #! emulating dnd mechanics
             for mob in mob_list:
                 x, y = mob["pos"]
                 ox, oy = x, y
@@ -54,13 +55,16 @@ class Monster(Player):
                 x = max(0, min(half, x + dx))
                 y = max(0, min(half, y + dy))
 
-                if world.chunk[x][y] in ["0", "3", "6", "10", "11", "2", "5", "12", "16","DW","DS"]:
+                if world.chunk[x][y] in ["0", "3", "6", "10", "11", "2", "5", "12", "16"] and (x, y) not in dead_mob_positions:
                     old_terrain = world.chunk[x][y]
                     world.chunk[ox][oy] = old_terrain
                     world.chunk[x][y] = mon_types[mob["type"]]
                     mob["pos"] = (x, y)
                     log_mob_position(mob["type"], mob["pos"][0], mob["pos"][1])
-
+                elif world.chunk[x][y] in ["W", "S"]:
+                    if (ox,oy) in dead_mob_positions:
+                        world.chunk[ox][oy] = "D"+("S" if mob["type"] == "Strong" else "W")
+                
 
 class Mob:
     def __init__(self, diff: str, mob_id: str, Type: str, Boss: bool, Evolve: bool, Is_Alive: bool = True) -> None:

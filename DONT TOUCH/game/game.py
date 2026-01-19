@@ -4,6 +4,8 @@ from Monsters import Monster
 from Monsters import Mob
 from World_Gen import Generate_World
 from Combat import Combat
+from LOOT_TABLE import LOOT_TABLE
+from colorama import Fore, Style
 from shutil import get_terminal_size
 import time
 import csv
@@ -100,7 +102,7 @@ def log_mobs(ID: str, Type: str, HP: int, DMG: int, Lvl: int, Evolve: bool, Boss
     """
     The function `log_mobs` writes mob data to a CSV file including timestamp, ID, type, HP, damage,
     level, evolution status, boss status, and alive status.
-    
+
     :param ID: The ID parameter is a string that represents the unique identifier of the mob
     :type ID: str
     :param Type: The `Type` parameter in the `log_mobs` function represents the type or category of the
@@ -215,12 +217,13 @@ for i, mob in enumerate(m_1.mob_pos_list):
         Evolve=e_c,  # Evolve chance
         is_alive=True
     )
+dead_mob_list: list[tuple[str, tuple[int, int]]] = []
 while not p_1.is_dead():
-    for i in range(m_1.seconds):
+    for i in range(m_1.seconds//6):
         clear()  # ? clears screen
 
         # ? simulates movement of mobs
-        m_1.brownian_motion(m_1.mob_pos_list, wrld)
+        m_1.brownian_motion(m_1.mob_pos_list, wrld ,dead_mob_list)
         for i in range(len(mob_list)):
             # ? changes old mob coords to updated coords
             mob_list[i] = (mob_list[i][0], m_1.mob_pos_list[i]["pos"])
@@ -252,11 +255,21 @@ while not p_1.is_dead():
             # Find the mob that is actually at the player's position
             # We loop through our object list to find the match
             for mob, coords in mob_list:
-                # Assuming your Mob class has a .pos attribute updated by brownian_motion
                 if coords == player_pos:
                     print(
                         f"!!! ENCOUNTERED {mob.mob_id} ({mob.mob_type}) !!!".center(col))
                     print(Combat(p_1, mob, coords, wrld).engage())
+                    if not mob.is_alive:
+                        Loot = LOOT_TABLE(mob.level, "Boss" if mob.Boss else "Strong" if "Ω" in mob.mob_type else "Weak")
+                        loot_items = Loot.generate_loot()
+                        Loot_exp = Loot.generate_exp()
+                        print(f"You gained {Loot_exp} EXP!")
+                        p_1.exp += Loot_exp
+                        dead_mob_list.append((mob.mob_type, coords))
+                        log(f"Mob '{mob.mob_id}' ({mob.mob_type}) defeated at coordinates (x: {coords[0]}, y: {coords[1]}).")
+                    break
+
+            p_1.lvl_up()
         elif choice.lower() in ("status", "check", "check status") or choice == "2":
             print(p_1.status_screen())
         elif choice.lower() in ("scout", "scout mobs") or choice == "3":
@@ -291,6 +304,10 @@ while not p_1.is_dead():
         for v, mob in enumerate(m_1.mob_pos_list):
             b_c = random.random() > 0.8
             e_c = random.random() > 0.5
+            Is_alive_checker = int(mob_list[v][0].hp) >= 0
+            if not Is_alive_checker:
+                a, b = mob_list[v][1]
+                wrld.chunk[a][b] = "D"+("S" if mob_list[i][0].mob_type == "Strong" else "W")
             log_mobs(
                 m_1.mob_pos_list[v]["ID"],  # Mob ID
                 Type=mon_types[mob["type"]],  # Mob tiers
@@ -299,7 +316,10 @@ while not p_1.is_dead():
                 Lvl=int(mob_list[v][0].level),
                 Boss=b_c,  # Boss chance
                 Evolve=e_c,  # Evolve chance
-                is_alive= int(mob_list[v][0].hp) >= 0
+                is_alive=Is_alive_checker
             )
+
         waiting_for_input = input(">")
+
+
 log(f"Player '{p_1.name}' moved {', '.join(dir_moved)} to coordinates (x: {x}, y: {y}, z: {z}).")

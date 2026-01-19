@@ -5,7 +5,8 @@ class LOOT_TABLE:
         self.Mob_Tier = Mob_Tier
         self.gold_dropped = random.randint(1, 10)*Mob_lvl
         self.exp_dropped = Mob_lvl*random.randint(1, 5)
-
+    def generate_exp(self) -> int:
+        return self.exp_dropped
     def generate_loot(self) -> list[str]:
         self.loot: list[str] = []
         if self.Mob_Tier == "Weak":
