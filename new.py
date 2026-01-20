@@ -1,14 +1,8 @@
-from ursina import *
-
-app = Ursina()
-
-cube = Entity(
-    model='cube',
-    color=color.azure,
-    scale=(1,1,1)
-)
-
-def update():
-    cube.rotation_y += 1
-
-app.run()
+def inr_to_usd(inr:int)->str:
+    exchange =  1/80
+    return f"${inr * exchange:.2f}"
+def usd_to_inr(usd:int)->str:
+    exchange = 80
+    return f"₹{usd*exchange:.2f}"
+print(inr_to_usd(1600))
+print(usd_to_inr(20))
