@@ -6,7 +6,6 @@ from Player import Player
 from Monsters import Mob
 from datetime import datetime
 LOG_COUNTER_FILE = "DONT TOUCH/game/log/log_counter.txt"
-
 # Read counter once at startup
 if os.path.exists(LOG_COUNTER_FILE):
     try:
@@ -33,7 +32,25 @@ def log(*args: Any):
         f.write(str(log_counter))
 
 
+# The `Combat` class simulates a combat scenario between a player and a monster, including attacks,
+# skills, and last stand mechanics.
 class Combat:
+    """
+    Docstring for Combat
+
+    Attributes:
+    - player (Player): The player involved in the combat.
+    - monster (Mob): The monster involved in the combat.
+    - coords (tuple[int, int]): The coordinates of the combat location.
+    - world (Any): The game world where the combat takes place.
+    Methods:
+    - engage() -> str: Simulates the combat until one party is defeated.
+    - player_flee_chance() -> bool: Calculates the chance of the player fleeing.
+    - monster_flee_chance() -> bool: Calculates the chance of the monster fleeing.
+    - skill(skill_name: str) -> str: Executes a skill used by the player.
+    - last_stand_player() -> str: Executes the player's last stand ability.
+    - last_stand_monster() -> str: Executes the monster's last stand ability.
+    """
     def __init__(self, player: Player, monster: Mob, coords: tuple[int, int], world: Any) -> None:
         self.player = player
         self.world = world

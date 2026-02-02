@@ -1,5 +1,18 @@
 import random
+# The LOOT_TABLE class generates loot and experience drops based on the level and tier of a mob in a
+# game.
 class LOOT_TABLE:
+    """
+    Docstring for LOOT_TABLE
+    Attributes:
+    - Mob_lvl (int): The level of the mob.
+    - Mob_Tier (str): The tier of the mob (Weak, Strong, Boss
+    - gold_dropped (int): The amount of gold dropped by the mob.
+    - exp_dropped (int): The amount of experience points dropped by the mob.
+    Methods:
+    - generate_exp() -> int: Generates and returns the experience points dropped by the mob.
+    - generate_loot() -> list[str]: Generates and returns a list of loot items dropped by the mob.
+    """
     def __init__(self, Mob_lvl: int, Mob_Tier: str):
         self.Mob_lvl = Mob_lvl
         self.Mob_Tier = Mob_Tier

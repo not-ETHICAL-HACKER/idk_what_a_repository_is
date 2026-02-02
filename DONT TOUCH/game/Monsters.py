@@ -3,7 +3,10 @@ import random
 from typing import Any
 
 
+# The `Monster` class in Python represents a monster entity with attributes for movement and loot
+# drops, including a method for simulating Brownian motion movement behavior.
 class Monster(Player):
+    """This was originally intended to be the base class for all mobs, but was later replaced by the Mob class.\nNow it serves as a helper class for general monster behavior like movement and loot dropping."""
     def __init__(self):
         super().__init__(name="Monster")
         self.seconds = 6  # a mob moves every second and im tryin to emulate dnd mechanics
@@ -42,7 +45,33 @@ class Monster(Player):
                     world.chunk[x][y] = mon_types[mob["type"]]
                     mob["pos"] = (x, y)
 
+# The `Mob` class represents a game monster with attributes such as difficulty level, health points,
+# damage, type, boss status, and methods for attacking players and checking status.
 class Mob:
+    """
+    Mob entity with difficulty, type, boss status, and evolution mechanics.
+    
+    Attributes:
+
+    - difficulty (str): The difficulty level of the mob (Easy, Normal, Hard).
+    - mob_type (str): The type of the mob (e.g., Weak, Strong
+    - mob_id (str): A unique identifier for the mob.
+    - Boss (bool): Indicates if the mob is a boss.
+    - Evolve (bool): Indicates if the mob can evolve.
+    - is_alive (bool): Indicates if the mob is alive.
+
+    Methods:
+    - attack_player(player: Player) -> float: Simulates an attack on a player and returns damage dealt.
+    - monster_info() -> str: Returns a string with detailed information about the mob.
+    - check_mob_status() -> None: Checks if the mob is alive based on its health points.
+    
+    To Implement:
+
+    - make the mob drop loot using the LOOT_TABLE class
+    - add more mob behaviors and interactions
+    - implement mob evolution mechanics
+    - make the mobs actually die and respawn
+    """
     def __init__(self, diff: str, mob_id: str, Type: str, Boss: bool, Evolve: bool, Is_Alive: bool = True) -> None:
         self.difficulty: str = diff
         self.Evolve = Evolve

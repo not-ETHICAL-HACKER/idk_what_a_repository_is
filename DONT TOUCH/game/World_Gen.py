@@ -6,7 +6,30 @@ init(autoreset=True)
 mon_types: dict[str, str] = {"Weak": "ᵟ", "Strong": "Ω"}
 
 
+# The `Generate_World` class in Python is designed to create and manage a virtual world with features
+# such as generating locations, spawning chunks, displaying terrain, handling mobs, and generating
+# structures and resources.
 class Generate_World:
+    """
+    Docstring for Generate_World
+    
+    Attributes:
+    - player_pos (tuple[int, int, int]): The position of the player in the world.
+    - chunk_size (int): The size of each chunk in the world.
+    - chunk (list[list[str]]): The 2D representation of the current chunk.
+    Methods:
+    - generate_location() -> str: Generates a random location type.
+    - spawn_chunk(size: int) -> tuple[int, int, int]: Spawns a new chunk based on the given size.
+    - display_chunk(coords: tuple[int, int, int]) -> list[str]: Displays the current chunk with terrain and player position.
+    - remove_mob(mob_list: list[tuple[Any, tuple[int, int]]
+) -> None: Removes dead mobs from the chunk.
+    - dangerous_terrain(x: int, y: int) -> bool: Checks if the terrain at the given coordinates is dangerous.
+    - gen_terrain(biome: str, difficulty: str) -> None: Generates terrain based on biome and difficulty.
+    - gen_structures() -> None: Generates structures in the chunk.
+    - gen_resources() -> None: Generates resources in the chunk.
+    - gen_mobs(diff: str, mob_list: list[dict[str, Any]]) -> None: Generates mobs in the chunk based on difficulty.
+    
+    """
     def __init__(self, seed: int | str):
         self.player_pos: tuple[int, int, int] = (0, 0, 0)
         self.chunk_size = 11
@@ -88,7 +111,7 @@ class Generate_World:
             for j, cell in enumerate(row):
                 if (i, j) == ((cx+size//2) % self.chunk_size, (cy+size//2) % self.chunk_size):
                     icon_text = f"{self.player_icon:^1s}"
-                    line.append(Fore.RED + Style.BRIGHT +
+                    line.append(Fore.CYAN + Style.BRIGHT +
                                 icon_text + Style.RESET_ALL)  # Player position
                     self.player_pos = i, j, _
                 else:

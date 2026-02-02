@@ -20,7 +20,7 @@ else:
 
 
 def log(*args: str):
-    """Logs to game.log"""
+    """Logs to `game.log`"""
     global log_counter
     log_counter += 1
 
@@ -33,8 +33,38 @@ def log(*args: str):
     # Save counter to file every time (safe and persistent)
     with open(LOG_COUNTER_FILE, "w") as f:
         f.write(str(log_counter))
-
+# The `Player` class in Python represents a game player with attributes such as name, level,
+# experience points, health points, and methods for leveling up, gaining experience, managing
+# inventory, and handling player status.
 class Player:
+    """
+    The Player class represents a player in the game with various attributes and methods to manage their state and actions.
+    Attributes:
+    - name (str): The name of the player.
+    - is_alive (bool): Indicates if the player is alive.
+    - status (str): The current status of the player.
+    - attack_speed (float): The speed at which the player can attack.
+    - kill_count (int): The number of monsters the player has killed.
+    - level (float): The current level of the player.
+    - exp (float): The experience points of the player.
+    - hp (float): The health points of the player.
+    - mp (float): The mana points of the player.
+    - dmg (float): The damage the player can inflict.
+    - dex (float): The dexterity of the player.
+    - luck (float): The luck attribute of the player.
+    - inventory (deque[Any]): The inventory of the player.
+    - exp_multiplier (float): The multiplier for experience gain.
+    - exp_gain_rate (str): The rate at which experience is gained.
+    Methods:
+    - is_dead() -> bool: Checks if the player is dead.
+    - diff_equalizer(Difficulty: str) -> None: Adjusts player attributes based on difficulty level.
+    - lvl_up() -> int: Levels up the player if enough experience is gained.
+    - status_screen() -> str: Returns a string representation of the player's status.
+    - gain_exp(amount: float) -> None: Increases the player's experience points.
+    - add_to_inventory(item: str) -> None: Adds an item to the player's inventory.
+    - death_screen() -> None: Displays the death screen and exits the game.
+    - heal_up() -> None: Placeholder for healing functionality.   
+    """
     def __init__(self, name: str) -> None:
         self.name: str = name
         self.is_alive: bool = True
