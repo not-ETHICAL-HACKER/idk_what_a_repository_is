@@ -5,7 +5,7 @@ from Monsters import Mob
 from World_Gen import Generate_World
 from Combat import Combat
 from LOOT_TABLE import LOOT_TABLE
-from colorama import Fore, Style
+from collections import Counter
 from shutil import get_terminal_size
 import time
 import csv
@@ -77,6 +77,7 @@ with open("DONT TOUCH/game/log/game.log", "w", encoding="utf-8") as f:
 
 
 def log(*args: str):
+    """Logs to game.log and increments log counnter at log_counter.txt"""
     global log_counter
     log_counter += 1
 
@@ -217,16 +218,18 @@ for i, mob in enumerate(m_1.mob_pos_list):
         Evolve=e_c,  # Evolve chance
         is_alive=True
     )
+
 dead_mob_list: list[tuple[str, tuple[int, int]]] = []
 while not p_1.is_dead():
     for i in range(m_1.seconds//6):
         clear()  # ? clears screen
 
         # ? simulates movement of mobs
-        m_1.brownian_motion(m_1.mob_pos_list, wrld ,dead_mob_list)
+        m_1.brownian_motion(m_1.mob_pos_list, wrld)
         for i in range(len(mob_list)):
             # ? changes old mob coords to updated coords
             mob_list[i] = (mob_list[i][0], m_1.mob_pos_list[i]["pos"])
+        wrld.remove_mob(mob_list)
         wrld.display_chunk((x, y, z))
         print("What would you like to do now?")
         print("1.Move\n2.Check Status\n3.Scout Mobs")
@@ -238,22 +241,23 @@ while not p_1.is_dead():
             if not a:
                 continue
             dir_moved.append(a[0].upper())
-            if a[0].lower() == "a":
-                y -= 1
-            elif a[0].lower() == "d":
-                y += 1
-            elif a[0].lower() == "w":
-                x -= 1
-            elif a[0].lower() == "s":
-                x += 1
-            else:
-                print("Invalid")
+            moves = Counter(a.lower())
+            x += moves["s"] - moves["w"]
+            y += moves["d"] - moves["a"]
             # Create a tuple of current player position
             player_pos = ((x+wrld.chunk_size//2) % wrld.chunk_size,
                           (y+wrld.chunk_size//2) % wrld.chunk_size)
 
             # Find the mob that is actually at the player's position
             # We loop through our object list to find the match
+            clear()
+            wrld.display_chunk((x, y, z))
+            if wrld.dangerous_terrain(player_pos[0],player_pos[1]):
+                damage = 5 if p_1.difficulty == "Easy" else 10 if p_1.difficulty == "Normal" else 15
+                p_1.hp -= damage
+                print(
+                    f"You took {damage} damage from the hazardous terrain!")
+                log(f"Player '{p_1.name}' took {damage} damage from hazardous terrain at coordinates (x: {player_pos[0]}, y: {player_pos[1]}).")
             for mob, coords in mob_list:
                 if coords == player_pos:
                     print(

@@ -5,6 +5,7 @@ init(autoreset=True)
 
 mon_types: dict[str, str] = {"Weak": "ᵟ", "Strong": "Ω"}
 
+
 class Generate_World:
     def __init__(self, seed: int | str):
         self.player_pos: tuple[int, int, int] = (0, 0, 0)
@@ -53,7 +54,7 @@ class Generate_World:
         size = len(self.chunk)
         cx, cy, _ = coords
         self.player_icons: list[str] = ["|", "⨋", "⨌", "⨍", "⨎"]
-        self.player_icon: str = self.player_icons[1] 
+        self.player_icon: str = self.player_icons[1]
         self.terrain: dict[str, str] = {
             "0": Style.BRIGHT+Fore.GREEN + "░",  # Grass
             "1": Style.BRIGHT+Fore.GREEN + "▲",  # Tree
@@ -69,7 +70,7 @@ class Generate_World:
             "11": Style.BRIGHT+Fore.GREEN + "▞",  # Mud
             "12": Style.BRIGHT+Fore.LIGHTGREEN_EX + "*",  # Rock
             "13": Style.BRIGHT+Fore.LIGHTMAGENTA_EX + "▼",  # Stalagmite
-            "14": Style.BRIGHT+Fore.LIGHTMAGENTA_EX + "^", # Stalagtite
+            "14": Style.BRIGHT+Fore.LIGHTMAGENTA_EX + "^",  # Stalagtite
             "15": Style.BRIGHT + Fore.RED + "⌂",  # House
             "16": "16",
             "17": "17",
@@ -97,14 +98,21 @@ class Generate_World:
             print(" ".join(line))
         return l
 
-    def mob_ghost(self) -> None:
-        for i in range(self.chunk_size):
-            for j in range(self.chunk_size):
-                if self.chunk[i][j] == "DW":
-                    self.chunk[i][j] = self.terrain["DW"]
-                elif self.chunk[i][j] == "DS":
-                    self.chunk[i][j] = self.terrain["DS"]
+    def remove_mob(self, mob_list: list[tuple[Any, tuple[int, int]]]) -> None:
+        mob_list_: Any = []
+        for mob in mob_list:
+            mob_list_.append(mob[0])
+
+        for mob in mob_list_:
+            if not mob.is_alive:
+                x, y = mob["pos"]
+                self.chunk[x][y] = "0"  # Replace mob with grass
         return None
+
+    def dangerous_terrain(self, x: int, y: int) -> bool:
+        dangerous_tiles = ["2", "4", "5", "7", "9", "11", "12", "13", "14"]
+        return self.chunk[x][y] in dangerous_tiles
+
     def gen_terrain(self, biome: str, difficulty: str) -> None:
         self.biome = biome
         self.difficulty = difficulty
@@ -143,13 +151,12 @@ class Generate_World:
     def gen_structures(self) -> None:
         #! implement structure generation
         return None
-    
+
     def gen_resources(self) -> None:
         #! implement resource generation
         return None
 
     def gen_mobs(self, diff: str, mob_list: list[dict[str, Any]]) -> None:
-        
 
         for i in range(self.chunk_size):
             for j in range(self.chunk_size):
@@ -180,9 +187,9 @@ class Generate_World:
                     if roll > 0.2:
                         mob_list.append({"type": "Strong", "pos": (i, j)})
                         self.chunk[i][j] = "S"
-        for i,char in enumerate(mob_list):
+        for i, char in enumerate(mob_list):
             char["ID"] = (
-        mon_types[char["type"]] +
-        chr(65 + (i % 26)) +
-        str(i)
-    )
+                mon_types[char["type"]] +
+                chr(65 + (i % 26)) +
+                str(i)
+            )

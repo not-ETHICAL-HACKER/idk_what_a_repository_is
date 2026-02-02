@@ -1,24 +1,6 @@
 from Player import Player
 import random
 from typing import Any
-from datetime import datetime
-import csv
-import os
-
-
-def log_mob_position(mob_type: str, x: int, y: int):
-    file_exists = os.path.isfile("DONT TOUCH/game/log/mob_coords.log")
-
-    with open("DONT TOUCH/game/log/mob_coords.log", mode='a', newline='') as file:
-        writer = csv.writer(file)
-
-        # Write the header only if the file is new
-        if not file_exists:
-            writer.writerow(['Timestamp', 'Mob_Type', 'X', 'Y'])
-
-        # Write the mob data
-        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        writer.writerow([timestamp, mob_type, x, y])
 
 
 class Monster(Player):
@@ -42,10 +24,9 @@ class Monster(Player):
             player.add_to_inventory(item)
         return loot
 
-    def brownian_motion(self, mob_list: list[Any], world: Any , dead_mobs:list[tuple[str,tuple[int,int]]]):
+    def brownian_motion(self, mob_list: list[Any], world: Any ) -> None:
         half = world.chunk_size - 1
         mon_types = {"Weak": "ᵟ", "Strong": "Ω"}
-        dead_mob_positions = [pos for _, pos in dead_mobs]
         for _ in range(self.seconds): #! emulating dnd mechanics
             for mob in mob_list:
                 x, y = mob["pos"]
@@ -55,16 +36,11 @@ class Monster(Player):
                 x = max(0, min(half, x + dx))
                 y = max(0, min(half, y + dy))
 
-                if world.chunk[x][y] in ["0", "3", "6", "10", "11", "2", "5", "12", "16"] and (x, y) not in dead_mob_positions:
+                if world.chunk[x][y] in ["0", "3", "6", "10", "11", "2", "5", "12", "16"]:
                     old_terrain = world.chunk[x][y]
                     world.chunk[ox][oy] = old_terrain
                     world.chunk[x][y] = mon_types[mob["type"]]
                     mob["pos"] = (x, y)
-                    log_mob_position(mob["type"], mob["pos"][0], mob["pos"][1])
-                elif world.chunk[x][y] in ["W", "S"]:
-                    if (ox,oy) in dead_mob_positions:
-                        world.chunk[ox][oy] = "D"+("S" if mob["type"] == "Strong" else "W")
-                
 
 class Mob:
     def __init__(self, diff: str, mob_id: str, Type: str, Boss: bool, Evolve: bool, Is_Alive: bool = True) -> None:

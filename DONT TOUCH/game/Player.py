@@ -20,6 +20,7 @@ else:
 
 
 def log(*args: str):
+    """Logs to game.log"""
     global log_counter
     log_counter += 1
 
@@ -33,7 +34,6 @@ def log(*args: str):
     with open(LOG_COUNTER_FILE, "w") as f:
         f.write(str(log_counter))
 
-
 class Player:
     def __init__(self, name: str) -> None:
         self.name: str = name
@@ -44,7 +44,7 @@ class Player:
         self.kill_count: int = 0
         self.level: float = 1
         self.exp:   float = 0
-        self.hp:    float = 50
+        self.hp:    float = 500
         self.mp:    float = 50
         self.dmg:   float = 25 + round((random.random()*5), 2)
         self.dex:   float = 10
