@@ -73,5 +73,9 @@ class Mischellaneous:
                 print(f"The key is higher than {key-r} and lesser than {key+r}.")
     def minigame_3(self) -> None:
         """A simple minigame where the player has to solve a few equations."""
+        raise NotImplementedError("This minigame is not yet implemented.")
+def main():
+    Mischellaneous(Player("Test"), World(12)).minigame_3()
 
-Mischellaneous(Player("Test"), World(12)).minigame_3()
+if __name__ == "__main__":
+    main()
