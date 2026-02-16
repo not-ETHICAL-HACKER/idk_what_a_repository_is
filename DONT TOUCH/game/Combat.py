@@ -157,15 +157,15 @@ class Combat:
             log(self.player.name, "successfully used Last Stand and restored HP!")
             print(self.player.name, "used Last Stand and restored HP!")
 
-            if random.random() > 0.8 + (0.1 * (2 ** (self.last_stand_player_count - 1))):
+            if random.random() > min(0.8 + (0.01 * (2 ** (self.last_stand_player_count - 1))),0.95):
 
                 self.player.hp = max(self.player.hp - 10, 1)
                 self.last_stand_player_count += 1
-                log(self.player.name, "Last Stand exploded and dealt - 10 damage to",
+                log(self.player.name, f"Last Stand exploded and dealt - {10*self.last_stand_player_count} damage to",
                     self.monster.mob_type)
-                print(self.player.name, "Last Stand exploded and dealt - 10 damage to",
+                print(self.player.name, f"Last Stand exploded and dealt - {10*self.last_stand_player_count} damage to",
                       self.monster.mob_type)
-
+                a = self.last_stand_monster_count
             return f"{self.player.name} used Last Stand and restored HP!"
 
         else:
@@ -187,14 +187,14 @@ class Combat:
             print(self.monster.mob_type,
                   "used Last Stand and restored HP!")
 
-            if random.random() > 0.8 + (0.1 * (2 ** (self.last_stand_monster_count - 1))):
+            if random.random() > min(0.8 + (0.01 * (2 ** (self.last_stand_monster_count - 1))),0.95):
 
                 self.monster.hp = max(self.monster.hp - 10, 1)
                 self.last_stand_monster_count += 1
                 log(self.monster.mob_type,
-                    "Last Stand exploded and dealt - 10 damage to", self.player.name)
+                    f"Last Stand exploded and dealt - {10*self.last_stand_monster_count} damage to", self.player.name)
                 print(self.monster.mob_type,
-                      "Last Stand exploded and dealt - 10 damage to", self.player.name)
+                      f"Last Stand exploded and dealt - {10*self.last_stand_monster_count} damage to", self.player.name)
 
             return f"{self.monster.mob_type} used Last Stand and restored HP!"
 

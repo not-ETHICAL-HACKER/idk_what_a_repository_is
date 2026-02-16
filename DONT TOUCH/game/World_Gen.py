@@ -11,7 +11,7 @@ mon_types: dict[str, str] = {"Weak": "ᵟ", "Strong": "Ω"}
 # structures and resources.
 class Generate_World:
     """
-    Docstring for Generate_World
+    The Generate_World class is responsible for creating and managing a virtual world with various features such as terrain generation, mob spawning, and player interaction.
     
     Attributes:
     - player_pos (tuple[int, int, int]): The position of the player in the world.
@@ -34,6 +34,35 @@ class Generate_World:
         self.player_pos: tuple[int, int, int] = (0, 0, 0)
         self.chunk_size = 11
         self.chunk = [[" "]*self.chunk_size for _ in range(self.chunk_size)]
+        self.player_icons: list[str] = ["|", "⨋", "⨌", "⨍", "⨎"]
+        self.player_icon: str = self.player_icons[1]
+        self.terrain: dict[str, str] = {
+            "0": Style.BRIGHT+Fore.GREEN + "░",  # Grass
+            "1": Style.BRIGHT+Fore.GREEN + "▲",  # Tree
+            "2": Style.BRIGHT+Fore.BLUE + "≈",  # Water
+            "3": Style.BRIGHT+Fore.YELLOW + "#",  # Sand
+            "4": Style.BRIGHT+Fore.GREEN + "|",  # Cactus
+            "5": Style.BRIGHT+Fore.BLUE + "≈",  # Water
+            "6": Style.BRIGHT+Fore.LIGHTGREEN_EX + "*",  # Rock
+            "7": Style.BRIGHT+Fore.BLUE + "❄",  # Snow
+            "8": Style.BRIGHT+Fore.LIGHTBLACK_EX + "⏵",  # Cliff
+            "9": Style.BRIGHT+Fore.BLUE + "≈",  # Water
+            "10": Style.BRIGHT+Fore.GREEN + "░",  # Grass
+            "11": Style.BRIGHT+Fore.GREEN + "▞",  # Mud
+            "12": Style.BRIGHT+Fore.LIGHTGREEN_EX + "*",  # Rock
+            "13": Style.BRIGHT+Fore.LIGHTMAGENTA_EX + "▼",  # Stalagmite
+            "14": Style.BRIGHT+Fore.LIGHTMAGENTA_EX + "^",  # Stalagtite
+            "15": Style.BRIGHT + Fore.RED + "⌂",  # House
+            "16": "16",
+            "17": "17",
+            "18": "18",
+            "W": Style.BRIGHT+Fore.MAGENTA + "ᵟ",  # Weak Mob
+            "DW": Style.BRIGHT+Fore.LIGHTBLACK_EX + "ᵟ",  # Dead Weak Mob
+            "S": Style.BRIGHT+Fore.RED + "Ω",     # Strong Mob
+            "DS": Style.DIM+Fore.LIGHTBLACK_EX + "Ω",     # Dead Strong Mob
+            "ᵟ": Style.BRIGHT+Fore.MAGENTA + "ᵟ",  # Weak Mob
+            "Ω": Style.BRIGHT+Fore.RED + "Ω",     # Strong Mob
+        }
         if isinstance(seed, str):
             seed = sum(ord(c) for c in seed)
         random.seed(seed)
@@ -76,35 +105,6 @@ class Generate_World:
     def display_chunk(self, coords: tuple[int, int, int]) -> list[str]:
         size = len(self.chunk)
         cx, cy, _ = coords
-        self.player_icons: list[str] = ["|", "⨋", "⨌", "⨍", "⨎"]
-        self.player_icon: str = self.player_icons[1]
-        self.terrain: dict[str, str] = {
-            "0": Style.BRIGHT+Fore.GREEN + "░",  # Grass
-            "1": Style.BRIGHT+Fore.GREEN + "▲",  # Tree
-            "2": Style.BRIGHT+Fore.BLUE + "≈",  # Water
-            "3": Style.BRIGHT+Fore.YELLOW + "#",  # Sand
-            "4": Style.BRIGHT+Fore.GREEN + "|",  # Cactus
-            "5": Style.BRIGHT+Fore.BLUE + "≈",  # Water
-            "6": Style.BRIGHT+Fore.LIGHTGREEN_EX + "*",  # Rock
-            "7": Style.BRIGHT+Fore.BLUE + "❄",  # Snow
-            "8": Style.BRIGHT+Fore.LIGHTBLACK_EX + "⏵",  # Cliff
-            "9": Style.BRIGHT+Fore.BLUE + "≈",  # Water
-            "10": Style.BRIGHT+Fore.GREEN + "░",  # Grass
-            "11": Style.BRIGHT+Fore.GREEN + "▞",  # Mud
-            "12": Style.BRIGHT+Fore.LIGHTGREEN_EX + "*",  # Rock
-            "13": Style.BRIGHT+Fore.LIGHTMAGENTA_EX + "▼",  # Stalagmite
-            "14": Style.BRIGHT+Fore.LIGHTMAGENTA_EX + "^",  # Stalagtite
-            "15": Style.BRIGHT + Fore.RED + "⌂",  # House
-            "16": "16",
-            "17": "17",
-            "18": "18",
-            "W": Style.BRIGHT+Fore.MAGENTA + "ᵟ",  # Weak Mob
-            "DW": Style.BRIGHT+Fore.LIGHTBLACK_EX + "ᵟ",  # Dead Weak Mob
-            "S": Style.BRIGHT+Fore.RED + "Ω",     # Strong Mob
-            "DS": Style.DIM+Fore.LIGHTBLACK_EX + "Ω",     # Dead Strong Mob
-            "ᵟ": Style.BRIGHT+Fore.MAGENTA + "ᵟ",  # Weak Mob
-            "Ω": Style.BRIGHT+Fore.RED + "Ω",     # Strong Mob
-        }
         l: list[str] = []
         for i, row in enumerate(self.chunk):
             line: list[str] = []
@@ -121,26 +121,29 @@ class Generate_World:
             print(" ".join(line))
         return l
 
-    def remove_mob(self, mob_list: list[tuple[Any, tuple[int, int]]]) -> None:
-        mob_list_: Any = []
-        for mob in mob_list:
-            mob_list_.append(mob[0])
+    # def remove_mob(self, mob_list: list[tuple[Any, tuple[int, int]]]) -> None:
+    #     mob_list_: Any = []
+    #     for mob in mob_list:
+    #         mob_list_.append(mob[0])
 
-        for mob in mob_list_:
-            if not mob.is_alive:
-                x, y = mob["pos"]
-                self.chunk[x][y] = "0"  # Replace mob with grass
-        return None
+    #     for mob in mob_list_:
+    #         if not mob.is_alive:
+    #             x, y = mob["pos"]
+    #             self.chunk[x][y] = "0"  # Replace mob with grass
+    #     return None
 
     def dangerous_terrain(self, x: int, y: int) -> bool:
         dangerous_tiles = ["2", "4", "5", "7", "9", "11", "12", "13", "14"]
         return self.chunk[x][y] in dangerous_tiles
 
-    def gen_terrain(self, biome: str, difficulty: str) -> None:
+    def gen_terrain(self, biome: str, difficulty: str,debug_location:bool = False) -> None:
         self.biome = biome
         self.difficulty = difficulty
         for i in range(self.chunk_size):
             for j in range(self.chunk_size):
+                if debug_location:
+                    self.chunk[i][j] = "0"
+                    continue
                 if self.biome == "Forest":
                     self.chunk[i][j] = random.choices(
                         # 0 : grass, 1: tree, 2: water

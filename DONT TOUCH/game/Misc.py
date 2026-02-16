@@ -72,8 +72,25 @@ class Mischellaneous:
                 print(f"Wrong guess! You have {attempts} attempts left.")
                 print(f"The key is higher than {key-r} and lesser than {key+r}.")
     def minigame_3(self) -> None:
-        """A simple minigame where the player has to solve a few equations."""
-        raise NotImplementedError("This minigame is not yet implemented.")
+        """A simple minigame where the player has to prove life's reason for existance."""
+        print("Welcome to the Ultimate Question of Life, The Universe, and Everything!")
+        print("You have to prove the reason for existence.")
+        print("Hint: The answer is in the book 'Hitchikers Guide To The Galaxy'.")
+        attempts = 3
+        while attempts > 0:
+            guess = input("Enter your answer: ")
+            if guess == "42":
+                print("Congratulations! You've found the answer to the Ultimate Question!")
+                self.player.gain_exp(50)
+                self.player.lvl_up()
+                self.player.add_to_inventory("Ultimate Answer Badge")
+        
+                return
+            else:
+                attempts -= 1
+                print(f"Wrong answer! You have {attempts} attempts left.")
+        print("Sorry, you've run out of attempts. The correct answer was 42.")
+
 def main():
     Mischellaneous(Player("Test"), World(12)).minigame_3()
 
