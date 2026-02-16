@@ -94,12 +94,11 @@ def log(*args: str):
 
 with open('DONT TOUCH/game/log/mob.csv', "w", newline="", encoding="utf-8") as f:
     writer = csv.writer(f)
-    writer.writerow([
-        "Timestamp", "ID", "HP", "DMG", "Lvl", "Evolve", "Boss", "is_alive"
+    writer.writerow([ "ID", "HP", "DMG", "Lvl", "Evolve", "Boss", "is_alive", "Co-ords"
     ])
 
 
-def log_mobs(ID: str, Type: str, HP: int, DMG: int, Lvl: int, Evolve: bool, Boss: bool, is_alive: bool):
+def log_mobs(ID: str, Type: str, HP: int, DMG: int, Lvl: int, Evolve: bool, Boss: bool, is_alive: bool, Coords: tuple[int, int] = (0, 0)):
     """
     The function `log_mobs` writes mob data to a CSV file including timestamp, ID, type, HP, damage,
     level, evolution status, boss status, and alive status.
@@ -136,9 +135,8 @@ def log_mobs(ID: str, Type: str, HP: int, DMG: int, Lvl: int, Evolve: bool, Boss
     with open("DONT TOUCH/game/log/mob.csv", mode='a', newline='', encoding="utf-8") as file:
         writer = csv.writer(file)
 
-        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        writer.writerow([timestamp, ID, Type, HP,
-                        DMG, Lvl, Evolve, Boss, is_alive])
+        writer.writerow([ID, Type, HP,
+                        DMG, Lvl, Evolve, Boss, is_alive, Coords])
 
 
 def clear() -> None:
@@ -186,7 +184,7 @@ local_biome = wrld.generate_location()
 print(f"You have spawned in a {local_biome} biome.")
 
 m_1 = Monster()
-
+#Timestamp
 # ? made into chunk_size**2 bcs the world is a square
 x, y, z = wrld.spawn_chunk(wrld.chunk_size**2)
 dir_moved: list[str] = []  # ? list of directions moved by player
@@ -216,7 +214,8 @@ for i, mob in enumerate(m_1.mob_pos_list):
         Lvl=int(mob_list[i][0].level),
         Boss=b_c,  # Boss chance
         Evolve=e_c,  # Evolve chance
-        is_alive=True
+        is_alive=True,
+        Coords=m_1.mob_pos_list[i]["pos"]
     )
 
 dead_mob_list: list[tuple[str, tuple[int, int]]] = []
@@ -229,9 +228,9 @@ while not p_1.is_dead():
         for i in range(len(mob_list)):
             # ? changes old mob coords to updated coords
             mob_list[i] = (mob_list[i][0], m_1.mob_pos_list[i]["pos"])
-        wrld.remove_mob(mob_list)
+        # wrld.remove_mob(mob_list)
         wrld.display_chunk((x, y, z))
-        print("What would you like to do now?")
+        print("+hat would you like to do now?")
         print("1.Move\n2.Check Status\n3.Scout Mobs")
         choice = input("> ")
         if choice.lower() == "move" or choice == "1":
@@ -252,26 +251,29 @@ while not p_1.is_dead():
             # We loop through our object list to find the match
             clear()
             wrld.display_chunk((x, y, z))
-            if wrld.dangerous_terrain(player_pos[0],player_pos[1]):
+            if wrld.dangerous_terrain(player_pos[0], player_pos[1]):
                 damage = 5 if p_1.difficulty == "Easy" else 10 if p_1.difficulty == "Normal" else 15
                 p_1.hp -= damage
                 print(
                     f"You took {damage} damage from the hazardous terrain!")
-                log(f"Player '{p_1.name}' took {damage} damage from hazardous terrain at coordinates (x: {player_pos[0]}, y: {player_pos[1]}).")
+                log(
+                    f"Player '{p_1.name}' took {damage} damage from hazardous terrain at coordinates (x: {player_pos[0]}, y: {player_pos[1]}).")
             for mob, coords in mob_list:
                 if coords == player_pos:
                     print(
                         f"!!! ENCOUNTERED {mob.mob_id} ({mob.mob_type}) !!!".center(col//4))
                     print(Combat(p_1, mob, coords, wrld).engage())
                     if not mob.is_alive:
-                        Loot = LOOT_TABLE(mob.level, "Boss" if mob.Boss else "Strong" if "Ω" in mob.mob_type else "Weak")
+                        Loot = LOOT_TABLE(
+                            mob.level, "Boss" if mob.Boss else "Strong" if "Ω" in mob.mob_type else "Weak")
                         loot_items = Loot.generate_loot()
                         Loot_exp = Loot.generate_exp()
                         print(f"You gained {Loot_exp} EXP!")
                         p_1.exp += Loot_exp
                         p_1.kill_count += 1
                         dead_mob_list.append((mob.mob_type, coords))
-                        log(f"Mob '{mob.mob_id}' ({mob.mob_type}) defeated at coordinates (x: {coords[0]}, y: {coords[1]}).")
+                        log(
+                            f"Mob '{mob.mob_id}' ({mob.mob_type}) defeated at coordinates (x: {coords[0]}, y: {coords[1]}).")
                     break
 
             p_1.lvl_up()
@@ -313,8 +315,8 @@ while not p_1.is_dead():
             print("Exiting game...")
             exit()
         elif choice == "6" or choice.lower() in ("heal"):
-            p_1.hp = 50 * (1 if p_1.difficulty != "Hard" else 0.5)
-            p_1.mp = 50 * (1 if p_1.difficulty != "Hard" else 0.5)
+            p_1.hp += 50 * (1 if p_1.difficulty != "Hard" else 0.5)
+            p_1.mp += 50 * (1 if p_1.difficulty != "Hard" else 0.5)
             print("Healed to most health and mana.")
         else:
             print("Invalid choice. Please try again.")
@@ -323,8 +325,7 @@ while not p_1.is_dead():
             continue
         with open('DONT TOUCH/game/log/mob.csv', "w", newline="", encoding="utf-8") as f:
             writer = csv.writer(f)
-            writer.writerow([
-                "Timestamp", "ID", "Type", "HP", "DMG", "Lvl", "Evolve", "Boss", "is_alive"
+            writer.writerow([ "ID", "Type", "HP", "DMG", "Lvl", "Evolve", "Boss", "is_alive", "Co-ords"
             ])
         for v, mob in enumerate(m_1.mob_pos_list):
             b_c = random.random() > 0.8
@@ -332,7 +333,8 @@ while not p_1.is_dead():
             Is_alive_checker = int(mob_list[v][0].hp) >= 0
             if not Is_alive_checker:
                 a, b = mob_list[v][1]
-                wrld.chunk[a][b] = "D"+("S" if mob_list[i][0].mob_type == "Strong" else "W")
+                wrld.chunk[a][b] = "D" + \
+                    ("S" if mob_list[i][0].mob_type == "Strong" else "W")
             log_mobs(
                 m_1.mob_pos_list[v]["ID"],  # Mob ID
                 Type=mon_types[mob["type"]],  # Mob tiers
@@ -341,7 +343,8 @@ while not p_1.is_dead():
                 Lvl=int(mob_list[v][0].level),
                 Boss=b_c,  # Boss chance
                 Evolve=e_c,  # Evolve chance
-                is_alive=Is_alive_checker
+                is_alive=Is_alive_checker,
+                Coords=m_1.mob_pos_list[v]["pos"]
             )
 
         waiting_for_input = input(">")
