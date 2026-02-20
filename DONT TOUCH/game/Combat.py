@@ -95,6 +95,8 @@ class Combat:
                 a, b = self.coords
                 self.world.chunk[a][b] = "DW" if self.monster.mob_type == "Weak" else "DS"
                 log(self.monster.mob_type, "defeated by", self.player.name)
+                
+                self.monster.check_mob_status()
                 return f"{self.player.name} has defeated the {self.monster.mob_type}!"
 
             if self.player.hp <= 0:
@@ -106,6 +108,7 @@ class Combat:
                 log(self.monster.mob_type+self.monster.mob_id,
                     "was defeated by", self.player.name)
 
+                self.monster.check_mob_status()
                 return f"{self.monster.mob_type+self.monster.mob_id} has been defeated by the {self.player.name}!"
 
             self.monster.check_mob_status()

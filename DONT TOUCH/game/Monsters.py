@@ -124,5 +124,9 @@ class Mob:
         return info
 
     def check_mob_status(self) -> None:
+        """
+        This Python function checks if a mobile object's health points are less than or equal to zero and
+        updates its 'is_alive' status accordingly.
+        """
         if self.hp <= 0:
             self.is_alive = False
