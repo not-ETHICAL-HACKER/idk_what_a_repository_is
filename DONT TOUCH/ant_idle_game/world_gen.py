@@ -18,14 +18,9 @@ class gen:
                                         "ᵟ": Style.BRIGHT+Fore.MAGENTA + "ᵟ",  # Weak Mob
                                         "Ω": Style.BRIGHT+Fore.RED + "Ω",     # Strong Mob
                                     }"""
-        self.terrain:dict[str,str] = {  "0": " ",#?"░",
+        self.terrain:dict[str,str] = {  "0": " ", #?"░",
                                         "W": "Ω",  # Weak Mob
-                                        "DW": "ᵟ",  # Dead Weak Mob
-                                        "S": "Ω",     # Strong Mob
-                                        "DS": "Ω",     # Dead Strong Mob
-                                        "ᵟ": "Ω",  # Weak Mob
-                                        "Ω": "Ω",     # Strong Mob
-                                    }
+                                        }
         self.chunk: list[list[str]] = []
         
 
@@ -34,7 +29,7 @@ class gen:
             row = ""
             for x in range(self.size[1]):
                 if random.random() < self.monster_density:
-                    row += f"{self.terrain['W' if random.random()>0.8 else "S"]:2s}"  # Monster
+                    row += f"{self.terrain['W']:2s}"  # Monster
                     mon_list.append((Mob(self.diff, "Weak", f"mob_{len(mon_list)}", False, False),(x, y)))
                 else:
                     row += self.terrain["0"]  # Empty terrain

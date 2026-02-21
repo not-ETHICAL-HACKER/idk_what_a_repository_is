@@ -28,6 +28,8 @@ class Mob_AI:
                 y = max(0, min(max_y, y + dy))
 
                 # Only move if target cell is empty terrain
+                if "*" in self.world.chunk[oy][ox]:
+                    continue
                 if " " in self.world.chunk[y][x] or "░" in self.world.chunk[y][x]:
                     old_terrain = "░"         #?self.world.chunk[oy][ox]
                     self.world.chunk[oy][ox] = old_terrain  # restore old terrain
