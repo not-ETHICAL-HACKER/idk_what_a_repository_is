@@ -28,7 +28,7 @@ class Mob_AI:
                 y = max(0, min(max_y, y + dy))
 
                 # Only move if target cell is empty terrain
-                if "*" in self.world.chunk[oy][ox]:
+                if "*" in self.world.chunk[y][x]:
                     continue
                 if " " in self.world.chunk[y][x] or "░" in self.world.chunk[y][x]:
                     old_terrain = "░"         #?self.world.chunk[oy][ox]
@@ -37,7 +37,15 @@ class Mob_AI:
                     mob["pos"] = (x, y)
                 elif  "ᵟ" in self.world.chunk[y][x] :
                     # For simplicity, just restore old position (no combat logic)
-                    mob["pos"] = (ox, oy)
+                    if random.random() > 0.8 :
+                        b = random.randint(0,2)
+                        a = random.randint(0,2)
+                        self.world.chunk[y-b][x-a] = "ᵟ"
+                        mob_list.append({"type": "Weak", "pos": (y-b,x-a)})
+                        #! create a mob instance here so tht the generated mob can move
+                        #! figured outthe bug with the omega pieces
+                        #! i accidentally made them a part ofterrain instead of their own objects
+                        #! omega is predator and the other is prey
                 elif "Ω" in self.world.chunk[y][x]:  # mob collision
                     # For simplicity, just restore old position (no combat logic)
                     if random.random() < 0.5:  # 50% chance to "win" and move into the cell
