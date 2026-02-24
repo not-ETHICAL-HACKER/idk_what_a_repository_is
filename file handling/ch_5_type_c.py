@@ -1,6 +1,3 @@
-import time
-
-
 def consecutive_spaces(file_name: str) -> None:
     """Reads a file and makes an identical file with all consecutive spaces reduced to a single space."""
     new_file_name = file_name.split(

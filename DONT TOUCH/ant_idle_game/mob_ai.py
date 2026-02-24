@@ -16,39 +16,44 @@ class Mob_AI:
         self.seconds = 1 #! 1 for real movement 60 for faster paced movement (will be kinda strange to watch but good for testing)
 
     def brownian_motion(self, mob_list: list[Any]) -> None:
-        max_y = self.row - 1  # row = number of rows
-        max_x = self.col - 1  # col = number of columns
+        max_y = self.row - 1  # row = number of rows (y index)
+        max_x = self.col - 1  # col = number of columns (x index)
         mon_types = {"Weak": "ᵟ", "Strong": "Ω"}
 
-        for mob in mob_list:
+        new_mobs: list[dict[str, Any]] = []
+
+        for mob in list(mob_list):
             for _ in range(self.seconds):  # simulate multiple steps
-                y, x = mob["pos"]
+                # stored positions are (x, y)
+                x, y = mob["pos"]
                 ox, oy = x, y  # old position
 
                 dx, dy = random.choice([(1, 0), (-1, 0), (0, 1), (0, -1)])
-                x = max(0, min(max_x, x + dx))
-                y = max(0, min(max_y, y + dy))
+                nx = max(0, min(max_x, x + dx))
+                ny = max(0, min(max_y, y + dy))
 
-                # Only move if target cell is empty terrain
+                # Only move if old position isn't a special marker
                 if "*" in self.world.chunk[oy][ox]:
                     continue
-                if " " in self.world.chunk[y][x] or "░" in self.world.chunk[y][x]:
-                    old_terrain = "░"         #?self.world.chunk[oy][ox]
+
+                target_cell = self.world.chunk[ny][nx]
+                if " " in target_cell or "░" in target_cell:
+                    old_terrain = "░"
                     self.world.chunk[oy][ox] = old_terrain  # restore old terrain
-                    self.world.chunk[y][x] = mon_types[mob["type"]]  # move mob
-                    mob["pos"] = (x, y)
-                elif  "ᵟ" in self.world.chunk[y][x] :
-                    #? Reproduction logic: 20% chance to reproduce into an adjacent cell
-                    if random.random() > 0.8 :
-                        b = random.randint(0,2)
-                        a = random.randint(0,2)
-                        self.world.chunk[y-b][x-a] = "ᵟ"
-                        mob_list.append({"type": "Weak", "pos": ((y-b)%max_y,(x-a)%max_x)})
-                        #! create a mob instance here so tht the generated mob can move
-                        #! figured outthe bug with the omega pieces
-                        #! i accidentally made them a part ofterrain instead of their own objects
-                        #! omega is predator and the other is prey
-                elif "Ω" in self.world.chunk[y][x]:  # mob collision
+                    self.world.chunk[ny][nx] = mon_types[mob["type"]]  # move mob
+                    mob["pos"] = (nx, ny)
+                elif "ᵟ" in target_cell:
+                    # Reproduction logic: 1% chance to reproduce into an adjacent cell
+                    if random.random() > 0.99:
+                        dx = random.randint(-2, 2)
+                        dy = random.randint(-2, 2)
+                        rx = max(0, min(max_x, nx + dx))
+                        ry = max(0, min(max_y, ny + dy))
+                        # only place if target cell looks empty
+                        if (" " == self.world.chunk[ry][rx]) or ("░" in self.world.chunk[ry][rx]):
+                            self.world.chunk[ry][rx] = "ᵟ"
+                            new_mobs.append({"type": "Weak", "pos": (rx, ry)})
+                elif "Ω" in target_cell:  # mob collision
                     # For simplicity, just restore old position (no combat logic)
                     if random.random() < 0.5:  # 50% chance to "win" and move into the cell
                         self.world.chunk[oy][ox] = "*"  # Clear old position
@@ -56,6 +61,10 @@ class Mob_AI:
                 else:
                     # If target cell is something else (like a wall), also restore old position
                     mob["pos"] = (ox, oy)
+
+        # Add newborns after processing to avoid mutating while iterating
+        if new_mobs:
+            mob_list.extend(new_mobs)
 """# ...existing code...
                 elif "ᵟ" in self.world.chunk[y][x] :
                     # For simplicity, just restore old position (no combat logic)
