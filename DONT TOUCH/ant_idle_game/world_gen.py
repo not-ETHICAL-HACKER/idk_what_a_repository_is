@@ -1,7 +1,7 @@
 import random
-from colorama import Fore, Style, init
+#! from colorama import Fore, Style, init
 from mob_ai import Mob
-init(autoreset=True)
+#! init(autoreset=True)
 
 
 class gen:

@@ -11,6 +11,8 @@ class Mob_AI:
     def __init__(self, world: Any ):
         self.world:Any = world
         self.row, self.col = world.size
+        max_x = self.col - 1
+        max_y = self.row - 1
         self.seconds = 1 #! 1 for real movement 60 for faster paced movement (will be kinda strange to watch but good for testing)
 
     def brownian_motion(self, mob_list: list[Any]) -> None:
@@ -20,7 +22,7 @@ class Mob_AI:
 
         for mob in mob_list:
             for _ in range(self.seconds):  # simulate multiple steps
-                x, y = mob["pos"]
+                y, x = mob["pos"]
                 ox, oy = x, y  # old position
 
                 dx, dy = random.choice([(1, 0), (-1, 0), (0, 1), (0, -1)])
@@ -28,7 +30,7 @@ class Mob_AI:
                 y = max(0, min(max_y, y + dy))
 
                 # Only move if target cell is empty terrain
-                if "*" in self.world.chunk[y][x]:
+                if "*" in self.world.chunk[oy][ox]:
                     continue
                 if " " in self.world.chunk[y][x] or "░" in self.world.chunk[y][x]:
                     old_terrain = "░"         #?self.world.chunk[oy][ox]
@@ -36,12 +38,12 @@ class Mob_AI:
                     self.world.chunk[y][x] = mon_types[mob["type"]]  # move mob
                     mob["pos"] = (x, y)
                 elif  "ᵟ" in self.world.chunk[y][x] :
-                    # For simplicity, just restore old position (no combat logic)
+                    #? Reproduction logic: 20% chance to reproduce into an adjacent cell
                     if random.random() > 0.8 :
                         b = random.randint(0,2)
                         a = random.randint(0,2)
                         self.world.chunk[y-b][x-a] = "ᵟ"
-                        mob_list.append({"type": "Weak", "pos": (y-b,x-a)})
+                        mob_list.append({"type": "Weak", "pos": ((y-b)%max_y,(x-a)%max_x)})
                         #! create a mob instance here so tht the generated mob can move
                         #! figured outthe bug with the omega pieces
                         #! i accidentally made them a part ofterrain instead of their own objects
@@ -54,3 +56,21 @@ class Mob_AI:
                 else:
                     # If target cell is something else (like a wall), also restore old position
                     mob["pos"] = (ox, oy)
+"""# ...existing code...
+                elif "ᵟ" in self.world.chunk[y][x] :
+                    # For simplicity, just restore old position (no combat logic)
+                    if random.random() > 0.8 :
+-                        b = random.randint(0,2)
+-                        a = random.randint(0,2)
+-                        self.world.chunk[y-b][x-a] = "ᵟ"
+-                        mob_list.append({"type": "Weak", "pos": (y-b,x-a)})
++                        # spawn a new weak mob nearby; clamp to bounds and keep (x,y) order
++                        dx = random.randint(-2, 2)
++                        dy = random.randint(-2, 2)
++                        nx = max(0, min(max_x, x + dx))
++                        ny = max(0, min(max_y, y + dy))
++                        # only place if target cell looks empty
++                        if self.world.chunk[ny][nx] == " " or "░" in self.world.chunk[ny][nx]:
++                            self.world.chunk[ny][nx] = "ᵟ"
++                            mob_list.append({"type": "Weak", "pos": (nx, ny)})
+# ...existing code..."""
