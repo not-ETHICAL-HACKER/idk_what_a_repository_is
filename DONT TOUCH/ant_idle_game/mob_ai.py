@@ -55,8 +55,10 @@ class Mob_AI:
                             new_mobs.append({"type": "Weak", "pos": (rx, ry)})
                 elif "Ω" in target_cell:  # mob collision
                     # For simplicity, just restore old position (no combat logic)
-                    if random.random() < 0.5:  # 50% chance to "win" and move into the cell
+                    if random.random() < 0.25:  # 25% chance to "win" and move into the cell
                         self.world.chunk[oy][ox] = "*"  # Clear old position
+                    elif random.random() < 0.50:# todo : make a idea wher the predator eats the dead bodies(*) to create a new child
+                        self.world.chunk[oy][ox] = "Ω" #! mmob wins and creates child
                     mob["pos"] = (ox, oy)
                 else:
                     # If target cell is something else (like a wall), also restore old position
