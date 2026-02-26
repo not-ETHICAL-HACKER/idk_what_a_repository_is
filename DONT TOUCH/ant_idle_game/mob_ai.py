@@ -11,13 +11,11 @@ class Mob_AI:
     def __init__(self, world: Any ):
         self.world:Any = world
         self.row, self.col = world.size
-        max_x = self.col - 1
-        max_y = self.row - 1
+        self.max_x = self.col - 1
+        self.max_y = self.row - 1
         self.seconds = 1 #! 1 for real movement 60 for faster paced movement (will be kinda strange to watch but good for testing)
 
-    def brownian_motion(self, mob_list: list[Any]) -> None:
-        max_y = self.row - 1  # row = number of rows (y index)
-        max_x = self.col - 1  # col = number of columns (x index)
+    def brownian_motion(self, mob_list: list[Any],count:int) -> None:
         mon_types = {"Weak": "ᵟ", "Strong": "Ω"}
 
         new_mobs: list[dict[str, Any]] = []
@@ -29,11 +27,11 @@ class Mob_AI:
                 ox, oy = x, y  # old position
 
                 dx, dy = random.choice([(1, 0), (-1, 0), (0, 1), (0, -1)])
-                nx = max(0, min(max_x, x + dx))
-                ny = max(0, min(max_y, y + dy))
+                nx = max(0, min(self.max_x, x + dx))
+                ny = max(0, min(self.max_y, y + dy))
 
-                # Only move if old position isn't a special marker
-                if "*" in self.world.chunk[oy][ox]:
+                #? check if new pos is a corpse
+                if "*" in self.world.chunk[ny][nx]:
                     continue
 
                 target_cell = self.world.chunk[ny][nx]
@@ -43,12 +41,12 @@ class Mob_AI:
                     self.world.chunk[ny][nx] = mon_types[mob["type"]]  # move mob
                     mob["pos"] = (nx, ny)
                 elif "ᵟ" in target_cell:
-                    # Reproduction logic: 1% chance to reproduce into an adjacent cell
-                    if random.random() > 0.99:
-                        dx = random.randint(-2, 2)
-                        dy = random.randint(-2, 2)
-                        rx = max(0, min(max_x, nx + dx))
-                        ry = max(0, min(max_y, ny + dy))
+                    # Reproduction logic: 5% chance to reproduce into an adjacent cell
+                    if random.random() > 0.95 and not self.check_area(nx, ny,char="ᵟ",num=3):
+                        dx = random.randint(-1, 1)
+                        dy = random.randint(-1, 1)
+                        rx = max(0, min(self.max_x, nx + dx))
+                        ry = max(0, min(self.max_y, ny + dy))
                         # only place if target cell looks empty
                         if (" " == self.world.chunk[ry][rx]) or ("░" in self.world.chunk[ry][rx]):
                             self.world.chunk[ry][rx] = "ᵟ"
@@ -57,8 +55,8 @@ class Mob_AI:
                     # For simplicity, just restore old position (no combat logic)
                     if random.random() < 0.25:  # 25% chance to "win" and move into the cell
                         self.world.chunk[oy][ox] = "*"  # Clear old position
-                    elif random.random() < 0.50:# todo : make a idea wher the predator eats the dead bodies(*) to create a new child
-                        self.world.chunk[oy][ox] = "Ω" #! mmob wins and creates child
+                    if self.check_area(nx, ny,char="*"):
+                        self.world.chunk[ny][nx] = "Ω" #! mmob wins and creates child
                     mob["pos"] = (ox, oy)
                 else:
                     # If target cell is something else (like a wall), also restore old position
@@ -67,6 +65,16 @@ class Mob_AI:
         # Add newborns after processing to avoid mutating while iterating
         if new_mobs:
             mob_list.extend(new_mobs)
+    def check_area(self, x: int, y: int,char:str,num:int=0,area:tuple[int, int] = (3, 3)) -> bool:
+        count = 0
+        for dy in range(-area[1]//2, area[1]//2 + 1):
+            for dx in range(-area[0]//2, area[0]//2 + 1):
+                nx = max(0, min(self.max_x, x + dx))
+                ny = max(0, min(self.max_y, y + dy))
+                if char in self.world.chunk[ny][nx]:
+                    count += 1
+
+        return count > num
 """# ...existing code...
                 elif "ᵟ" in self.world.chunk[y][x] :
                     # For simplicity, just restore old position (no combat logic)
@@ -78,8 +86,8 @@ class Mob_AI:
 +                        # spawn a new weak mob nearby; clamp to bounds and keep (x,y) order
 +                        dx = random.randint(-2, 2)
 +                        dy = random.randint(-2, 2)
-+                        nx = max(0, min(max_x, x + dx))
-+                        ny = max(0, min(max_y, y + dy))
++                        nx = max(0, min(self.max_x, x + dx))
++                        ny = max(0, min(self.max_y, y + dy))
 +                        # only place if target cell looks empty
 +                        if self.world.chunk[ny][nx] == " " or "░" in self.world.chunk[ny][nx]:
 +                            self.world.chunk[ny][nx] = "ᵟ"

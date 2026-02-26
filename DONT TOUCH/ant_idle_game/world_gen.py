@@ -30,12 +30,11 @@ class gen:
             for x in range(self.size[1]):#? thers smth wrong with the way mobs are generated,
                                         #? i thoght i made only preys but i made the predators without their ability to move
                 if random.random() < self.monster_density:
-                    row += f"{self.terrain['W']:2s}"  #! Predator # i also dont know why the predator spawns outside the chunk but the prey spawns inside the chunk
+                    row += self.terrain['W']  #! Predator # i also dont know why the predator spawns outside the chunk but the prey spawns inside the chunk
                     mon_list.append((Mob(self.diff, "Weak", f"mob_{len(mon_list)}", False, False),(x, y))) # Prey
                 else:
                     row += self.terrain["0"]  # Empty terrain
             self.chunk.append(list(row))
-            print(row)
     
     def render(self) -> None:
         for row in self.chunk:
