@@ -7,6 +7,7 @@ from mob_ai import Mob
 class gen:
     def __init__(self, seed:str, world_size: tuple[int, int], monster_density: float,diff:str):
         self.seed = sum(ord(c) for c in seed)
+        random.seed(self.seed)
         self.diff = diff
         self.size = world_size
         self.monster_density = monster_density
@@ -19,7 +20,8 @@ class gen:
                                         "Ω": Style.BRIGHT+Fore.RED + "Ω",     # Strong Mob
                                     }"""
         self.terrain:dict[str,str] = {  "0": " ", #?"░",
-                                        "W": "Ω",  # Weak Mob
+                                        "W": "ᵟ",  # Weak Mob
+                                        "S": "Ω",     # Strong Mob
                                         }
         self.chunk: list[list[str]] = []
         
@@ -30,8 +32,12 @@ class gen:
             for x in range(self.size[1]):#? thers smth wrong with the way mobs are generated,
                                         #? i thoght i made only preys but i made the predators without their ability to move
                 if random.random() < self.monster_density:
-                    row += self.terrain['W']  #! Predator # i also dont know why the predator spawns outside the chunk but the prey spawns inside the chunk
-                    mon_list.append((Mob(self.diff, "Weak", f"mob_{len(mon_list)}", False, False),(x, y))) # Prey
+                    # decide mob strength first, then write terrain and mob object to match
+                    is_weak = random.random() < 0.7
+                    terrain_key = 'W' if is_weak else 'S'
+                    row += self.terrain[terrain_key]
+                    mob_type = "Weak" if is_weak else "Strong"
+                    mon_list.append((Mob(self.diff, mob_type, f"mob_{len(mon_list)}", False, False),(x, y)))
                 else:
                     row += self.terrain["0"]  # Empty terrain
             self.chunk.append(list(row))

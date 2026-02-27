@@ -26,7 +26,7 @@ class Mob_AI:
                 x, y = mob["pos"]
                 ox, oy = x, y  # old position
 
-                dx, dy = random.choice([(1, 0), (-1, 0), (0, 1), (0, -1)])
+                dx, dy = random.choice(((1, 0), (-1, 0), (0, 1), (0, -1)))
                 nx = max(0, min(self.max_x, x + dx))
                 ny = max(0, min(self.max_y, y + dy))
 
@@ -55,8 +55,21 @@ class Mob_AI:
                     # For simplicity, just restore old position (no combat logic)
                     if random.random() < 0.25:  # 25% chance to "win" and move into the cell
                         self.world.chunk[oy][ox] = "*"  # Clear old position
-                    if self.check_area(nx, ny,char="*"):
-                        self.world.chunk[ny][nx] = "Ω" #! mmob wins and creates child
+                    # If there's a corpse nearby, the winner may create an offspring.
+                    if self.check_area(nx, ny, char="*"):
+                        # try to place a child in a nearby empty cell
+                        if random.random() > 0.95 and not self.check_area(nx, ny, char="Ω", num=5):
+                            ddx = random.randint(-1, 1)
+                            ddy = random.randint(-1, 1)
+                            rx = max(0, min(self.max_x, nx + ddx))
+                            ry = max(0, min(self.max_y, ny + ddy))
+                            # only place if target cell looks empty
+                            if (self.world.chunk[ry][rx] == " ") or ("░" in self.world.chunk[ry][rx]):
+                                self.world.chunk[ry][rx] = "Ω"
+                                new_mobs.append({"type": "Strong", "pos": (rx, ry)})
+                        else:
+                            # ensure the winning mob remains visible on map
+                            self.world.chunk[ny][nx] = "Ω"
                     mob["pos"] = (ox, oy)
                 else:
                     # If target cell is something else (like a wall), also restore old position
@@ -65,13 +78,13 @@ class Mob_AI:
         # Add newborns after processing to avoid mutating while iterating
         if new_mobs:
             mob_list.extend(new_mobs)
-    def check_area(self, x: int, y: int,char:str,num:int=0,area:tuple[int, int] = (3, 3)) -> bool:
+    def check_area(self, x: int, y: int,char:str,num:int=0,area:tuple[int, int] = (3, 3),enemy:str="Ω") -> bool:
         count = 0
         for dy in range(-area[1]//2, area[1]//2 + 1):
             for dx in range(-area[0]//2, area[0]//2 + 1):
                 nx = max(0, min(self.max_x, x + dx))
                 ny = max(0, min(self.max_y, y + dy))
-                if char in self.world.chunk[ny][nx]:
+                if char in self.world.chunk[ny][nx] and enemy not in self.world.chunk[ny][nx]:
                     count += 1
 
         return count > num
