@@ -86,6 +86,8 @@ interactions, and reproduction based on defined rules. Mobs can move randomly, r
         new_mobs: list[dict[str, Any]] = []
 
         for mob in list(mob_list):
+            mob.setdefault("energy", 50)
+            mob.setdefault("age", 0)
             for _ in range(self.seconds):  # simulate multiple steps
                 # stored positions are (x, y)
                 x, y = mob["pos"]
@@ -117,7 +119,8 @@ interactions, and reproduction based on defined rules. Mobs can move randomly, r
                         # only place if target cell looks empty
                         if (" " == self.world.chunk[ry][rx]) or ("░" in self.world.chunk[ry][rx]):
                             self.world.chunk[ry][rx] = "ᵟ"
-                            new_mobs.append({"type": "Weak", "pos": (rx, ry)})
+                            new_mobs.append({"type": "Weak", "pos": (rx, ry), "energy": mob["energy"]+random.randint(-10,10), "age": 0})
+                            mob["energy"] = mob.get("energy", 50) - 50  # reduce energy on reproduction
                 elif "Ω" in target_cell:  # mob collision
                     # For simplicity, just restore old position (no combat logic)
                     if random.random() < 0.25:  # 25% chance to "win" and move into the cell
@@ -125,7 +128,7 @@ interactions, and reproduction based on defined rules. Mobs can move randomly, r
                     # If there's a corpse nearby, the winner may create an offspring.
                     if self.check_area(nx, ny, char="*"):
                         # try to place a child in a nearby empty cell
-                        if random.random() > 0.95 and not self.check_area(nx, ny, char="Ω", num=5):
+                        if random.random() > 0.95 and not self.check_area(nx, ny, char="Ω", num=5):#! remove mobs if energy < 0
                             ddx = random.randint(-1, 1)
                             ddy = random.randint(-1, 1)
                             rx = max(0, min(self.max_x, nx + ddx))
