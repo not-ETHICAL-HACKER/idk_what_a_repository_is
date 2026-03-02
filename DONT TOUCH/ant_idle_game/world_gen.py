@@ -84,3 +84,5 @@ class gen:
         for row in self.chunk:
             print("".join(row))
 
+if __name__ == "__main__":
+    print("Run idle_game.py to see the world generation in action! dumahh")

@@ -97,8 +97,12 @@ interactions, and reproduction based on defined rules. Mobs can move randomly, r
                 nx = max(0, min(self.max_x, x + dx))
                 ny = max(0, min(self.max_y, y + dy))
 
+                mob["age"] += 1
+                mob["energy"] -= 1+int(random.random()*5)  # lose energy on movement
+                
                 # ? check if new pos is a corpse
                 if "*" in self.world.chunk[ny][nx]:
+                    mob["energy"] += 2  # gain energy from corpse
                     continue
 
                 target_cell = self.world.chunk[ny][nx]
@@ -194,23 +198,13 @@ interactions, and reproduction based on defined rules. Mobs can move randomly, r
                     count += 1
 
         return count > num
+    def dead_mob(self,arr):
+        for mob in arr:
+            if mob["energy"] <= 0:
+                x, y = mob["pos"]
+                self.world.chunk[y][x] = "*"  # Mark as corpse
+                arr.remove(mob)  # Remove from active mobs
 
 
-"""# ...existing code...
-                elif "ᵟ" in self.world.chunk[y][x] :
-                    # For simplicity, just restore old position (no combat logic)
-                    if random.random() > 0.8 :
--                        b = random.randint(0,2)
--                        a = random.randint(0,2)
--                        self.world.chunk[y-b][x-a] = "ᵟ"
--                        mob_list.append({"type": "Weak", "pos": (y-b,x-a)})
-+                        # spawn a new weak mob nearby; clamp to bounds and keep (x,y) order
-+                        dx = random.randint(-2, 2)
-+                        dy = random.randint(-2, 2)
-+                        nx = max(0, min(self.max_x, x + dx))
-+                        ny = max(0, min(self.max_y, y + dy))
-+                        # only place if target cell looks empty
-+                        if self.world.chunk[ny][nx] == " " or "░" in self.world.chunk[ny][nx]:
-+                            self.world.chunk[ny][nx] = "ᵟ"
-+                            mob_list.append({"type": "Weak", "pos": (nx, ny)})
-# ...existing code..."""
+if __name__ == "__main__":
+    print("Run idle_game.py to see the mob AI in action! dumahh")

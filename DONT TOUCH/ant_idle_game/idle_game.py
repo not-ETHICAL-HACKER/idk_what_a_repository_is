@@ -14,6 +14,7 @@ mob_ai = Mob_AI(world)
 
 #! modules name should be ecosim if its released
 def clear():
+    
     print("\033[2J\033[H", end="")
     
 #! remove mobs if energy < 0
