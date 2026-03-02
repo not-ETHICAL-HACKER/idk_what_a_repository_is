@@ -26,6 +26,7 @@ def clear():
 #todo add a way to track the population of each mob type and display it to the player, maybe through a simple UI or by printing it to the console every few seconds.
 #// todo implement age and an energy system for the mobs, where they need to eat to survive and can die of old age or starvation
 #todo add diff states for mobs throughout their age, like baby, adult, and elder, with different behaviors and abilities for each stage
+#todo add another prey and an apex predator
 
 c = 0
 while True:

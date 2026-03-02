@@ -198,8 +198,16 @@ interactions, and reproduction based on defined rules. Mobs can move randomly, r
                     count += 1
 
         return count > num
-    def dead_mob(self,arr):
-        for mob in arr:
+    def dead_mobs(self,arr):
+        """
+        The `dead_mobs` function marks mobs with zero energy as corpses in the game world and removes them
+        from the list of active mobs.
+        
+        :param arr: The `arr` parameter is a list of dictionaries representing mobs in a game. Each
+        dictionary in the list contains information about a mob, such as its energy level (`"energy"`) and
+        position (`"pos"`). The `dead_mobs` method iterates over this list, checks if a
+        """
+        for mob in arr.copy():  # Use a copy to avoid modifying list during iteration
             if mob["energy"] <= 0:
                 x, y = mob["pos"]
                 self.world.chunk[y][x] = "*"  # Mark as corpse
