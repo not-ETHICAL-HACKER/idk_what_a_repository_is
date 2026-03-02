@@ -33,5 +33,6 @@ while True:
     clear()
     print(c)
     mob_ai.brownian_motion(mob_d_list, c)
+    mob_ai.dead_mobs(mob_d_list)
     world.render()
     sleep(1/120)
