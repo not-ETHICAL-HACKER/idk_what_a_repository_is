@@ -1,3 +1,4 @@
+import statistics
 from random import randint
 from world_gen import gen
 from time import sleep
@@ -20,6 +21,13 @@ def clear():
 
     print("\033[2J\033[H", end="")
 
+def stats(group):
+    if not group:
+        return "extinct"
+    avg_e = sum(m["energy"] for m in group) / len(group)
+    med_age = statistics.median(m["age"] for m in group)
+    return f"n={len(group)} e={avg_e:.1f} age={med_age:.0f}"
+
 #! remove mobs if energy < 0
 # todo: make a better render function that only updates the changed cells instead of redrawing the whole world every time,
 # todo maybe add some color to the mobs and terrain to make it more visually appealing
@@ -36,10 +44,9 @@ c = 0
 while True:
     c += 1
     clear()
-    print(c, len(mob_d_list))
-    weak = sum(1 for m in mob_d_list if m["type"] == "Weak")
-    strong = sum(1 for m in mob_d_list if m["type"] == "Strong")
-    print(f"{c} | ᵟ Weak: {weak}  Ω Strong: {strong}  Total: {len(mob_d_list)}")
+    weak = [m for m in mob_d_list if m["type"] == "Weak"]
+    strong = [m for m in mob_d_list if m["type"] == "Strong"]
+    print(f"{c} days | ᵟ {stats(weak)}  | Ω {stats(strong)}")
     mob_ai.brownian_motion(mob_d_list, c)
     mob_ai.dead_mobs(mob_d_list)
     world.render()
