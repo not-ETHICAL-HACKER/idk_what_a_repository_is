@@ -44,10 +44,10 @@ c = 0
 while True:
     c += 1
     clear()
+    mob_ai.brownian_motion(mob_d_list, c)
+    mob_ai.dead_mobs(mob_d_list)
     weak = [m for m in mob_d_list if m["type"] == "Weak"]
     strong = [m for m in mob_d_list if m["type"] == "Strong"]
     print(f"{c} days | ᵟ {stats(weak)}  | Ω {stats(strong)}")
-    mob_ai.brownian_motion(mob_d_list, c)
-    mob_ai.dead_mobs(mob_d_list)
     world.render()
     sleep(1/120)
