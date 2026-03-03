@@ -141,7 +141,7 @@ interactions, and reproduction based on defined rules. Mobs can move randomly, r
                             if (self.world.chunk[ry][rx] == " ") or ("░" in self.world.chunk[ry][rx]):
                                 self.world.chunk[ry][rx] = "Ω"
                                 new_mobs.append(
-                                    {"type": "Strong", "pos": (rx, ry)})
+                                    {"type": "Strong", "pos": (rx, ry),"energy":random.randint(50, 100), "age": 0})
                         else:
                             # ensure the winning mob remains visible on map
                             self.world.chunk[ny][nx] = "Ω"
