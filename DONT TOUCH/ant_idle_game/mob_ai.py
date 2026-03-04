@@ -4,42 +4,47 @@ import random
 # This Python class represents a mob in a game with attributes such as difficulty, type, ID, boss
 # status, and evolution capability.
 
+# todo change the list of dicts to a list of Mob objects for better code organization and readability, and update the Mob_AI class accordingly
+
 
 class Mob:
     """The `Mob` class represents a mob in a game, characterized by its difficulty level, type, unique identifier, boss status, and evolution capability. Each mob instance can be initialized with specific attributes that define its behavior and role within the game world."""
 
-    def __init__(self, difficulty: str, mob_type: str, mob_id: str, boss: bool, evolve: bool):
+    def __init__(self, difficulty: str, mob_type: str, mob_id: str, energy: int, age: int, evolve: bool = False):
         """
-        This Python function initializes attributes related to a game mob with specified
-        characteristics.
-
+        This Python function initializes attributes for a game entity with parameters for difficulty,
+        mob type, mob ID, energy, age, and evolution status.
+        
         :param difficulty: The `difficulty` parameter in the `__init__` method is a string that
-        represents the difficulty level of a game. It could be values like "easy", "medium", or "hard"
-        depending on the game's settings
+        represents the difficulty level of a game. It could be something like "easy", "medium", or
+        "hard" depending on the game's settings
         :type difficulty: str
-        :param mob_type: The `mob_type` parameter in the `__init__` method represents the type of mobile
-        entity or creature. It could be a category or classification that helps differentiate different
-        types of mobs within the game or application. Examples of `mob_type` could include "zombie",
-        "skeleton", "
+        :param mob_type: The `mob_type` parameter in the `__init__` method of the class is used to
+        specify the type of the mobile entity being initialized. It could represent different categories
+        or classifications of mobile entities within the context of your program or game. Examples of
+        `mob_type` could be "enemy",
         :type mob_type: str
         :param mob_id: The `mob_id` parameter in the `__init__` method is used to store the unique
-        identifier of a mobile entity (mob) in a game. This identifier helps differentiate one mob from
-        another and can be used for various purposes such as tracking, referencing, or identifying
-        specific mobs within the game
+        identifier of a mobile entity. This identifier helps differentiate one mobile entity from
+        another within the program or system
         :type mob_id: str
-        :param boss: The `boss` parameter in the `__init__` method is a boolean value that indicates
-        whether the mob is a boss or not. If `boss` is `True`, it means the mob is a boss; if `boss` is
-        `False`, it means the mob is not a boss
-        :type boss: bool
-        :param evolve: The `evolve` parameter in the `__init__` method is a boolean flag that indicates
-        whether the mob has the ability to evolve or not. If `evolve` is `True`, it means the mob can
-        evolve, and if it's `False`, the mob does not have the
-        :type evolve: bool
+        :param energy: The `energy` parameter in the `__init__` method of the class represents the
+        energy level of the mob (mobile entity) being initialized. It is an integer value that indicates
+        how much energy the mob has at the time of creation
+        :type energy: int
+        :param age: The `age` parameter in the `__init__` method of the class is used to store the age
+        of the mob instance being created. It is an integer value representing the age of the mob
+        :type age: int
+        :param evolve: The `evolve` parameter in the `__init__` method is a boolean parameter with a
+        default value of `False`. This parameter is used to indicate whether the mob has the ability to
+        evolve or not. If `evolve` is set to `True`, it means the mob can evolve, defaults to False
+        :type evolve: bool (optional)
         """
         self.difficulty = difficulty
         self.mob_type = mob_type
         self.mob_id = mob_id
-        self.boss = boss
+        self.energy = energy
+        self.age = age
         self.evolve = evolve
 # The `Mob_AI` class in Python simulates mob behavior in a world grid, including movement,
 # interactions, and reproduction based on specific rules.
@@ -70,7 +75,7 @@ interactions, and reproduction based on defined rules. Mobs can move randomly, r
         """
         The `brownian_motion` function simulates movement and interactions of mobs in a world grid,
         including reproduction and collision logic.
-        
+
         :param mob_list: The `mob_list` parameter in the `brownian_motion` function is a list of
         dictionaries representing mobs in the simulation. Each dictionary contains information about a
         mob, such as its type ("Weak" or "Strong") and its current position on the map
@@ -98,14 +103,17 @@ interactions, and reproduction based on defined rules. Mobs can move randomly, r
                 ny = max(0, min(self.max_y, y + dy))
 
                 mob["age"] += 1
-                mob["energy"] -= 1+int(random.random()*5)  # lose energy on movement
-                
+                # lose energy on movement
+                mob["energy"] -= 1+int(random.random()*2)  # randomize energy loss a bit to create more variation in mob lifespans
+
                 # ? check if new pos is a corpse
-                if self.check_area(nx, ny, char="*", area=(3, 3),num=5):
-                    mob["energy"] -= 250  # lose energy from nearby corpses (disease, bad smell, etc)
+                if self.check_area(nx, ny, char="*", area=(3, 3), num=5):
+                    # lose energy from nearby corpses (disease, bad smell, etc)
+                    mob["energy"] -= 150
                     continue
                 if "*" in self.world.chunk[ny][nx]:
                     mob["energy"] += 200  # gain energy from corpse
+                    self.world.chunk[ny][nx] = " "  # consume corpse
                     continue
 
                 target_cell = self.world.chunk[ny][nx]
@@ -126,8 +134,10 @@ interactions, and reproduction based on defined rules. Mobs can move randomly, r
                         # only place if target cell looks empty
                         if (" " == self.world.chunk[ry][rx]) or ("░" in self.world.chunk[ry][rx]):
                             self.world.chunk[ry][rx] = "ᵟ"
-                            new_mobs.append({"type": "Weak", "pos": (rx, ry), "energy": mob["energy"]+random.randint(-100,100), "age": 0})
-                            mob["energy"] = mob.get("energy", 50) - 50  # reduce energy on reproduction
+                            new_mobs.append({"type": "Weak", "pos": (
+                                rx, ry), "energy": mob["energy"]*random.gauss(1, 0.1), "age": 0})
+                            # reduce energy on reproduction
+                            mob["energy"] = mob.get("energy", 100) - 100
                 elif "Ω" in target_cell:  # mob collision
                     # For simplicity, just restore old position (no combat logic)
                     if random.random() < 0.25:  # 25% chance to "win" and move into the cell
@@ -135,7 +145,7 @@ interactions, and reproduction based on defined rules. Mobs can move randomly, r
                     # If there's a corpse nearby, the winner may create an offspring.
                     if self.check_area(nx, ny, char="*"):
                         # try to place a child in a nearby empty cell
-                        if random.random() > 0.95 and not self.check_area(nx, ny, char="Ω", num=5):#! remove mobs if energy < 0
+                        if random.random() > 0.95 and not self.check_area(nx, ny, char="Ω", num=5):  # ! remove mobs if energy < 0
                             ddx = random.randint(-1, 1)
                             ddy = random.randint(-1, 1)
                             rx = max(0, min(self.max_x, nx + ddx))
@@ -144,7 +154,9 @@ interactions, and reproduction based on defined rules. Mobs can move randomly, r
                             if (self.world.chunk[ry][rx] == " ") or ("░" in self.world.chunk[ry][rx]):
                                 self.world.chunk[ry][rx] = "Ω"
                                 new_mobs.append(
-                                    {"type": "Strong", "pos": (rx, ry),"energy":random.randint(500, 1000), "age": 0})
+                                    {"type": "Strong", "pos": (rx, ry), "energy": mob["energy"]*random.gauss(1, 0.1), "age": 0})
+                                
+                                mob["energy"] = mob.get("energy", 250) - 200  # reduce energy on reproduction
                         else:
                             # ensure the winning mob remains visible on map
                             self.world.chunk[ny][nx] = "Ω"
@@ -162,7 +174,7 @@ interactions, and reproduction based on defined rules. Mobs can move randomly, r
         The function `check_area` checks the number of occurrences of a character within a specified
         area around a given position in a game world grid, excluding occurrences of a specified enemy
         character.
-        
+
         :param x: The `x` parameter represents the x-coordinate of the center point in the area you want
         to check
         :type x: int
@@ -201,11 +213,12 @@ interactions, and reproduction based on defined rules. Mobs can move randomly, r
                     count += 1
 
         return count > num
-    def dead_mobs(self,arr:list[dict[str, Any]]) -> None:
+
+    def dead_mobs(self, arr: list[dict[str, Any]]) -> None:
         """
         The `dead_mobs` function marks mobs with zero energy as corpses in the game world and removes them
         from the list of active mobs.
-        
+
         :param arr: The `arr` parameter is a list of dictionaries representing mobs in a game. Each
         dictionary in the list contains information about a mob, such as its energy level (`"energy"`) and
         position (`"pos"`). The `dead_mobs` method iterates over this list, checks if a
