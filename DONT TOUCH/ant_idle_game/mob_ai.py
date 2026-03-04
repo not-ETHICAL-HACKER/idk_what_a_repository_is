@@ -86,7 +86,7 @@ interactions, and reproduction based on defined rules. Mobs can move randomly, r
         new_mobs: list[dict[str, Any]] = []
 
         for mob in list(mob_list):
-            mob.setdefault("energy", 50)
+            mob.setdefault("energy", 500)
             mob.setdefault("age", 0)
             for _ in range(self.seconds):  # simulate multiple steps
                 # stored positions are (x, y)
@@ -101,8 +101,11 @@ interactions, and reproduction based on defined rules. Mobs can move randomly, r
                 mob["energy"] -= 1+int(random.random()*5)  # lose energy on movement
                 
                 # ? check if new pos is a corpse
+                if self.check_area(nx, ny, char="*", area=(3, 3),num=5):
+                    mob["energy"] -= 250  # lose energy from nearby corpses (disease, bad smell, etc)
+                    continue
                 if "*" in self.world.chunk[ny][nx]:
-                    mob["energy"] += 2  # gain energy from corpse
+                    mob["energy"] += 200  # gain energy from corpse
                     continue
 
                 target_cell = self.world.chunk[ny][nx]
@@ -123,7 +126,7 @@ interactions, and reproduction based on defined rules. Mobs can move randomly, r
                         # only place if target cell looks empty
                         if (" " == self.world.chunk[ry][rx]) or ("░" in self.world.chunk[ry][rx]):
                             self.world.chunk[ry][rx] = "ᵟ"
-                            new_mobs.append({"type": "Weak", "pos": (rx, ry), "energy": mob["energy"]+random.randint(-10,10), "age": 0})
+                            new_mobs.append({"type": "Weak", "pos": (rx, ry), "energy": mob["energy"]+random.randint(-100,100), "age": 0})
                             mob["energy"] = mob.get("energy", 50) - 50  # reduce energy on reproduction
                 elif "Ω" in target_cell:  # mob collision
                     # For simplicity, just restore old position (no combat logic)
@@ -141,7 +144,7 @@ interactions, and reproduction based on defined rules. Mobs can move randomly, r
                             if (self.world.chunk[ry][rx] == " ") or ("░" in self.world.chunk[ry][rx]):
                                 self.world.chunk[ry][rx] = "Ω"
                                 new_mobs.append(
-                                    {"type": "Strong", "pos": (rx, ry),"energy":random.randint(50, 100), "age": 0})
+                                    {"type": "Strong", "pos": (rx, ry),"energy":random.randint(500, 1000), "age": 0})
                         else:
                             # ensure the winning mob remains visible on map
                             self.world.chunk[ny][nx] = "Ω"
@@ -198,7 +201,7 @@ interactions, and reproduction based on defined rules. Mobs can move randomly, r
                     count += 1
 
         return count > num
-    def dead_mobs(self,arr):
+    def dead_mobs(self,arr:list[dict[str, Any]]) -> None:
         """
         The `dead_mobs` function marks mobs with zero energy as corpses in the game world and removes them
         from the list of active mobs.
