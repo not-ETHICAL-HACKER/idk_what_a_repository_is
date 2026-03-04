@@ -67,12 +67,12 @@ class gen:
                 # ? i thoght i made only preys but i made the predators without their ability to move
                 if random.random() < self.monster_density:
                     # decide mob strength first, then write terrain and mob object to match
-                    is_weak = random.random() < 0.7
+                    is_weak = random.random() < 0.8
                     terrain_key = 'W' if is_weak else 'S'
                     row += self.terrain[terrain_key]
                     mob_type = "Weak" if is_weak else "Strong"
                     mon_list.append(
-                        (Mob(self.diff, mob_type, f"mob_{len(mon_list)}", False, False), (x, y)))
+                        (Mob(self.diff, mob_type, f"mob_{len(mon_list)}", randint(500, 1000), 0), (x, y)))
                 else:
                     row += self.terrain["0"]  # Empty terrain
             self.chunk.append(list(row))
