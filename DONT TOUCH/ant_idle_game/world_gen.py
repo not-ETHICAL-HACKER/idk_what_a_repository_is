@@ -82,7 +82,7 @@ class gen:
         The `render` function uses a color map to print styled characters from a chunk.
         """
         COLOR_MAP: dict[str, str] = {
-            "ᵟ": Fore.MAGENTA + Style.BRIGHT + "ᵟ",
+            "ᵟ": Fore.BLUE + Style.BRIGHT + "ᵟ",
             "Ω": Fore.RED + Style.BRIGHT + "Ω",
             "*": Style.DIM + Fore.BLACK + "*",
             "░": Fore.GREEN + Style.BRIGHT + "░",
