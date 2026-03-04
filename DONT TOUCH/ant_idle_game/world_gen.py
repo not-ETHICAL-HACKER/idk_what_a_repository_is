@@ -72,7 +72,7 @@ class gen:
                     row += self.terrain[terrain_key]
                     mob_type = "Weak" if is_weak else "Strong"
                     mon_list.append(
-                        (Mob(self.diff, mob_type, f"mob_{len(mon_list)}", randint(500, 1000), 0), (x, y)))
+                        (Mob(self.diff, mob_type, f"mob_{len(mon_list)}", random.randint(500, 1000), 0), (x, y)))
                 else:
                     row += self.terrain["0"]  # Empty terrain
             self.chunk.append(list(row))

@@ -1,7 +1,7 @@
 import statistics
 from random import randint
 from world_gen import gen
-from time import sleep, time
+import time
 from mob_ai import Mob, Mob_AI
 from shutil import get_terminal_size
 col, row = get_terminal_size()
@@ -51,18 +51,21 @@ while True:
     mob_ai.dead_mobs(mob_d_list)
     weak = [m for m in mob_d_list if m["type"] == "Weak"]
     strong = [m for m in mob_d_list if m["type"] == "Strong"]
-    w = stats(weak)
-    s = stats(strong)
+    w: str = stats(weak)
+    w_flag: bool = False
+    s: str = stats(strong)
+    s_flag: bool = False
     if w == "extinct" and s == "extinct":
         print("All mobs have gone extinct. Simulation ended.")
         break
-    elif w == "extinct":
+    elif w == "extinct" and not w_flag:
         print("Weak mobs have gone extinct.")
         time.sleep(2)
-    elif s == "extinct":
+    elif s == "extinct" and not s_flag:
+        s_flag = True
         print("Strong mobs have gone extinct.")
         time.sleep(2)
     else:
         print(f"{c} days | ᵟ : {w}  | Ω : {s}")
     world.render()
-    sleep(1/45)
+    time.sleep(1/45)

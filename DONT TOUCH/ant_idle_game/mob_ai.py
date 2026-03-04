@@ -115,7 +115,6 @@ interactions, and reproduction based on defined rules. Mobs can move randomly, r
                     mob["energy"] += 200  # gain energy from corpse
                     self.world.chunk[ny][nx] = " "  # consume corpse
                     continue
-
                 target_cell = self.world.chunk[ny][nx]
                 if " " in target_cell or "░" in target_cell:
                     old_terrain = "░"
