@@ -1,9 +1,9 @@
 """This module is responsible for generating the game world based on a seed and specified parameters. It creates a grid of terrain and populates it with mobs according to the defined monster density. The generated world can be rendered to the console for visualization."""
 import random
 from colorama import Fore, Style, init
-from mob_ai import Mob
+from mob_ai import Mob, Mob_AI
+from shutil import get_terminal_size
 init(autoreset=True)
-
 
 # This Python class `gen` generates a world with specified size, monster density, and difficulty
 # level, populating it with weak and strong mobs.
@@ -36,15 +36,8 @@ class gen:
         self.diff = diff
         self.size = world_size
         self.monster_density = monster_density
-        """self.terrain:dict[str,str] = {  "0":Style.BRIGHT+Fore.GREEN + " " ,#? "░",
-                                        "W": Style.BRIGHT+Fore.MAGENTA + "ᵟ",  # Weak Mob
-                                        "DW": Style.BRIGHT+Fore.LIGHTBLACK_EX + "ᵟ",  # Dead Weak Mob
-                                        "S": Style.BRIGHT+Fore.RED + "Ω",     # Strong Mob
-                                        "DS": Style.DIM+Fore.LIGHTBLACK_EX + "Ω",     # Dead Strong Mob
-                                        "ᵟ": Style.BRIGHT+Fore.MAGENTA + "ᵟ",  # Weak Mob
-                                        "Ω": Style.BRIGHT+Fore.RED + "Ω",     # Strong Mob
-                                    }"""
         self.terrain: dict[str, str] = {"0": " ",  # ?"░",
+                                        "1": "≈", # water
                                         "W": "ᵟ",  # Weak Mob
                                         "S": "Ω",     # Strong Mob
                                         }
@@ -60,11 +53,12 @@ class gen:
         the grid. The `Mob` object is created based on certain conditions such as mob strength (
         :type mon_list: list[tuple[Mob,tuple[int, int]]]
         """
+        
+        col, row = get_terminal_size()
+        ai = Mob_AI(gen("debug", (int(row-2), int(col)), 0.05, "easy"))
         for y in range(self.size[0]):
             row = ""
-            # ? thers smth wrong with the way mobs are generated,
             for x in range(self.size[1]):
-                # ? i thoght i made only preys but i made the predators without their ability to move
                 if random.random() < self.monster_density:
                     # decide mob strength first, then write terrain and mob object to match
                     is_weak = random.random() < 0.8
@@ -74,7 +68,7 @@ class gen:
                     mon_list.append(
                         (Mob(self.diff, mob_type, f"mob_{len(mon_list)}", random.randint(500, 1000), 0), (x, y)))
                 else:
-                    row += self.terrain["0"]  # Empty terrain
+                    row += self.terrain["0" if random.random() < 0.7 else "1"]  # Empty or water terrain
             self.chunk.append(list(row))
 
     def render(self) -> None:
@@ -85,6 +79,7 @@ class gen:
             "ᵟ": Fore.BLUE + Style.BRIGHT + "ᵟ",
             "Ω": Fore.RED + Style.BRIGHT + "Ω",
             "*": Style.DIM + Fore.BLACK + "*",
+            "≈": Fore.CYAN + Style.BRIGHT + "≈",
             "░": Fore.GREEN + Style.BRIGHT + "░",
         }
         for row in self.chunk:
