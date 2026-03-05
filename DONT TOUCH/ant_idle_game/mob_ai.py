@@ -4,48 +4,32 @@ import random
 # This Python class represents a mob in a game with attributes such as difficulty, type, ID, boss
 # status, and evolution capability.
 
-# todo change the list of dicts to a list of Mob objects for better code organization and readability, and update the Mob_AI class accordingly
 
-
+#todo craeate seperate calss for predators and prey that inherit from mob, with different behaviors and attributes, like predators being able to hunt prey and prey having different reproduction rates or energy requirements
 class Mob:
     """The `Mob` class represents a mob in a game, characterized by its difficulty level, type, unique identifier, boss status, and evolution capability. Each mob instance can be initialized with specific attributes that define its behavior and role within the game world."""
 
-    def __init__(self, difficulty: str, mob_type: str, mob_id: str, energy: int, age: int, evolve: bool = False):
-        """
-        This Python function initializes attributes for a game entity with parameters for difficulty,
-        mob type, mob ID, energy, age, and evolution status.
-        
-        :param difficulty: The `difficulty` parameter in the `__init__` method is a string that
-        represents the difficulty level of a game. It could be something like "easy", "medium", or
-        "hard" depending on the game's settings
-        :type difficulty: str
-        :param mob_type: The `mob_type` parameter in the `__init__` method of the class is used to
-        specify the type of the mobile entity being initialized. It could represent different categories
-        or classifications of mobile entities within the context of your program or game. Examples of
-        `mob_type` could be "enemy",
-        :type mob_type: str
-        :param mob_id: The `mob_id` parameter in the `__init__` method is used to store the unique
-        identifier of a mobile entity. This identifier helps differentiate one mobile entity from
-        another within the program or system
-        :type mob_id: str
-        :param energy: The `energy` parameter in the `__init__` method of the class represents the
-        energy level of the mob (mobile entity) being initialized. It is an integer value that indicates
-        how much energy the mob has at the time of creation
-        :type energy: int
-        :param age: The `age` parameter in the `__init__` method of the class is used to store the age
-        of the mob instance being created. It is an integer value representing the age of the mob
-        :type age: int
-        :param evolve: The `evolve` parameter in the `__init__` method is a boolean parameter with a
-        default value of `False`. This parameter is used to indicate whether the mob has the ability to
-        evolve or not. If `evolve` is set to `True`, it means the mob can evolve, defaults to False
-        :type evolve: bool (optional)
-        """
+    def __init__(self, difficulty: str, mob_type: str, mob_id: str, energy: int, coords: tuple[int, int], age: int, evolve: bool = False):
         self.difficulty = difficulty
         self.mob_type = mob_type
         self.mob_id = mob_id
         self.energy = energy
         self.age = age
+        self.coords = coords
         self.evolve = evolve
+        self.state = "Healthy"  # Example state, can be expanded to include more complex behaviors
+        self.title = "Baby"  # Example title, can be used to represent different stages of life or evolution
+    def grow(self):
+        """
+        The `grow` function assigns a title based on the age of an entity, with specific symbols used for
+        representation on a map.
+        """
+        if self.age > 730:
+            self.title = "Ancient" #! Ψ for its representation on the map, should be changed to something else if we add more mob types to avoid confusion
+        elif self.age > 365:
+            self.title = "Elder" #! λ for its representation on the map, should be changed to something else if we add more mob types to avoid confusion
+        elif self.age > 100:
+            self.title = "Adult" #! Δ for its representation on the map, should be changed to something else if we add more mob types to avoid confusion
 # The `Mob_AI` class in Python simulates mob behavior in a world grid, including movement,
 # interactions, and reproduction based on specific rules.
 
@@ -71,7 +55,7 @@ interactions, and reproduction based on defined rules. Mobs can move randomly, r
         # ! 1 for real movement 60 for faster paced movement (will be kinda strange to watch but good for testing)
         self.seconds = 1
 
-    def brownian_motion(self, mob_list: list[Any], count: int) -> None:
+    def brownian_motion(self, mob_list: list[Mob]) -> None:
         """
         The `brownian_motion` function simulates movement and interactions of mobs in a world grid,
         including reproduction and collision logic.
@@ -79,40 +63,39 @@ interactions, and reproduction based on defined rules. Mobs can move randomly, r
         :param mob_list: The `mob_list` parameter in the `brownian_motion` function is a list of
         dictionaries representing mobs in the simulation. Each dictionary contains information about a
         mob, such as its type ("Weak" or "Strong") and its current position on the map
-        :type mob_list: list[Any]
+        :type mob_list: list[Mob]
         :param count: The `count` parameter is an integer that represents the number of iterations or
         steps to simulate in the Brownian motion function. Each iteration involves moving the mobs in
         the `mob_list` according to the rules defined in the function. The function simulates the
         movement and interactions of different types of mobs (
         :type count: int
         """
-        mon_types = {"Weak": "ᵟ", "Strong": "Ω"}
+        mon_types = {"Weak": "ᵟ","Adult": "Δ","Elder": "λ", "Ancient": "Ψ", "Strong": "Ω"}
 
         new_mobs: list[dict[str, Any]] = []
 
         for mob in list(mob_list):
-            mob.setdefault("energy", 500)
-            mob.setdefault("age", 0)
             for _ in range(self.seconds):  # simulate multiple steps
                 # stored positions are (x, y)
-                x, y = mob["pos"]
+                x, y = mob.coords
                 ox, oy = x, y  # old position
 
                 dx, dy = random.choice(((1, 0), (-1, 0), (0, 1), (0, -1)))
                 nx = max(0, min(self.max_x, x + dx))
                 ny = max(0, min(self.max_y, y + dy))
 
-                mob["age"] += 1
+                mob.age += 1
+                mob.grow()
                 # lose energy on movement
-                mob["energy"] -= 1+int(random.random()*2)  # randomize energy loss a bit to create more variation in mob lifespans
+                mob.energy -= 1+int(random.random()*2)  # randomize energy loss a bit to create more variation in mob lifespans
 
                 # ? check if new pos is a corpse
                 if self.check_area(nx, ny, char="*", area=(3, 3), num=5):
                     # lose energy from nearby corpses (disease, bad smell, etc)
-                    mob["energy"] -= 150
+                    mob.energy -= 150
                     continue
                 if "*" in self.world.chunk[ny][nx]:
-                    mob["energy"] += 200  # gain energy from corpse
+                    mob.energy += 200  # gain energy from corpse
                     self.world.chunk[ny][nx] = " "  # consume corpse
                     continue
                 target_cell = self.world.chunk[ny][nx]
@@ -121,8 +104,8 @@ interactions, and reproduction based on defined rules. Mobs can move randomly, r
                     # restore old terrain
                     self.world.chunk[oy][ox] = old_terrain
                     # move mob
-                    self.world.chunk[ny][nx] = mon_types[mob["type"]]
-                    mob["pos"] = (nx, ny)
+                    self.world.chunk[ny][nx] = mon_types[mob.mob_type]
+                    mob.coords = (nx, ny)
                 elif "ᵟ" in target_cell:
                     # Reproduction logic: 5% chance to reproduce into an adjacent cell
                     if random.random() > 0.95 and not self.check_area(nx, ny, char="ᵟ", num=3):
@@ -133,10 +116,9 @@ interactions, and reproduction based on defined rules. Mobs can move randomly, r
                         # only place if target cell looks empty
                         if (" " == self.world.chunk[ry][rx]) or ("░" in self.world.chunk[ry][rx]):
                             self.world.chunk[ry][rx] = "ᵟ"
-                            new_mobs.append({"type": "Weak", "pos": (
-                                rx, ry), "energy": mob["energy"]*random.gauss(1, 0.1), "age": 0})
+                            new_mobs.append(Mob(self.world.diff, "Weak", f"mob_{len(mob_list)+len(new_mobs)}", mob.energy*random.gauss(1, 0.1), (rx, ry), 0))
                             # reduce energy on reproduction
-                            mob["energy"] = mob.get("energy", 100) - 100
+                            mob.energy -= 100
                 elif "Ω" in target_cell:  # mob collision
                     # For simplicity, just restore old position (no combat logic)
                     if random.random() < 0.25:  # 25% chance to "win" and move into the cell
@@ -152,17 +134,15 @@ interactions, and reproduction based on defined rules. Mobs can move randomly, r
                             # only place if target cell looks empty
                             if (self.world.chunk[ry][rx] == " ") or ("░" in self.world.chunk[ry][rx]):
                                 self.world.chunk[ry][rx] = "Ω"
-                                new_mobs.append(
-                                    {"type": "Strong", "pos": (rx, ry), "energy": mob["energy"]*random.gauss(1, 0.1), "age": 0})
-                                
-                                mob["energy"] = mob.get("energy", 250) - 200  # reduce energy on reproduction
+                                new_mobs.append(Mob(self.world.diff, "Strong", f"mob_{len(mob_list)+len(new_mobs)}", mob.energy*random.gauss(1, 0.1), (rx, ry), 0))
+                                mob.energy -= 200  # reduce energy on reproduction
                         else:
                             # ensure the winning mob remains visible on map
                             self.world.chunk[ny][nx] = "Ω"
-                    mob["pos"] = (ox, oy)
+                    mob.coords = (ox, oy)
                 else:
                     # If target cell is something else (like a wall), also restore old position
-                    mob["pos"] = (ox, oy)
+                    mob.coords = (ox, oy)
 
         # Add newborns after processing to avoid mutating while iterating
         if new_mobs:
@@ -213,7 +193,7 @@ interactions, and reproduction based on defined rules. Mobs can move randomly, r
 
         return count > num
 
-    def dead_mobs(self, arr: list[dict[str, Any]]) -> None:
+    def dead_mobs(self, arr: list[Mob]) -> None:
         """
         The `dead_mobs` function marks mobs with zero energy as corpses in the game world and removes them
         from the list of active mobs.
@@ -222,9 +202,9 @@ interactions, and reproduction based on defined rules. Mobs can move randomly, r
         dictionary in the list contains information about a mob, such as its energy level (`"energy"`) and
         position (`"pos"`). The `dead_mobs` method iterates over this list, checks if a
         """
-        for mob in arr.copy():  # Use a copy to avoid modifying list during iteration
-            if mob["energy"] <= 0:
-                x, y = mob["pos"]
+        for mob in arr[:]:  # Use a copy to avoid modifying list during iteration
+            if mob.energy <= 0:
+                x, y = mob.coords
                 self.world.chunk[y][x] = "*"  # Mark as corpse
                 arr.remove(mob)  # Remove from active mobs
 
