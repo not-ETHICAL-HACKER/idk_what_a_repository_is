@@ -73,6 +73,8 @@ interactions, and reproduction based on defined rules. Mobs can move randomly, r
         :type count: int
         """
         mon_types = {"Weak": "ᵟ","Adult": "Δ","Elder": "λ", "Ancient": "Ψ", "Strong": "Ω"}
+        #! the oreder of apex predatoors are
+        #? weak prey (ᵟ) -> strong prey (Δ) -> weak predator (Ω) -> strong predator (λ) -> apex predator (Ψ)
 
         new_mobs: list[Mob] = []
 
