@@ -75,7 +75,7 @@ class gen:
         The `render` function uses a color map to print styled characters from a chunk.
         """
         COLOR_MAP: dict[str, str] = {
-            "ᵟ": Fore.BLUE + Style.BRIGHT + "ᵟ",
+            "ᵟ": Fore.GREEN + Style.BRIGHT + "ᵟ",
             "Ω": Fore.RED + Style.BRIGHT + "Ω",
             "Ψ": Fore.YELLOW + Style.BRIGHT + "Ψ",
             "λ": Fore.MAGENTA + Style.BRIGHT + "λ",
@@ -88,6 +88,18 @@ class gen:
             print("".join(Back.BLACK+COLOR_MAP.get(cell, cell) +
                   Style.RESET_ALL for cell in row))
 
+    def grow_up(self, mon_list: list[Mob]) -> None:
+        """
+        The `grow_up` function iterates through a list of mobs and calls their `grow` method to
+        simulate growth or aging.
 
+        :param mon_list: The `mon_list` parameter in the `grow_up` method is a list of `Mob` objects.
+        Each `Mob` object represents a mobile entity in the game world with specific attributes and
+        behaviors. The `grow_up` method likely simulates the passage of time for these mobs, allowing
+        them to age or develop based on their individual growth mechanics.
+        :type mon_list: list[Mob]
+        """
+        for mob in mon_list:
+            mob.grow()
 if __name__ == "__main__":
     print("Run idle_game.py to see the world generation in action! dumahh")
