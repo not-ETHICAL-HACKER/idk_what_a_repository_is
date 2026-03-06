@@ -1,11 +1,14 @@
 """This module defines the `Mob` and `Mob_AI` classes, which represent mobs in a game and their behavior within a grid-based world. The `Mob` class encapsulates attributes such as difficulty, type, ID, boss status, and evolution capability. The `Mob_AI` class simulates mob behavior, including movement, interactions, and reproduction based on specific rules. Mobs can move randomly, reproduce under certain conditions, and interact with other mobs, with the world state being updated accordingly."""
 from typing import Any
 import random
+from combat import Combat
 # This Python class represents a mob in a game with attributes such as difficulty, type, ID, boss
 # status, and evolution capability.
+fight = Combat()
+
+# todo craeate seperate calss for predators and prey that inherit from mob, with different behaviors and attributes, like predators being able to hunt prey and prey having different reproduction rates or energy requirements
 
 
-#todo craeate seperate calss for predators and prey that inherit from mob, with different behaviors and attributes, like predators being able to hunt prey and prey having different reproduction rates or energy requirements
 class Mob:
     """The `Mob` class represents a mob in a game, characterized by its difficulty level, type, unique identifier, boss status, and evolution capability. Each mob instance can be initialized with specific attributes that define its behavior and role within the game world."""
 
@@ -19,30 +22,39 @@ class Mob:
         self.coords = coords
         self.evolve = evolve
         self.state = "Healthy"  # Example state, can be expanded to include more complex behaviors
-        self.stage = "Baby"  # Example stage, can be used to represent different stages of life or evolution
+        # Example stage, can be used to represent different stages of life or evolution
+        self.stage = "Baby"
+
     def grow(self):
         """
         The `grow` function assigns a  based on the age of an entity, with specific symbols used for
         representation on a map.
         """
         if self.age > 750:
-            self.mob_type = "Ancient" #! Ψ for its representation on the map, should be changed to something else if we add more mob types to avoid confusion
+            # ! Ψ for its representation on the map, should be changed to something else if we add more mob types to avoid confusion
+            self.mob_type = "Ancient"
         elif self.age > 500:
-            self.mob_type = "Elder" #! λ for its representation on the map, should be changed to something else if we add more mob types to avoid confusion
-        elif self.age > 250:
-            self.mob_type = "Adult" #! Δ for its representation on the map, should be changed to something else if we add more mob types to avoid confusion
+            # ! λ for its representation on the map, should be changed to something else if we add more mob types to avoid confusion
+            self.mob_type = "Elder"
+        elif self.age > 250 and self.mob_type != "Strong":
+            # ! Δ for its representation on the map, should be changed to something else if we add more mob types to avoid confusion
+            self.mob_type = "Adult"
+
 
 class Predator(Mob):
     """The `Predator` class represents a mob that is a predator in the game, inheriting from the `Mob` class. It can have additional attributes and behaviors specific to predators, such as hunting capabilities and energy requirements for survival."""
+
     def __init__(self, difficulty: str, mob_type: str, mob_id: str, energy: int | float, coords: tuple[int, int], age: int, evolve: bool = False):
         super().__init__(difficulty, mob_type, mob_id, energy, coords, age, evolve)
-        #todo Additional attributes specific to predators can be added here
+        # todo Additional attributes specific to predators can be added here
+
 
 class Prey(Mob):
     """The `Prey` class represents a mob that is a prey in the game, inheriting from the `Mob` class. It can have additional attributes and behaviors specific to prey, such as reproduction rates and energy requirements for survival."""
+
     def __init__(self, difficulty: str, mob_type: str, mob_id: str, energy: int | float, coords: tuple[int, int], age: int, evolve: bool = False):
         super().__init__(difficulty, mob_type, mob_id, energy, coords, age, evolve)
-        #todo Additional attributes specific to prey can be added here
+        # todo Additional attributes specific to prey can be added here
 # The `Mob_AI` class in Python simulates mob behavior in a world grid, including movement,
 # interactions, and reproduction based on specific rules.
 
@@ -83,9 +95,10 @@ interactions, and reproduction based on defined rules. Mobs can move randomly, r
         movement and interactions of different types of mobs (
         :type count: int
         """
-        mon_types = {"Weak": "ᵟ","Adult": "Δ","Elder": "λ", "Ancient": "Ψ", "Strong": "Ω"}
+        mon_types = {"Weak": "ᵟ", "Adult": "Δ",
+                     "Elder": "λ", "Ancient": "Ψ", "Strong": "Ω"}
         #! the oreder of apex predatoors are
-        #? weak prey (ᵟ) -> strong prey (Δ) -> weak predator (Ω) -> strong predator (λ) -> apex predator (Ψ)
+        # ? weak prey (ᵟ) -> strong prey (Δ) -> weak predator (Ω) -> strong predator (λ) -> apex predator (Ψ)
 
         new_mobs: list[Mob] = []
 
@@ -102,7 +115,8 @@ interactions, and reproduction based on defined rules. Mobs can move randomly, r
                 mob.age += 1
                 mob.grow()
                 # lose energy on movement
-                mob.energy -= 1+int(random.random()*2)  # randomize energy loss a bit to create more variation in mob lifespans
+                # randomize energy loss a bit to create more variation in mob lifespans
+                mob.energy -= 1+int(random.random()*2)
 
                 # ? check if new pos is a corpse
                 if self.check_area(nx, ny, char="*", area=(3, 3), num=5):
@@ -131,10 +145,14 @@ interactions, and reproduction based on defined rules. Mobs can move randomly, r
                         # only place if target cell looks empty
                         if (" " == self.world.chunk[ry][rx]) or ("░" in self.world.chunk[ry][rx]):
                             self.world.chunk[ry][rx] = "ᵟ"
-                            new_mobs.append(Mob(self.world.diff, "Weak", f"mob_{len(mob_list)+len(new_mobs)}", mob.energy*random.gauss(1, 0.1), (rx, ry), 0))
+                            new_mobs.append(Mob(
+                                self.world.diff, "Weak", f"mob_{len(mob_list)+len(new_mobs)}", mob.energy*random.gauss(1, 0.1), (rx, ry), 0))
                             # reduce energy on reproduction
                             mob.energy -= 100
-                elif "Δ" in target_cell:
+                elif "ᵟ" in target_cell and mob.mob_type in ["Strong", "Elder", "Ancient"]:
+                    fight.fight(
+                        mob, next(m for m in mob_list if m.coords == (nx, ny)))
+                elif "Δ" in target_cell and mob.mob_type not in ["Strong", "Elder", "Ancient"]:
                     # Reproduction logic: 10% chance to reproduce into an adjacent cell
                     if random.random() > 0.90 and not self.check_area(nx, ny, char="Δ", num=3):
                         dx = random.randint(-1, 1)
@@ -144,10 +162,14 @@ interactions, and reproduction based on defined rules. Mobs can move randomly, r
                         # only place if target cell looks empty
                         if (" " == self.world.chunk[ry][rx]) or ("░" in self.world.chunk[ry][rx]):
                             self.world.chunk[ry][rx] = "Δ"
-                            new_mobs.append(Mob(self.world.diff, mob.old_type, f"mob_{len(mob_list)+len(new_mobs)}", mob.energy*random.gauss(1, 0.1), (rx, ry), 0))
+                            new_mobs.append(Mob(
+                                self.world.diff, mob.old_type, f"mob_{len(mob_list)+len(new_mobs)}", mob.energy*random.gauss(1, 0.1), (rx, ry), 0))
                             # reduce energy on reproduction
                             mob.energy -= 150
-                elif "λ" in target_cell:
+                elif "Δ" in target_cell and mob.mob_type in ["Strong", "Elder", "Ancient"]:
+                    fight.fight(
+                        mob, next(m for m in mob_list if m.coords == (nx, ny)))
+                elif "λ" in target_cell and mob.mob_type not in ["Strong", "Adult", "Ancient"]:
                     # Reproduction logic: 5% chance to reproduce into an adjacent cell
                     if random.random() > 0.95 and not self.check_area(nx, ny, char="λ", num=3):
                         dx = random.randint(-1, 1)
@@ -157,10 +179,14 @@ interactions, and reproduction based on defined rules. Mobs can move randomly, r
                         # only place if target cell looks empty
                         if (" " == self.world.chunk[ry][rx]) or ("░" in self.world.chunk[ry][rx]):
                             self.world.chunk[ry][rx] = "λ"
-                            new_mobs.append(Mob(self.world.diff, mob.old_type, f"mob_{len(mob_list)+len(new_mobs)}", mob.energy*random.gauss(1, 0.1), (rx, ry), 0))
+                            new_mobs.append(Mob(
+                                self.world.diff, mob.old_type, f"mob_{len(mob_list)+len(new_mobs)}", mob.energy*random.gauss(1, 0.1), (rx, ry), 0))
                             # reduce energy on reproduction
                             mob.energy -= 200
-                elif "Ψ" in target_cell:
+                elif "λ" in target_cell and mob.mob_type in ["Strong", "Adult", "Ancient"]:
+                    fight.fight(
+                        mob, next(m for m in mob_list if m.coords == (nx, ny)))
+                elif "Ψ" in target_cell and mob.mob_type == "Ancient":
                     # Reproduction logic: 2.5% chance to reproduce into an adjacent cell
                     if random.random() > 0.975 and not self.check_area(nx, ny, char="Ψ", num=3):
                         dx = random.randint(-1, 1)
@@ -170,30 +196,28 @@ interactions, and reproduction based on defined rules. Mobs can move randomly, r
                         # only place if target cell looks empty
                         if (" " == self.world.chunk[ry][rx]) or ("░" in self.world.chunk[ry][rx]):
                             self.world.chunk[ry][rx] = "Ψ"
-                            new_mobs.append(Mob(self.world.diff, mob.old_type, f"mob_{len(mob_list)+len(new_mobs)}", mob.energy*random.gauss(1, 0.1), (rx, ry), 0))
+                            new_mobs.append(Mob(
+                                self.world.diff, mob.old_type, f"mob_{len(mob_list)+len(new_mobs)}", mob.energy*random.gauss(1, 0.1), (rx, ry), 0))
                             # reduce energy on reproduction
                             mob.energy -= 300
-                elif "Ω" in target_cell and mob.mob_type != "Strong":  # mob collision
-                    # For simplicity, just restore old position (no combat logic)
-                    if random.random() < 0.25:  # 25% chance to "win" and move into the cell
-                        self.world.chunk[oy][ox] = "*"  # Clear old position
-                    # If there's a corpse nearby, the winner may create an offspring.
-                    if self.check_area(nx, ny, char="*"):
-                        # try to place a child in a nearby empty cell
-                        if random.random() > 0.95 and not self.check_area(nx, ny, char="Ω", num=5):  # ! remove mobs if energy < 0
-                            ddx = random.randint(-1, 1)
-                            ddy = random.randint(-1, 1)
-                            rx = max(0, min(self.max_x, nx + ddx))
-                            ry = max(0, min(self.max_y, ny + ddy))
-                            # only place if target cell looks empty
-                            if (self.world.chunk[ry][rx] == " ") or ("░" in self.world.chunk[ry][rx]):
-                                self.world.chunk[ry][rx] = "Ω"
-                                new_mobs.append(Mob(self.world.diff, "Strong", f"mob_{len(mob_list)+len(new_mobs)}", mob.energy*random.gauss(1, 0.1), (rx, ry), 0))
-                                mob.energy -= 200  # reduce energy on reproduction
-                        else:
-                            # ensure the winning mob remains visible on map
-                            self.world.chunk[ny][nx] = "Ω"
-                    mob.coords = (ox, oy)
+                elif "Ψ" in target_cell and mob.mob_type != "Ancient":
+                    fight.fight(
+                        mob, next(m for m in mob_list if m.coords == (nx, ny)))
+                elif "Ω" in target_cell and mob.mob_type == "Strong":
+                    if random.random() > 0.95 and not self.check_area(nx, ny, char="Ω", num=5):  # ! remove mobs if energy < 0
+                        ddx = random.randint(-1, 1)
+                        ddy = random.randint(-1, 1)
+                        rx = max(0, min(self.max_x, nx + ddx))
+                        ry = max(0, min(self.max_y, ny + ddy))
+                        # only place if target cell looks empty
+                        if (self.world.chunk[ry][rx] == " ") or ("░" in self.world.chunk[ry][rx]):
+                            self.world.chunk[ry][rx] = "Ω"
+                            new_mobs.append(Mob(
+                                self.world.diff, "Strong", f"mob_{len(mob_list)+len(new_mobs)}", mob.energy*random.gauss(1, 0.1), (rx, ry), 0))
+                            mob.energy -= 200  # reduce energy on reproduction
+                elif "Ω" in target_cell and mob.mob_type != "Strong":
+                    fight.fight(
+                        mob, next(m for m in mob_list if m.coords == (nx, ny)))
                 else:
                     # If target cell is something else (like a wall), also restore old position
                     mob.coords = (ox, oy)

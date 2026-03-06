@@ -6,7 +6,7 @@ from mob_ai import Mob, Mob_AI
 from shutil import get_terminal_size
 col, row = get_terminal_size()
 mob_list: list[Mob] = []
-world = gen("debug", (int(row-2)//2, int(col)//2), 0.05, "easy")
+world = gen("debug", (int(row-2)//8, int(col)//8), 0.05, "easy")
 world.generate(mob_list)
 mob_ai = Mob_AI(world)
 
