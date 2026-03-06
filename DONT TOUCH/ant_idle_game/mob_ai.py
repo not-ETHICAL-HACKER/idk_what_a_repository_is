@@ -31,7 +31,18 @@ class Mob:
             self.mob_type = "Elder" #! λ for its representation on the map, should be changed to something else if we add more mob types to avoid confusion
         elif self.age > 250:
             self.mob_type = "Adult" #! Δ for its representation on the map, should be changed to something else if we add more mob types to avoid confusion
-    
+
+class Predator(Mob):
+    """The `Predator` class represents a mob that is a predator in the game, inheriting from the `Mob` class. It can have additional attributes and behaviors specific to predators, such as hunting capabilities and energy requirements for survival."""
+    def __init__(self, difficulty: str, mob_type: str, mob_id: str, energy: int | float, coords: tuple[int, int], age: int, evolve: bool = False):
+        super().__init__(difficulty, mob_type, mob_id, energy, coords, age, evolve)
+        #todo Additional attributes specific to predators can be added here
+
+class Prey(Mob):
+    """The `Prey` class represents a mob that is a prey in the game, inheriting from the `Mob` class. It can have additional attributes and behaviors specific to prey, such as reproduction rates and energy requirements for survival."""
+    def __init__(self, difficulty: str, mob_type: str, mob_id: str, energy: int | float, coords: tuple[int, int], age: int, evolve: bool = False):
+        super().__init__(difficulty, mob_type, mob_id, energy, coords, age, evolve)
+        #todo Additional attributes specific to prey can be added here
 # The `Mob_AI` class in Python simulates mob behavior in a world grid, including movement,
 # interactions, and reproduction based on specific rules.
 
