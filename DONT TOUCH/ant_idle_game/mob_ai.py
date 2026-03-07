@@ -37,7 +37,7 @@ class Mob:
         elif self.age > 750:
             # ! λ for its representation on the map, should be changed to something else if we add more mob types to avoid confusion
             self.mob_type = "Elder"
-        elif self.age > 250 and self.mob_type != "Strong":
+        elif self.age > 100 and self.mob_type != "Strong":
             # ! Δ for its representation on the map, should be changed to something else if we add more mob types to avoid confusion
             self.mob_type = "Adult"
 
@@ -80,7 +80,9 @@ interactions, and reproduction based on defined rules. Mobs can move randomly, r
         self.max_y = self.row - 1
         # ! 1 for real movement 60 for faster paced movement (will be kinda strange to watch but good for testing)
         self.seconds = 1
-
+        self.corpse_list = []  # list of (coords, decay_time) for corpses in the world
+        self.corpse_decay_time = 50  # time it takes for a corpse to decay and be removed from the world
+        
     def brownian_motion(self, mob_list: list[Mob]) -> None:
         """
         The `brownian_motion` function simulates movement and interactions of mobs in a world grid,
@@ -254,7 +256,7 @@ interactions, and reproduction based on defined rules. Mobs can move randomly, r
                 else:
                     # If target cell is something else (like a wall), also restore old position
                     mob.coords = (ox, oy)
-        self.corpse_decay(mob_list)
+        self.corpse_decay()
         # Add newborns after processing to avoid mutating while iterating
         if new_mobs:
             mob_list.extend(new_mobs)
@@ -317,20 +319,20 @@ interactions, and reproduction based on defined rules. Mobs can move randomly, r
             if mob.energy <= 0:
                 x, y = mob.coords
                 self.world.chunk[y][x] = "*"  # Mark as corpse
+                self.corpse_list.append([(x, y), 0])  # Add corpse to decay list
                 arr.remove(mob)  # Remove from active mobs
 
-    def corpse_decay(self, arr: list[Mob], decay_time: int = 5) -> None:
+    def corpse_decay(self) -> None:
         """
         The `corpse_decay` function simulates the decay of corpses in a game world by removing them
         """
-        #! not correctly implemted
-        for y in range(self.row):
-            for x in range(self.col):
-                if "*" in self.world.chunk[y][x]:
-                    # Simulate decay by randomly removing corpses after a certain time
-                    if random.random() < 0.01:  # 01% chance to decay each turn
-                        # Remove corpse from world
-                        self.world.chunk[y][x] = " "
+        for corpse in self.corpse_list[:]:
+            x,y = corpse[0]
+            corpse[1] += 1
+            if corpse[1] > self.corpse_decay_time:
+                self.world.chunk[y][x] = " "
+                self.corpse_list.remove(corpse)
+                
 
 
 if __name__ == "__main__":

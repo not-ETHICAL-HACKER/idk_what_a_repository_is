@@ -29,6 +29,8 @@ class Combat:
     def fight(self, mob1: 'Mob', mob2: 'Mob'):
         mon1 = (self.pwr_lvls[mob1.mob_type] + mob1.energy - mob1.age )/ 10
         mon2 = (self.pwr_lvls[mob2.mob_type] + mob2.energy - mob2.age )/ 10
+        if mob1.old_type == "Weak" and mob2.old_type == "Weak":#? old_type = mob's origin type, unchanging even as mob_type evolves
+            return
         if mon1 > mon2:
             mob1.energy += max(0,mob2.energy)**0.5
             mob2.energy = 0
@@ -47,13 +49,14 @@ class Combat:
             "Adult":  (50,  100), "Elder":  (100, 200), "Ancient": (200, 400)
         }
         r = rad[center.mob_type]
+        weak_flag = center.old_type == "Weak"
         lo, hi = dmg_range[center.mob_type]
-        cx, cy = center.coords  # ← fix: use .coords not .x/.y
+        cx, cy = center.coords
         affected = []
         for mob in mobs:
             mx, my = mob.coords
-            if mob is not center and abs(mx - cx) <= r and abs(my - cy) <= r:
-                mob.energy -= random.randint(lo, hi)
+            if mob is not center and abs(mx - cx) <= r and abs(my - cy) <= r and not (weak_flag or (mob.old_type == "Weak")): #? old_type = mob's origin type, unchanging even as mob_type evolves
+                mob.energy -= max(0,random.randint(lo, hi))
                 affected.append(mob)
         if affected:
             log_aoe(center, affected)

@@ -2,7 +2,6 @@
 import random
 from colorama import Back, Fore, Style, init
 from mob_ai import Mob, Mob_AI
-from shutil import get_terminal_size
 init(autoreset=True)
 
 # This Python class `gen` generates a world with specified size, monster density, and difficulty
@@ -54,7 +53,6 @@ class gen:
         :type mon_list: list[Mob]
         """
         
-        col, row = get_terminal_size()
         for y in range(self.size[0]):
             row = ""
             for x in range(self.size[1]):
