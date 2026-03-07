@@ -1,8 +1,7 @@
 """This module is responsible for generating the game world based on a seed and specified parameters. It creates a grid of terrain and populates it with mobs according to the defined monster density. The generated world can be rendered to the console for visualization."""
 import random
-from colorama import Fore, Style, init
+from colorama import Back, Fore, Style, init
 from mob_ai import Mob, Mob_AI
-from shutil import get_terminal_size
 init(autoreset=True)
 
 # This Python class `gen` generates a world with specified size, monster density, and difficulty
@@ -43,19 +42,17 @@ class gen:
                                         }
         self.chunk: list[list[str]] = []
 
-    def generate(self, mon_list: list[tuple[Mob, tuple[int, int]]] = []) -> None:
+    def generate(self, mon_list: list[Mob] = []) -> None:
         """
         This function generates mobs with varying strengths on a grid based on a specified monster
         density.
 
-        :param mon_list: The `mon_list` parameter in the `generate` method is a list of tuples. Each
-        tuple contains a `Mob` object and a tuple representing the coordinates `(x, y)` of the mob in
-        the grid. The `Mob` object is created based on certain conditions such as mob strength (
-        :type mon_list: list[tuple[Mob,tuple[int, int]]]
+        :param mon_list: The `mon_list` parameter in the `generate` method is a list of `Mob` objects.
+        Each `Mob` object represents a mobile entity in the game world with specific attributes and
+        behaviors.
+        :type mon_list: list[Mob]
         """
         
-        col, row = get_terminal_size()
-        ai = Mob_AI(gen("debug", (int(row-2), int(col)), 0.05, "easy"))
         for y in range(self.size[0]):
             row = ""
             for x in range(self.size[1]):
@@ -65,10 +62,9 @@ class gen:
                     terrain_key = 'W' if is_weak else 'S'
                     row += self.terrain[terrain_key]
                     mob_type = "Weak" if is_weak else "Strong"
-                    mon_list.append(
-                        (Mob(self.diff, mob_type, f"mob_{len(mon_list)}", random.randint(500, 1000), 0), (x, y)))
+                    mon_list.append(Mob(self.diff, mob_type, f"mob_{len(mon_list)}", random.randint(500, 1000), (x, y), 0))
                 else:
-                    row += self.terrain["0" if random.random() < 0.7 else "1"]  # Empty or water terrain
+                    row += self.terrain["0"]  # Empty or water terrain
             self.chunk.append(list(row))
 
     def render(self) -> None:
@@ -76,16 +72,31 @@ class gen:
         The `render` function uses a color map to print styled characters from a chunk.
         """
         COLOR_MAP: dict[str, str] = {
-            "ᵟ": Fore.BLUE + Style.BRIGHT + "ᵟ",
+            "ᵟ": Fore.GREEN + Style.BRIGHT + "ᵟ",
             "Ω": Fore.RED + Style.BRIGHT + "Ω",
-            "*": Style.DIM + Fore.BLACK + "*",
+            "Ψ": Fore.YELLOW + Style.BRIGHT + "Ψ",
+            "λ": Fore.MAGENTA + Style.BRIGHT + "λ",
+            "Δ": Fore.CYAN + Style.BRIGHT + "Δ",
+            "*": Style.DIM + Fore.WHITE + "*",
             "≈": Fore.CYAN + Style.BRIGHT + "≈",
             "░": Fore.GREEN + Style.BRIGHT + "░",
         }
         for row in self.chunk:
-            print("".join(COLOR_MAP.get(cell, cell) +
+            print("".join(Back.BLACK+COLOR_MAP.get(cell, cell) +
                   Style.RESET_ALL for cell in row))
 
+    def grow_up(self, mon_list: list[Mob]) -> None:
+        """
+        The `grow_up` function iterates through a list of mobs and calls their `grow` method to
+        simulate growth or aging.
 
+        :param mon_list: The `mon_list` parameter in the `grow_up` method is a list of `Mob` objects.
+        Each `Mob` object represents a mobile entity in the game world with specific attributes and
+        behaviors. The `grow_up` method likely simulates the passage of time for these mobs, allowing
+        them to age or develop based on their individual growth mechanics.
+        :type mon_list: list[Mob]
+        """
+        for mob in mon_list:
+            mob.grow()
 if __name__ == "__main__":
     print("Run idle_game.py to see the world generation in action! dumahh")
