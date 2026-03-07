@@ -55,7 +55,6 @@ class gen:
         """
         
         col, row = get_terminal_size()
-        ai = Mob_AI(gen("debug", (int(row-2), int(col)), 0.05, "easy"))
         for y in range(self.size[0]):
             row = ""
             for x in range(self.size[1]):
