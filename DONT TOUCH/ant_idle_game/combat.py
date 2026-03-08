@@ -29,7 +29,7 @@ class Combat:
     def fight(self, mob1: 'Mob', mob2: 'Mob'):
         mon1 = (self.pwr_lvls[mob1.mob_type] + mob1.energy - mob1.age )/ 10
         mon2 = (self.pwr_lvls[mob2.mob_type] + mob2.energy - mob2.age )/ 10
-        if mob1.old_type == "Weak" and mob2.old_type == "Weak":#? old_type = mob's origin type, unchanging even as mob_type evolves
+        if mob1.old_type == "Weak" and mob2.old_type == "Weak" and (mob1.mob_type == "Ancient" or mob2.mob_type == "Ancient"):#? old_type = mob's origin type, unchanging even as mob_type evolves
             return
         if mon1 > mon2:
             mob1.energy += max(0,mob2.energy)**0.5
@@ -43,10 +43,11 @@ class Combat:
         log_1v1(mob1, mob2)
 
     def aoe_damage(self, center: 'Mob', mobs: list['Mob']):
-        rad = {"Weak": 0, "Strong": 1, "Adult": 1, "Elder": 2, "Ancient": 3}
+        rad = {"Weak": 0, "Strong": 1, "Adult": 1, "Elder": 2, "Ancient": 3,"Nuke": 6}
         dmg_range = {
             "Weak":   (10,  25),  "Strong": (25,  50),
-            "Adult":  (50,  100), "Elder":  (100, 200), "Ancient": (200, 400)
+            "Adult":  (50,  100), "Elder":  (100, 200), "Ancient": (200, 400),
+            "Nuke" : (100,500)
         }
         r = rad[center.mob_type]
         weak_flag = center.old_type == "Weak"
