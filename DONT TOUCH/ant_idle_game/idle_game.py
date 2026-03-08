@@ -6,7 +6,7 @@ from mob_ai import Mob, Mob_AI
 from shutil import get_terminal_size
 col, row = get_terminal_size()
 mob_list: list[Mob] = []
-world = gen("debug", (int(row-3), int(col)), 0.05, "easy")
+world = gen("debug", (int(row-3), int(col)), 0.075, "easy")
 world.generate(mob_list)
 mob_ai = Mob_AI(world)
 
@@ -27,7 +27,7 @@ def stats(group: list[Mob]) -> str:
 def display_stats(*Mob_groups: list[Mob]):
     return f"{' | '.join(stats(group) for group in Mob_groups)}"
 # // ! remove mobs if energy < 0
-#todo add corpse decay, where corpses disappear after a certain amount of time, and maybe add a way for mobs to gain energy from corpses, like scavenging or predation. This would add more depth to the ecosystem and create more dynamic interactions between mobs.
+#// todo add corpse decay, where corpses disappear after a certain amount of time, and maybe add a way for mobs to gain energy from corpses, like scavenging or predation. This would add more depth to the ecosystem and create more dynamic interactions between mobs.
 # todo fix the water rendering issue use the check area func to make dynamic water bodies that can be surrounded by land and have mobs interact 
 # todo with them, like drinking from them to regain energy or drowning if they stay in them for too long
 # todo implement the states (heat, hunger, disease, etc) and have them influence mob behavior and interactions, like reproduction, aggression, movement patterns, etc

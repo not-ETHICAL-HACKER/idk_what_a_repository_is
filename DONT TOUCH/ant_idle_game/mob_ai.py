@@ -31,13 +31,13 @@ class Mob:
         The `grow` function assigns a  based on the age of an entity, with specific symbols used for
         representation on a map.
         """
-        if self.age > 1750:
+        if self.age > 1500:
             # ! Ψ for its representation on the map, should be changed to something else if we add more mob types to avoid confusion
             self.mob_type = "Ancient"
-        elif self.age > 750:
+        elif self.age > 500:
             # ! λ for its representation on the map, should be changed to something else if we add more mob types to avoid confusion
             self.mob_type = "Elder"
-        elif self.age > 100 and self.mob_type != "Strong":
+        elif self.age > 250 and self.mob_type != "Strong":
             # ! Δ for its representation on the map, should be changed to something else if we add more mob types to avoid confusion
             self.mob_type = "Adult"
 
@@ -81,7 +81,7 @@ interactions, and reproduction based on defined rules. Mobs can move randomly, r
         # ! 1 for real movement 60 for faster paced movement (will be kinda strange to watch but good for testing)
         self.seconds = 1
         self.corpse_list = []  # list of (coords, decay_time) for corpses in the world
-        self.corpse_decay_time = 50  # time it takes for a corpse to decay and be removed from the world
+        self.corpse_decay_time = 500  # time it takes for a corpse to decay and be removed from the world
         
     def brownian_motion(self, mob_list: list[Mob]) -> None:
         """
@@ -98,6 +98,8 @@ interactions, and reproduction based on defined rules. Mobs can move randomly, r
         movement and interactions of different types of mobs (
         :type count: int
         """
+            
+        nuke = Mob("easy","Nuke", 8008135, 10e9, (self.max_x//2, self.max_y//2),0)
         mon_types = {"Weak": "ᵟ", "Adult": "Δ",
                      "Elder": "λ", "Ancient": "Ψ", "Strong": "Ω"}
         #! the oreder of apex predatoors are
@@ -124,13 +126,15 @@ interactions, and reproduction based on defined rules. Mobs can move randomly, r
                 safe_energy = max(1, mob.energy)
                 mob.energy -= stress +((random.random()**2)*2 + math.log10(mob.age+1.1) +math.log(safe_energy+1.1)**0.75)
                 # ? check if new pos is a corpse
+                if "*" in self.world.chunk[ny][nx]:
+                    sign = 1 if random.random() > 0.5 else -1
+                    mob.energy += 150 +(random.random()*50*sign) # gain energy from corpse
+                    self.world.chunk[ny][nx] = " "  # consume corpse
+                    self.corpse_list = [c for c in self.corpse_list if c[0] != (nx, ny)]  # remove corpse from list
+                    continue
                 if self.check_area(nx, ny, char="*", area=(3, 3), num=5):
                     # lose energy from nearby corpses (disease, bad smell, etc)
                     mob.energy -= 150
-                    continue
-                if "*" in self.world.chunk[ny][nx]:
-                    mob.energy += 200  # gain energy from corpse
-                    self.world.chunk[ny][nx] = " "  # consume corpse
                     continue
                 target_cell = self.world.chunk[ny][nx]
                 if " " in target_cell or "░" in target_cell:
@@ -142,7 +146,7 @@ interactions, and reproduction based on defined rules. Mobs can move randomly, r
                     mob.coords = (nx, ny)
                 elif "ᵟ" in target_cell and mob.mob_type not in ["Strong", "Adult", "Elder", "Ancient"]:
                     # Reproduction logic: 5% chance to reproduce into an adjacent cell
-                    if mob.energy > 450 and not self.check_area(nx, ny, char="ᵟ", num=3):
+                    if mob.energy > 500 and not self.check_area(nx, ny, char="ᵟ", num=3):
                         rdx = random.randint(-1, 1)
                         rdy = random.randint(-1, 1)
                         rx = max(0, min(self.max_x, nx + rdx))
@@ -153,7 +157,7 @@ interactions, and reproduction based on defined rules. Mobs can move randomly, r
                             new_mobs.append(Mob(
                                 self.world.diff, "Weak", f"mob_{len(mob_list)+len(new_mobs)}", mob.energy*random.gauss(1, 0.1), (rx, ry), 0))
                             # reduce energy on reproduction
-                            mob.energy -= 100
+                            mob.energy -= 350
                 elif "ᵟ" in target_cell and mob.mob_type in ["Strong", "Elder", "Ancient"]:
                     target = next(
                         (m for m in mob_list if m.coords == (nx, ny)), None)
@@ -176,7 +180,7 @@ interactions, and reproduction based on defined rules. Mobs can move randomly, r
                             new_mobs.append(Mob(
                                 self.world.diff, mob.old_type, f"mob_{len(mob_list)+len(new_mobs)}", mob.energy*random.gauss(1, 0.1), (rx, ry), 0))
                             # reduce energy on reproduction
-                            mob.energy -= 150
+                            mob.energy -= 500
                 elif "Δ" in target_cell and mob.mob_type in ["Strong", "Elder", "Ancient"]:
                     target = next(
                         (m for m in mob_list if m.coords == (nx, ny)), None)
@@ -199,7 +203,7 @@ interactions, and reproduction based on defined rules. Mobs can move randomly, r
                             new_mobs.append(Mob(
                                 self.world.diff, mob.old_type, f"mob_{len(mob_list)+len(new_mobs)}", mob.energy*random.gauss(1, 0.1), (rx, ry), 0))
                             # reduce energy on reproduction
-                            mob.energy -= 200
+                            mob.energy -= 750
                 elif "λ" in target_cell and mob.mob_type in ["Strong", "Adult", "Ancient"]:
                     target = next(
                         (m for m in mob_list if m.coords == (nx, ny)), None)
@@ -211,7 +215,7 @@ interactions, and reproduction based on defined rules. Mobs can move randomly, r
                             m.coords[0] - nx) <= 1 and abs(m.coords[1] - ny) <= 1 and m.mob_id != mob.mob_id])
                 elif "Ψ" in target_cell and mob.mob_type == "Ancient":
                     # Reproduction logic: 2.5% chance to reproduce into an adjacent cell
-                    if mob.energy > 1500 and not self.check_area(nx, ny, char="Ψ", num=3):
+                    if mob.energy > 1250 and not self.check_area(nx, ny, char="Ψ", num=3):
                         rdx = random.randint(-1, 1)
                         rdy = random.randint(-1, 1)
                         rx = max(0, min(self.max_x, nx + rdx))
@@ -222,7 +226,7 @@ interactions, and reproduction based on defined rules. Mobs can move randomly, r
                             new_mobs.append(Mob(
                                 self.world.diff, mob.old_type, f"mob_{len(mob_list)+len(new_mobs)}", mob.energy*random.gauss(1, 0.1), (rx, ry), 0))
                             # reduce energy on reproduction
-                            mob.energy -= 300
+                            mob.energy -= 1000
                 elif "Ψ" in target_cell and mob.mob_type != "Ancient":
                     target = next(
                         (m for m in mob_list if m.coords == (nx, ny)), None)
@@ -233,7 +237,7 @@ interactions, and reproduction based on defined rules. Mobs can move randomly, r
                         fight.aoe_damage(mob, [m for m in mob_list if abs(
                             m.coords[0] - nx) <= 1 and abs(m.coords[1] - ny) <= 1 and m.mob_id != mob.mob_id])
                 elif "Ω" in target_cell and mob.mob_type == "Strong":
-                    if mob.energy > 1000 and not self.check_area(nx, ny, char="Ω", num=3):
+                    if mob.energy > 750 and not self.check_area(nx, ny, char="Ω", num=3):
                         rdx = random.randint(-1, 1)
                         rdy = random.randint(-1, 1)
                         rx = max(0, min(self.max_x, nx + rdx))
@@ -243,7 +247,7 @@ interactions, and reproduction based on defined rules. Mobs can move randomly, r
                             self.world.chunk[ry][rx] = "Ω"
                             new_mobs.append(Mob(
                                 self.world.diff, "Strong", f"mob_{len(mob_list)+len(new_mobs)}", mob.energy*random.gauss(1, 0.1), (rx, ry), 0))
-                            mob.energy -= 200  # reduce energy on reproduction
+                            mob.energy -= 500  # reduce energy on reproduction
                 elif "Ω" in target_cell and mob.mob_type != "Strong":
                     target = next(
                         (m for m in mob_list if m.coords == (nx, ny)), None)
@@ -257,6 +261,10 @@ interactions, and reproduction based on defined rules. Mobs can move randomly, r
                     # If target cell is something else (like a wall), also restore old position
                     mob.coords = (ox, oy)
         self.corpse_decay()
+        
+        if random.random() > 0.99:
+            center = self.max_x//2, self.max_y//2
+            fight.aoe_damage(nuke, mob_list)
         # Add newborns after processing to avoid mutating while iterating
         if new_mobs:
             mob_list.extend(new_mobs)
