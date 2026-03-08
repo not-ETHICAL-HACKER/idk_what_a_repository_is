@@ -1,4 +1,3 @@
-import matplotlib.pyplot as plt
 import os
 import statistics
 from world_gen import gen
@@ -7,7 +6,7 @@ from mob_ai import Mob, Mob_AI
 from shutil import get_terminal_size
 col, row = get_terminal_size()
 mob_list: list[Mob] = []
-world = gen("debug", (int(row-3), int(col)), 0.05, "easy")
+world = gen("debug", (int(row-3), int(col)), 0.075, "easy")
 world.generate(mob_list)
 mob_ai = Mob_AI(world)
 
