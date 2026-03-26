@@ -67,7 +67,7 @@ while True:
     else:
         stat_str = display_stats(weak, strong, adult, elder, ancient)
         stat_len = len(stat_str)
-        separator = "   ~~~   "
+        separator = "  ~~~  "
         looped = stat_str + separator  # seamless loop buffer
         window = col - 10
         offset = (tick // 5) % len(looped)

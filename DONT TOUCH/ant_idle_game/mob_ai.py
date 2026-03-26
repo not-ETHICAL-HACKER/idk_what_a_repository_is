@@ -128,7 +128,7 @@ interactions, and reproduction based on defined rules. Mobs can move randomly, r
                 # ? check if new pos is a corpse
                 if "*" in self.world.chunk[ny][nx]:
                     sign = 1 if random.random() > 0.5 else -1
-                    mob.energy += 150 +(random.random()*50*sign) # gain energy from corpse
+                    mob.energy += 250 +(random.random()*50*sign) # gain energy from corpse
                     self.world.chunk[ny][nx] = " "  # consume corpse
                     self.corpse_list = [c for c in self.corpse_list if c[0] != (nx, ny)]  # remove corpse from list
                     continue
